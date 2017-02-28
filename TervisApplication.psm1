@@ -8,7 +8,26 @@
     ComputernameSuffixInAD = "inf-sftp"
 }
 
-Function Get-TervisApplicationDefinition {
+$ClusteredApplicationDefinition = [PSCustomObject][Ordered]@{
+    Name = "Kafka"
+    NodeNameRoot = "kafka"
+    NumberOfNodes = 3
+    Environments = "Production"
+    VMOperatingSystemTemplateName = "Windows Server 2016"
+}
+
+function Get-TervisClusteredApplicationDefinition {
+    param (
+        [Parameter(Mandatory)]$Name
+    )
+    
+    $ClusteredApplicationDefinition | 
+    where Name -EQ $Name
+}
+
+function Get-
+
+function Get-TervisApplicationDefinition {
     param (
         [Parameter(Mandatory)]$Name
     )
