@@ -8,24 +8,81 @@
     ComputernameSuffixInAD = "inf-sftp"
 }
 
-$ClusteredApplicationDefinition = [PSCustomObject][Ordered]@{
+$ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
     Name = "Kafka"
-    NodeNameRoot = "kafka"
-    NumberOfNodes = 3
-    Environments = "Production"
+    NodeNameRoot = "Kafka"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Production"
+        NumberOfNodes = 3
+        VMSizeName = "Medium"
+    }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+    OUName = "KafkaBroker"
+},
+[PSCustomObject][Ordered]@{
+    Name = "Prometheus"
+    NodeNameRoot = "Prometh"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Production"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
+    OUName = "Prometheus"
+},
+[PSCustomObject][Ordered]@{
+    Name = "Progistics"
+    NodeNameRoot = "Progistics"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Production"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
+    OUName = "Prometheus"
+},
+[PSCustomObject][Ordered]@{
+    Name = "Bartender Commander"
+    NodeNameRoot = "Bartender"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Production"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
+    OUName = "Bartender Commander"
 }
 
-function Get-TervisClusteredApplicationDefinition {
+function Get-TervisClusterApplicationDefinition {
     param (
         [Parameter(Mandatory)]$Name
     )
     
-    $ClusteredApplicationDefinition | 
+    $ClusterApplicationDefinition | 
     where Name -EQ $Name
 }
 
-function Get-
+function Get-TervisClusterApplicationNode {
+    param (
+        [Parameter(Mandatory)]$ClusterApplicationName,
+        [String[]]$EnvironmentName
+    )
+    $ClusterApplicationDefinition = Get-TervisClusterApplicationDefinition -Name $ClusterApplicationName
+    
+    $Environments = $ClusterApplicationDefinition.Environments |
+    where {-not $EnvironmentName -or $_.Name -In $EnvironmentName}
+
+    foreach ($Environment in $Environments) {
+        foreach ($NodeNumber in 1..$Environment.NumberOfNodes) {
+            $EnvironmentPrefix = get-TervisEnvironmentPrefix -EnvironmentName $Environment.Name
+            [PSCustomObject][Ordered]@{                
+                Name = "$EnvironmentPrefix-$($ClusterApplicationDefinition.NodeNameRoot)$($NodeNumber.tostring("00"))"
+                EnvironmentName = $Environment.Name
+            }
+        }
+    }
+    
+}
 
 function Get-TervisApplicationDefinition {
     param (
@@ -57,4 +114,34 @@ function New-TervisTechnicalServicesApplicationVM {
         -VMSizeName $ApplicationDefinitoin.VMSizeName -VMOperatingSystemTemplateName $ApplicationDefinitoin.VMOperatingSystemTemplateName -EnvironmentName $ApplicationDefinitoin.Environmentname -Cluster $Cluster -DHCPScopeID $DHCPScopeID -Verbose   
     $TervisVMObject = $vm | get-tervisVM
     $TervisVMObject
+}
+
+function Invoke-ClusterApplicationProvision {
+    [CmdletBinding(SupportsShouldProcess)]
+    param (
+        $ClusterApplicationName
+    )
+    $ClusterApplicationDefinition = Get-TervisClusterApplicationDefinition -Name $ClusterApplicationName
+    $Nodes = Get-TervisClusterApplicationNode -ClusterApplicationName $ClusterApplicationName
+    $VMs = Find-TervisVM -Name $Nodes.Name
+    $NodesThatDontHaveVM = $Nodes | where Name -notin $VMs.Name
+    $ADDomain = Get-ADDomain
+
+    foreach ($Node in $NodesThatDontHaveVM) {
+        $Clusters = Get-TervisCluster -Domain $ADDomain.DNSRoot
+        $LocalComputerADSite = Get-ComputerSite -ComputerName $Env:COMPUTERNAME
+        $ClusterToCreateVMOn = $Clusters | where ADSite -eq $LocalComputerADSite
+        
+        $TervisVMParameters = @{
+            VMNameWithoutEnvironmentPrefix = $ClusterApplicationDefinition.NodeNameRoot
+            VMSizeName = $ClusterApplicationDefinition.VMSizeName
+            VMOperatingSystemTemplateName = $ClusterApplicationDefinition.VMOperatingSystemTemplateName
+            EnvironmentName = $Node.EnvironmentName
+            Cluster = $ClusterToCreateVMOn.Name
+        }
+        $TervisVMParameters | Write-VerboseAdvanced -Verbose:($VerbosePreference -ne "SilentlyContinue")
+        if ($PSCmdlet.ShouldProcess("$($ClusterToCreateVMOn.Name)","Create VM $Node")) {
+            New-TervisVM @TervisVMParameters
+        }
+    }
 }
