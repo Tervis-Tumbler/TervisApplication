@@ -15,6 +15,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         Name = "Production"
         NumberOfNodes = 3
         VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 4084
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
     OUName = "KafkaBroker"
@@ -48,6 +49,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         Name = "Production"
         NumberOfNodes = 1
         VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 4095
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
     OUName = "Bartender Commander"
@@ -78,10 +80,10 @@ function Get-TervisClusterApplicationNode {
             [PSCustomObject][Ordered]@{                
                 Name = "$EnvironmentPrefix-$($ClusterApplicationDefinition.NodeNameRoot)$($NodeNumber.tostring("00"))"
                 EnvironmentName = $Environment.Name
+                VMSizeName = $Environment.VMSizeName
             }
         }
     }
-    
 }
 
 function Get-TervisApplicationDefinition {
@@ -116,25 +118,54 @@ function New-TervisTechnicalServicesApplicationVM {
     $TervisVMObject
 }
 
+function Get-ApplicationNodeWithoutVM {
+    param (
+        $ClusterApplicationName
+    )    
+    $Nodes = Get-TervisClusterApplicationNode -ClusterApplicationName $ClusterApplicationName
+    $VMs = Find-TervisVM -Name $Nodes.Name
+    $Nodes | where Name -notin $VMs.Name
+}
+
 function Invoke-ClusterApplicationProvision {
     [CmdletBinding(SupportsShouldProcess)]
     param (
         $ClusterApplicationName
     )
-    $ClusterApplicationDefinition = Get-TervisClusterApplicationDefinition -Name $ClusterApplicationName
-    $Nodes = Get-TervisClusterApplicationNode -ClusterApplicationName $ClusterApplicationName
-    $VMs = Find-TervisVM -Name $Nodes.Name
-    $NodesThatDontHaveVM = $Nodes | where Name -notin $VMs.Name
-    $ADDomain = Get-ADDomain
+    $NodesThatDontHaveVM = Get-ApplicationNodeWithoutVM -ClusterApplicationName $ClusterApplicationName
 
-    foreach ($Node in $NodesThatDontHaveVM) {
+    if ($NodesThatDontHaveVM) {
+        $NodesThatDontHaveVM | Invoke-ClusterApplicationNodeVMProvision -ClusterApplicationName $ClusterApplicationName
+        $VMs = Find-TervisVM -Name $Nodes.Name
+        
+        $VMCount = $VMs | measure | select -ExpandProperty Count
+        $NodeCount = $Nodes | measure | select -ExpandProperty Count
+        if ($VMCount -ne $NodeCount) {
+            Throw "VMCount after VM provisioning $VMCount not equal to Node count that should exist $NodeCount"
+        }
+    }
+
+    $Credential = Get-PasswordstateCredential -PasswordID 4084
+}
+
+function Invoke-ClusterApplicationNodeVMProvision {
+    [CmdletBinding(SupportsShouldProcess)]
+    param (
+        [Parameter(Mandatory,ValueFromPipeline)]$Node,
+        [Parameter(Mandatory)]$ClusterApplicationName
+    )
+    begin {
+        $ADDomain = Get-ADDomain
+        $ClusterApplicationDefinition = Get-TervisClusterApplicationDefinition -Name $ClusterApplicationName
+    }
+    process {
         $Clusters = Get-TervisCluster -Domain $ADDomain.DNSRoot
         $LocalComputerADSite = Get-ComputerSite -ComputerName $Env:COMPUTERNAME
         $ClusterToCreateVMOn = $Clusters | where ADSite -eq $LocalComputerADSite
         
         $TervisVMParameters = @{
             VMNameWithoutEnvironmentPrefix = $ClusterApplicationDefinition.NodeNameRoot
-            VMSizeName = $ClusterApplicationDefinition.VMSizeName
+            VMSizeName = $Node.VMSizeName
             VMOperatingSystemTemplateName = $ClusterApplicationDefinition.VMOperatingSystemTemplateName
             EnvironmentName = $Node.EnvironmentName
             Cluster = $ClusterToCreateVMOn.Name
