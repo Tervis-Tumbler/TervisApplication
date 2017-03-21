@@ -155,10 +155,11 @@ function Invoke-ClusterApplicationProvision {
     foreach ($Node in $Nodes) {
         $Credential = Get-PasswordstateCredential -PasswordID $Node.LocalAdminPasswordStateID
         
-        $IPAddress = $Node.VM.VMNetworkAdapter.ipaddresses | Get-NotIPV6Address         
+        $IPAddress = $Node.VM.VMNetworkAdapter.IPAddresses | Get-NotIPV6Address         
         Invoke-TervisRenameComputerOnOrOffDomain -ComputerName $Node.Name -IPAddress $IPAddress -Credential $Credential
         Invoke-TervisClusterApplicationNodeJoinDomain -ClusterApplicationName $ClusterApplicationName -IPAddress $IPAddress -Credential $Credential -Node $Node
-        
+        Invoke-GPUpdate -Computer $Node.Name -RandomDelayInMinutes 0
+
         Install-TervisChocolatey -ComputerName $Node.Name
         Install-TervisChocolateyPackages -ChocolateyPackageGroupNames $ClusterApplicationDefinition.Name -ComputerName $Node.Name
     }
