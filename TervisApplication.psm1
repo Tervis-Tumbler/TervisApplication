@@ -43,7 +43,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
     OUName = "Prometheus"
 },
 [PSCustomObject][Ordered]@{
-    Name = "Bartender Commander"
+    Name = "BartenderCommander"
     NodeNameRoot = "Bartender"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Production"
@@ -52,7 +52,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         LocalAdminPasswordStateID = 4095
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
-    OUName = "Bartender Commander"
+    OUName = "BartenderCommander"
 }
 
 function Get-TervisClusterApplicationDefinition {
@@ -81,8 +81,22 @@ function Get-TervisClusterApplicationNode {
                 Name = "$EnvironmentPrefix-$($ClusterApplicationDefinition.NodeNameRoot)$($NodeNumber.tostring("00"))"
                 EnvironmentName = $Environment.Name
                 VMSizeName = $Environment.VMSizeName
-            }
+                NameWithoutPrefix = "$($ClusterApplicationDefinition.NodeNameRoot)$($NodeNumber.tostring("00"))"
+                LocalAdminPasswordStateID = $Environment.LocalAdminPasswordStateID                
+            } | Add-NodeVMProperty -PassThru 
         }
+    }
+}
+
+function Add-NodeVMProperty {
+    param (
+        [Parameter(ValueFromPipeline)]$Node,
+        [Switch]$PassThru
+    )
+    process {
+        $Node | Add-Member -MemberType NoteProperty -Name VM -PassThru:$PassThru -Force -Value $(
+            Find-TervisVM -Name $Node.Name
+        )
     }
 }
 
@@ -132,27 +146,62 @@ function Invoke-ClusterApplicationProvision {
     param (
         $ClusterApplicationName
     )
-    $NodesThatDontHaveVM = Get-ApplicationNodeWithoutVM -ClusterApplicationName $ClusterApplicationName
-
-    if ($NodesThatDontHaveVM) {
-        $NodesThatDontHaveVM | Invoke-ClusterApplicationNodeVMProvision -ClusterApplicationName $ClusterApplicationName
-        $VMs = Find-TervisVM -Name $Nodes.Name
-        
-        $VMCount = $VMs | measure | select -ExpandProperty Count
-        $NodeCount = $Nodes | measure | select -ExpandProperty Count
-        if ($VMCount -ne $NodeCount) {
-            Throw "VMCount after VM provisioning $VMCount not equal to Node count that should exist $NodeCount"
-        }
+    $Nodes = Get-TervisClusterApplicationNode -ClusterApplicationName $ClusterApplicationName
+    
+    $Nodes |
+    where {-not $_.VM} |
+    Invoke-ClusterApplicationNodeVMProvision -ClusterApplicationName $ClusterApplicationName
+    
+    if ( $Nodes | where {-not $_.VM} ) {
+        throw "Not all nodes have VMs even after Invoke-ClusterApplicationNodeVMProvision"
     }
+    
+    foreach ($Node in $Nodes) {
+        $Credential = Get-PasswordstateCredential -PasswordID $Node.LocalAdminPasswordStateID
+        
+        $VMIPv4Address = $Node.VM.VMNetworkAdapter.ipaddresses | Get-NotIPV6Address         
+        $VMIPv4Address | Add-IPAddressToWSManTrustedHosts
 
-    $Credential = Get-PasswordstateCredential -PasswordID 4084
+        $CurrentHostname = Get-ComputerNameOnOrOffDomain -IPAddress $VMIPv4Address -Credential $Credential -ComputerName $Node.Name
+
+        if ($CurrentHostname -ne $Node.Name) {
+            Rename-Computer -NewName $Node.Name -Force -Restart -LocalCredential $Credential -ComputerName $VMIPv4Address
+            Wait-ForEndpointRestart -IPAddress $VMIPv4Address -PortNumbertoMonitor 5985
+            $HostnameAfterRestart = Get-ComputerNameOnOrOffDomain -IPAddress $VMIPv4Address -Credential $Credential -ComputerName $Node.Name
+            if ($HostnameAfterRestart -ne $Node.Name) {
+                Throw "Rename of VM $($Node.Name) with ip address $($VMIPv4Address) failed"
+            }
+        }
+
+        $ADDomain = Get-ADDomain
+        $ClusterApplicationDefinition = Get-TervisClusterApplicationDefinition -Name $ClusterApplicationName
+        $DomainJoinCredential = Get-PasswordstateCredential -PasswordID 2643
+
+        $CurrentDomainName = Get-DomainNameOnOrOffDomain -ComputerName $Node.Name -IPAddress $VMIPv4Address -Credential $Credential
+        if ($CurrentDomainName -ne $ADDomain.Name) {
+            $OUName = $ClusterApplicationDefinition.OUName
+            $ApplicationOU = Get-ADOrganizationalUnit -Filter {Name -eq $OUName}
+            Add-Computer -DomainName $ADDomain.forest -Force -Restart -OUPath $ApplicationOU -ComputerName $VMIPv4Address -LocalCredential $Credential -Credential $DomainJoinCredential
+            
+            Wait-ForEndpointRestart -IPAddress $VMIPv4Address -PortNumbertoMonitor 5985
+            $DomainNameAfterRestart = Get-DomainNameOnOrOffDomain -ComputerName $Node.Name -IPAddress $VMIPv4Address -Credential $Credential
+            if ($DomainNameAfterRestart -ne $ADDomain.NetBIOSName) {
+                Throw "Joining the domain for VM $($Node.Name) with ip address $($VMIPv4Address) failed"
+            }
+        }
+        
+        Install-TervisChocolatey -ComputerName $Node.Name
+        Install-TervisChocolateyPackages -ChocolateyPackageGroupNames $ClusterApplicationDefinition.Name -ComputerName $Node.Name
+
+    }
 }
 
 function Invoke-ClusterApplicationNodeVMProvision {
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory,ValueFromPipeline)]$Node,
-        [Parameter(Mandatory)]$ClusterApplicationName
+        [Parameter(Mandatory)]$ClusterApplicationName,
+        [Switch]$PassThru
     )
     begin {
         $ADDomain = Get-ADDomain
@@ -164,7 +213,7 @@ function Invoke-ClusterApplicationNodeVMProvision {
         $ClusterToCreateVMOn = $Clusters | where ADSite -eq $LocalComputerADSite
         
         $TervisVMParameters = @{
-            VMNameWithoutEnvironmentPrefix = $ClusterApplicationDefinition.NodeNameRoot
+            VMNameWithoutEnvironmentPrefix = $Node.NameWithoutPrefix
             VMSizeName = $Node.VMSizeName
             VMOperatingSystemTemplateName = $ClusterApplicationDefinition.VMOperatingSystemTemplateName
             EnvironmentName = $Node.EnvironmentName
@@ -172,7 +221,39 @@ function Invoke-ClusterApplicationNodeVMProvision {
         }
         $TervisVMParameters | Write-VerboseAdvanced -Verbose:($VerbosePreference -ne "SilentlyContinue")
         if ($PSCmdlet.ShouldProcess("$($ClusterToCreateVMOn.Name)","Create VM $Node")) {
-            New-TervisVM @TervisVMParameters
+            New-TervisVM @TervisVMParameters | Out-Null
         }
+        
+        $Node | Add-NodeVMProperty     
+    }
+}
+
+function Get-ComputerNameOnOrOffDomain {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory)]$ComputerName,
+        [Parameter(Mandatory)]$IPAddress,
+        $Credential = [System.Management.Automation.PSCredential]::Empty
+    )
+
+    try {
+        Get-ComputerName -ComputerName $IPAddress -Credential $Credential -ErrorAction Stop
+    } catch {
+        Get-ComputerName -ComputerName $ComputerName
+    }
+}
+
+function Get-DomainNameOnOrOffDomain {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory)]$ComputerName,
+        [Parameter(Mandatory)]$IPAddress,
+        $Credential = [System.Management.Automation.PSCredential]::Empty
+    )
+
+    try {
+        Get-DomainName -ComputerName $IPAddress -Credential $Credential -ErrorAction Stop
+    } catch {
+        Get-DomainName -ComputerName $ComputerName
     }
 }
