@@ -9,7 +9,7 @@
 }
 
 $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
-    Name = "Kafka"
+    Name = "KafkaBroker"
     NodeNameRoot = "Kafka"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Production"
@@ -18,7 +18,6 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         LocalAdminPasswordStateID = 4084
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
-    OUName = "KafkaBroker"
 },
 [PSCustomObject][Ordered]@{
     Name = "Prometheus"
@@ -29,7 +28,6 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         VMSizeName = "Medium"
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
-    OUName = "Prometheus"
 },
 [PSCustomObject][Ordered]@{
     Name = "Progistics"
@@ -40,7 +38,6 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         VMSizeName = "Medium"
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
-    OUName = "Prometheus"
 },
 [PSCustomObject][Ordered]@{
     Name = "BartenderCommander"
@@ -52,7 +49,6 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         LocalAdminPasswordStateID = 4095
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
-    OUName = "BartenderCommander"
 }
 
 function Get-TervisClusterApplicationDefinition {
@@ -159,41 +155,86 @@ function Invoke-ClusterApplicationProvision {
     foreach ($Node in $Nodes) {
         $Credential = Get-PasswordstateCredential -PasswordID $Node.LocalAdminPasswordStateID
         
-        $VMIPv4Address = $Node.VM.VMNetworkAdapter.ipaddresses | Get-NotIPV6Address         
-        $VMIPv4Address | Add-IPAddressToWSManTrustedHosts
-
-        $CurrentHostname = Get-ComputerNameOnOrOffDomain -IPAddress $VMIPv4Address -Credential $Credential -ComputerName $Node.Name
-
-        if ($CurrentHostname -ne $Node.Name) {
-            Rename-Computer -NewName $Node.Name -Force -Restart -LocalCredential $Credential -ComputerName $VMIPv4Address
-            Wait-ForEndpointRestart -IPAddress $VMIPv4Address -PortNumbertoMonitor 5985
-            $HostnameAfterRestart = Get-ComputerNameOnOrOffDomain -IPAddress $VMIPv4Address -Credential $Credential -ComputerName $Node.Name
-            if ($HostnameAfterRestart -ne $Node.Name) {
-                Throw "Rename of VM $($Node.Name) with ip address $($VMIPv4Address) failed"
-            }
-        }
-
-        $ADDomain = Get-ADDomain
-        $ClusterApplicationDefinition = Get-TervisClusterApplicationDefinition -Name $ClusterApplicationName
-        $DomainJoinCredential = Get-PasswordstateCredential -PasswordID 2643
-
-        $CurrentDomainName = Get-DomainNameOnOrOffDomain -ComputerName $Node.Name -IPAddress $VMIPv4Address -Credential $Credential
-        if ($CurrentDomainName -ne $ADDomain.Name) {
-            $OUName = $ClusterApplicationDefinition.OUName
-            $ApplicationOU = Get-ADOrganizationalUnit -Filter {Name -eq $OUName}
-            Add-Computer -DomainName $ADDomain.forest -Force -Restart -OUPath $ApplicationOU -ComputerName $VMIPv4Address -LocalCredential $Credential -Credential $DomainJoinCredential
-            
-            Wait-ForEndpointRestart -IPAddress $VMIPv4Address -PortNumbertoMonitor 5985
-            $DomainNameAfterRestart = Get-DomainNameOnOrOffDomain -ComputerName $Node.Name -IPAddress $VMIPv4Address -Credential $Credential
-            if ($DomainNameAfterRestart -ne $ADDomain.NetBIOSName) {
-                Throw "Joining the domain for VM $($Node.Name) with ip address $($VMIPv4Address) failed"
-            }
-        }
+        $IPAddress = $Node.VM.VMNetworkAdapter.ipaddresses | Get-NotIPV6Address         
+        Invoke-TervisRenameComputerOnOrOffDomain -ComputerName $Node.Name -IPAddress $IPAddress -Credential $Credential
+        Invoke-TervisClusterApplicationNodeJoinDomain -ClusterApplicationName $ClusterApplicationName -IPAddress $IPAddress -Credential $Credential -Node $Node
         
         Install-TervisChocolatey -ComputerName $Node.Name
         Install-TervisChocolateyPackages -ChocolateyPackageGroupNames $ClusterApplicationDefinition.Name -ComputerName $Node.Name
-
     }
+}
+
+function Get-TervisClusterApplicationOU {
+    param(
+        [ValidateScript({$_ -in $ClusterApplicationDefinition.Name})]
+        [Parameter(Mandatory)]
+        $ClusterApplicationName
+    )
+    $ApplicationOU = Get-ADOrganizationalUnit -Filter {Name -eq $ClusterApplicationName}
+    if ( -not $ApplicationOU) {
+        $CattleOU = Get-ADOrganizationalUnit -Filter {Name -eq "Cattle"}
+        New-ADOrganizationalUnit -Path $CattleOU.DistinguishedName -Name $ClusterApplicationName -ProtectedFromAccidentalDeletion:$false -PassThru
+    } else {
+        $ApplicationOU
+    }
+}
+
+function Invoke-TervisClusterApplicationNodeJoinDomain {
+    param(
+        [ValidateScript({$_ -in $ClusterApplicationDefinition.Name})]
+        [Parameter(Mandatory)]
+        $ClusterApplicationName,
+
+        [Parameter(Mandatory)]$Node,
+        [Parameter(Mandatory)]$IPAddress,
+        [Parameter(Mandatory)]$Credential
+
+    )
+    $OU = Get-TervisClusterApplicationOU -ClusterApplicationName $ClusterApplicationName
+    Invoke-TervisJoinDomain -OUPath $OU.DistinguishedName -ComputerName $Node.Name -IPAddress $IPAddress -Credential $Credential
+}
+
+function Invoke-TervisJoinDomain {
+    param(
+        $OUPath = "OU=Sandbox,DC=tervis,DC=prv",
+        $ComputerName,
+        $IPAddress,
+        $Credential        
+    )
+    $ADDomain = Get-ADDomain
+    $DomainJoinCredential = Get-PasswordstateCredential -PasswordID 2643
+
+    $CurrentDomainName = Get-DomainNameOnOrOffDomain -ComputerName $ComputerName -IPAddress $IPAddress -Credential $Credential
+    if ($CurrentDomainName -ne $ADDomain.Name) {
+        Add-Computer -DomainName $ADDomain.forest -Force -Restart -OUPath $OUPath -ComputerName $IPAddress -LocalCredential $Credential -Credential $DomainJoinCredential
+            
+        Wait-ForEndpointRestart -IPAddress $IPAddress -PortNumbertoMonitor 5985
+        $DomainNameAfterRestart = Get-DomainNameOnOrOffDomain -ComputerName $ComputerName -IPAddress $IPAddress -Credential $Credential
+        if ($DomainNameAfterRestart -ne $ADDomain.NetBIOSName) {
+            Throw "Joining the domain for $ComputerName with ip address $IPAddress failed"
+        }
+    }
+}
+
+function Invoke-TervisRenameComputerOnOrOffDomain {
+    param(
+        [Parameter(Mandatory)]$ComputerName,
+        [Parameter(Mandatory)]$IPAddress,
+        [Parameter(Mandatory)]$Credential
+    )
+        $IPAddress | Add-IPAddressToWSManTrustedHosts
+
+        $CurrentHostname = Get-ComputerNameOnOrOffDomain @PSBoundParameters
+
+        if ($CurrentHostname -ne $ComputerName) {
+            Rename-Computer -NewName $ComputerName -Force -Restart -LocalCredential $Credential -ComputerName $IPAddress
+            Wait-ForEndpointRestart -IPAddress $VMIPv4Address -PortNumbertoMonitor 5985
+            $HostnameAfterRestart = Get-ComputerNameOnOrOffDomain @PSBoundParameters
+            if ($HostnameAfterRestart -ne $ComputerName) {
+                Throw "Rename of VM $ComputerName with ip address $IPAddress failed"
+            }
+        }
+
 }
 
 function Invoke-ClusterApplicationNodeVMProvision {
