@@ -63,7 +63,8 @@ function Get-TervisClusterApplicationDefinition {
 function Get-TervisClusterApplicationNode {
     param (
         [Parameter(Mandatory)]$ClusterApplicationName,
-        [String[]]$EnvironmentName
+        [String[]]$EnvironmentName,
+        [Switch]$ExludeVM
     )
     $ClusterApplicationDefinition = Get-TervisClusterApplicationDefinition -Name $ClusterApplicationName
     
@@ -73,16 +74,24 @@ function Get-TervisClusterApplicationNode {
     foreach ($Environment in $Environments) {
         foreach ($NodeNumber in 1..$Environment.NumberOfNodes) {
             $EnvironmentPrefix = get-TervisEnvironmentPrefix -EnvironmentName $Environment.Name
-            [PSCustomObject][Ordered]@{                
-                Name = "$EnvironmentPrefix-$($ClusterApplicationDefinition.NodeNameRoot)$($NodeNumber.tostring("00"))"
+            $Node = [PSCustomObject][Ordered]@{                
+                ComputerName = "$EnvironmentPrefix-$($ClusterApplicationDefinition.NodeNameRoot)$($NodeNumber.tostring("00"))"
                 EnvironmentName = $Environment.Name
                 VMSizeName = $Environment.VMSizeName
                 NameWithoutPrefix = "$($ClusterApplicationDefinition.NodeNameRoot)$($NodeNumber.tostring("00"))"
                 LocalAdminPasswordStateID = $Environment.LocalAdminPasswordStateID                
-            } | Add-NodeVMProperty -PassThru 
+            } 
+            
+            if ($ExludeVM) {
+                $Node
+            } else {
+                $Node |
+                Add-NodeVMProperty -PassThru 
+            }
         }
     }
 }
+
 
 function Add-NodeVMProperty {
     param (
@@ -91,7 +100,7 @@ function Add-NodeVMProperty {
     )
     process {
         $Node | Add-Member -MemberType NoteProperty -Name VM -PassThru:$PassThru -Force -Value $(
-            Find-TervisVM -Name $Node.Name
+            Find-TervisVM -Name $Node.ComputerName
         )
     }
 }
@@ -128,15 +137,6 @@ function New-TervisTechnicalServicesApplicationVM {
     $TervisVMObject
 }
 
-function Get-ApplicationNodeWithoutVM {
-    param (
-        $ClusterApplicationName
-    )    
-    $Nodes = Get-TervisClusterApplicationNode -ClusterApplicationName $ClusterApplicationName
-    $VMs = Find-TervisVM -Name $Nodes.Name
-    $Nodes | where Name -notin $VMs.Name
-}
-
 function Invoke-ClusterApplicationProvision {
     [CmdletBinding(SupportsShouldProcess)]
     param (
@@ -153,15 +153,18 @@ function Invoke-ClusterApplicationProvision {
     }
     
     foreach ($Node in $Nodes) {
+        #Needs to be run on the remote systems for remoting to work
+        #Get-NetConnectionProfile | Set-NetConnectionProfile -NetworkCategory Private
+
         $Credential = Get-PasswordstateCredential -PasswordID $Node.LocalAdminPasswordStateID
         
         $IPAddress = $Node.VM.VMNetworkAdapter.IPAddresses | Get-NotIPV6Address         
-        Invoke-TervisRenameComputerOnOrOffDomain -ComputerName $Node.Name -IPAddress $IPAddress -Credential $Credential
+        Invoke-TervisRenameComputerOnOrOffDomain -ComputerName $Node.ComputerName -IPAddress $IPAddress -Credential $Credential
         Invoke-TervisClusterApplicationNodeJoinDomain -ClusterApplicationName $ClusterApplicationName -IPAddress $IPAddress -Credential $Credential -Node $Node
-        Invoke-GPUpdate -Computer $Node.Name -RandomDelayInMinutes 0
+        Invoke-GPUpdate -Computer $Node.ComputerName -RandomDelayInMinutes 0
 
-        Install-TervisChocolatey -ComputerName $Node.Name
-        Install-TervisChocolateyPackages -ChocolateyPackageGroupNames $ClusterApplicationDefinition.Name -ComputerName $Node.Name
+        Install-TervisChocolatey -ComputerName $Node.ComputerName
+        Install-TervisChocolateyPackages -ChocolateyPackageGroupNames $ClusterApplicationDefinition.Name -ComputerName $Node.ComputerName
     }
 }
 
@@ -192,7 +195,7 @@ function Invoke-TervisClusterApplicationNodeJoinDomain {
 
     )
     $OU = Get-TervisClusterApplicationOU -ClusterApplicationName $ClusterApplicationName
-    Invoke-TervisJoinDomain -OUPath $OU.DistinguishedName -ComputerName $Node.Name -IPAddress $IPAddress -Credential $Credential
+    Invoke-TervisJoinDomain -OUPath $OU.DistinguishedName -ComputerName $Node.ComputerName -IPAddress $IPAddress -Credential $Credential
 }
 
 function Invoke-TervisJoinDomain {
@@ -298,4 +301,13 @@ function Get-DomainNameOnOrOffDomain {
     } catch {
         Get-DomainName -ComputerName $ComputerName
     }
+}
+
+function New-ApplicationNodePSSession {
+    param (
+        [Parameter(Mandatory)]$ClusterApplicationName,
+        $EnvironmentName
+    )
+    Get-TervisClusterApplicationNode @PSBoundParameters -ExludeVM |
+    New-PSSession
 }
