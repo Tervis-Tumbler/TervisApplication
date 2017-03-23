@@ -64,7 +64,7 @@ function Get-TervisClusterApplicationNode {
     param (
         [Parameter(Mandatory)]$ClusterApplicationName,
         [String[]]$EnvironmentName,
-        [Switch]$ExludeVM
+        [Switch]$IncludeVM        
     )
     $ClusterApplicationDefinition = Get-TervisClusterApplicationDefinition -Name $ClusterApplicationName
     
@@ -82,16 +82,15 @@ function Get-TervisClusterApplicationNode {
                 LocalAdminPasswordStateID = $Environment.LocalAdminPasswordStateID                
             } 
             
-            if ($ExludeVM) {
-                $Node
-            } else {
+            if ($IncludeVM) {
                 $Node |
                 Add-NodeVMProperty -PassThru 
+            } else {
+                $Node
             }
         }
     }
 }
-
 
 function Add-NodeVMProperty {
     param (
@@ -142,7 +141,7 @@ function Invoke-ClusterApplicationProvision {
     param (
         $ClusterApplicationName
     )
-    $Nodes = Get-TervisClusterApplicationNode -ClusterApplicationName $ClusterApplicationName
+    $Nodes = Get-TervisClusterApplicationNode -ClusterApplicationName $ClusterApplicationName -IncludeVM
     
     $Nodes |
     where {-not $_.VM} |
@@ -163,8 +162,9 @@ function Invoke-ClusterApplicationProvision {
         Invoke-TervisClusterApplicationNodeJoinDomain -ClusterApplicationName $ClusterApplicationName -IPAddress $IPAddress -Credential $Credential -Node $Node
         Invoke-GPUpdate -Computer $Node.ComputerName -RandomDelayInMinutes 0
 
+        Install-TervisWindowsFeature -WindowsFeatureGroupNames $ClusterApplicationName -ComputerName $Node.ComputerName
         Install-TervisChocolatey -ComputerName $Node.ComputerName
-        Install-TervisChocolateyPackages -ChocolateyPackageGroupNames $ClusterApplicationDefinition.Name -ComputerName $Node.ComputerName
+        Install-TervisChocolateyPackages -ChocolateyPackageGroupNames $ClusterApplicationName -ComputerName $Node.ComputerName
     }
 }
 
@@ -226,19 +226,18 @@ function Invoke-TervisRenameComputerOnOrOffDomain {
         [Parameter(Mandatory)]$IPAddress,
         [Parameter(Mandatory)]$Credential
     )
-        $IPAddress | Add-IPAddressToWSManTrustedHosts
+    $IPAddress | Add-IPAddressToWSManTrustedHosts
 
-        $CurrentHostname = Get-ComputerNameOnOrOffDomain @PSBoundParameters
+    $CurrentHostname = Get-ComputerNameOnOrOffDomain @PSBoundParameters
 
-        if ($CurrentHostname -ne $ComputerName) {
-            Rename-Computer -NewName $ComputerName -Force -Restart -LocalCredential $Credential -ComputerName $IPAddress
-            Wait-ForEndpointRestart -IPAddress $VMIPv4Address -PortNumbertoMonitor 5985
-            $HostnameAfterRestart = Get-ComputerNameOnOrOffDomain @PSBoundParameters
-            if ($HostnameAfterRestart -ne $ComputerName) {
-                Throw "Rename of VM $ComputerName with ip address $IPAddress failed"
-            }
+    if ($CurrentHostname -ne $ComputerName) {
+        Rename-Computer -NewName $ComputerName -Force -Restart -LocalCredential $Credential -ComputerName $IPAddress
+        Wait-ForEndpointRestart -IPAddress $VMIPv4Address -PortNumbertoMonitor 5985
+        $HostnameAfterRestart = Get-ComputerNameOnOrOffDomain @PSBoundParameters
+        if ($HostnameAfterRestart -ne $ComputerName) {
+            Throw "Rename of $ComputerName with ip address $IPAddress failed"
         }
-
+    }
 }
 
 function Invoke-ClusterApplicationNodeVMProvision {
@@ -270,6 +269,28 @@ function Invoke-ClusterApplicationNodeVMProvision {
         }
         
         $Node | Add-NodeVMProperty     
+    }
+}
+
+function Get-ComputerName {
+    [CmdletBinding()]
+    param (
+        $ComputerName,
+        $Credential = [System.Management.Automation.PSCredential]::Empty
+    )
+    Invoke-Command -Credential $Credential -ComputerName $ComputerName -ScriptBlock {         
+            $env:COMPUTERNAME
+    }
+}
+
+function Get-DomainName {
+    [CmdletBinding()]
+    param (
+        $ComputerName,
+        $Credential = [System.Management.Automation.PSCredential]::Empty
+    )
+    Invoke-Command -Credential $Credential -ComputerName $ComputerName -ScriptBlock {         
+        $env:USERDOMAIN
     }
 }
 
@@ -308,6 +329,6 @@ function New-ApplicationNodePSSession {
         [Parameter(Mandatory)]$ClusterApplicationName,
         $EnvironmentName
     )
-    Get-TervisClusterApplicationNode @PSBoundParameters -ExludeVM |
+    Get-TervisClusterApplicationNode @PSBoundParameters |
     New-PSSession
 }
