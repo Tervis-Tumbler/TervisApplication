@@ -162,7 +162,12 @@ function Invoke-ClusterApplicationProvision {
         Invoke-TervisClusterApplicationNodeJoinDomain -ClusterApplicationName $ClusterApplicationName -IPAddress $IPAddress -Credential $Credential -Node $Node
         Invoke-GPUpdate -Computer $Node.ComputerName -RandomDelayInMinutes 0
 
-        Install-TervisWindowsFeature -WindowsFeatureGroupNames $ClusterApplicationName -ComputerName $Node.ComputerName
+        $Result = Install-TervisWindowsFeature -WindowsFeatureGroupNames $ClusterApplicationName -ComputerName $Node.ComputerName
+        if ($Result.RestartNeeded | ConvertTo-Boolean) {
+            Restart-Computer -ComputerName $Node.ComputerName
+            Wait-ForEndpointRestart -IPAddress $Node.ComputerName -PortNumbertoMonitor 5985
+        }
+        
         Install-TervisChocolatey -ComputerName $Node.ComputerName
         Install-TervisChocolateyPackages -ChocolateyPackageGroupNames $ClusterApplicationName -ComputerName $Node.ComputerName
     }
