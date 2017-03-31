@@ -47,6 +47,18 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         NumberOfNodes = 1
         VMSizeName = "Medium"
         LocalAdminPasswordStateID = 4095
+    },
+    [PSCustomObject][Ordered]@{
+        Name = "Epsilon"
+        NumberOfNodes = 1
+        VMSizeName = "Small"
+        LocalAdminPasswordStateID = 4101
+    },
+    [PSCustomObject][Ordered]@{
+        Name = "Delta"
+        NumberOfNodes = 1
+        VMSizeName = "Small"
+        LocalAdminPasswordStateID = 4102
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
 }
@@ -139,9 +151,11 @@ function New-TervisTechnicalServicesApplicationVM {
 function Invoke-ClusterApplicationProvision {
     [CmdletBinding(SupportsShouldProcess)]
     param (
-        $ClusterApplicationName
+        [Parameter(Mandatory)]$ClusterApplicationName,
+        $EnvironmentName,
+        [Switch]$SkipInstallTervisChocolateyPackages
     )
-    $Nodes = Get-TervisClusterApplicationNode -ClusterApplicationName $ClusterApplicationName -IncludeVM
+    $Nodes = Get-TervisClusterApplicationNode -ClusterApplicationName $ClusterApplicationName -IncludeVM -EnvironmentName $EnvironmentName
     
     $Nodes |
     where {-not $_.VM} |
@@ -152,12 +166,12 @@ function Invoke-ClusterApplicationProvision {
     }
     
     foreach ($Node in $Nodes) {
-        #Needs to be run on the remote systems for remoting to work
-        #Get-NetConnectionProfile | Set-NetConnectionProfile -NetworkCategory Private
-
+        $VMTemplateCredential = Get-PasswordstateCredential -PasswordID 4097
         $Credential = Get-PasswordstateCredential -PasswordID $Node.LocalAdminPasswordStateID
         
-        $IPAddress = $Node.VM.VMNetworkAdapter.IPAddresses | Get-NotIPV6Address         
+        $IPAddress = $Node.VM.VMNetworkAdapter.IPAddresses | Get-NotIPV6Address
+        $IPAddress | Add-IPAddressToWSManTrustedHosts
+
         Invoke-TervisRenameComputerOnOrOffDomain -ComputerName $Node.ComputerName -IPAddress $IPAddress -Credential $Credential
         Invoke-TervisClusterApplicationNodeJoinDomain -ClusterApplicationName $ClusterApplicationName -IPAddress $IPAddress -Credential $Credential -Node $Node
         Invoke-GPUpdate -Computer $Node.ComputerName -RandomDelayInMinutes 0
@@ -168,8 +182,17 @@ function Invoke-ClusterApplicationProvision {
             Wait-ForEndpointRestart -IPAddress $Node.ComputerName -PortNumbertoMonitor 5985
         }
         
+        #These lines are inteded to address Kerberos double hop issues accessing our chocolatey repo but even with them we still get access deined
+        #Add-ComputerToPrivilege_PrincipalsAllowedToDelegateToAccount -ComputerName $Node.ComputerName
+        #Restart-Computer -ComputerName $Node.ComputerName
+        #Wait-ForEndpointRestart -IPAddress $Node.ComputerName -PortNumbertoMonitor 5985
+
         Install-TervisChocolatey -ComputerName $Node.ComputerName
-        Install-TervisChocolateyPackages -ChocolateyPackageGroupNames $ClusterApplicationName -ComputerName $Node.ComputerName
+        if (-Not $SkipInstallTervisChocolateyPackages) {
+            Install-TervisChocolateyPackages -ChocolateyPackageGroupNames $ClusterApplicationName -ComputerName $Node.ComputerName
+        }
+
+        Get-NetFirewallRule -name WINRM-HTTP-In-TCP-Public | Set-NetFirewallRule -RemoteAddress LocalSubnet
     }
 }
 
@@ -231,8 +254,6 @@ function Invoke-TervisRenameComputerOnOrOffDomain {
         [Parameter(Mandatory)]$IPAddress,
         [Parameter(Mandatory)]$Credential
     )
-    $IPAddress | Add-IPAddressToWSManTrustedHosts
-
     $CurrentHostname = Get-ComputerNameOnOrOffDomain @PSBoundParameters
 
     if ($CurrentHostname -ne $ComputerName) {
