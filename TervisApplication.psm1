@@ -166,11 +166,12 @@ function Invoke-ClusterApplicationProvision {
     }
     
     foreach ($Node in $Nodes) {
-        $VMTemplateCredential = Get-PasswordstateCredential -PasswordID 4097
-        $Credential = Get-PasswordstateCredential -PasswordID $Node.LocalAdminPasswordStateID
-        
         $IPAddress = $Node.VM.VMNetworkAdapter.IPAddresses | Get-NotIPV6Address
         $IPAddress | Add-IPAddressToWSManTrustedHosts
+
+        $VMTemplateCredential = Get-PasswordstateCredential -PasswordID 4097
+        $Credential = Get-PasswordstateCredential -PasswordID $Node.LocalAdminPasswordStateID
+        Set-LocalAdministratorPassword -ComputerName $IPAddress -Credential $VMTemplateCredential -NewCredential $Credential
 
         Invoke-TervisRenameComputerOnOrOffDomain -ComputerName $Node.ComputerName -IPAddress $IPAddress -Credential $Credential
         Invoke-TervisClusterApplicationNodeJoinDomain -ClusterApplicationName $ClusterApplicationName -IPAddress $IPAddress -Credential $Credential -Node $Node
@@ -193,6 +194,17 @@ function Invoke-ClusterApplicationProvision {
         }
 
         Get-NetFirewallRule -name WINRM-HTTP-In-TCP-Public | Set-NetFirewallRule -RemoteAddress LocalSubnet
+    }
+}
+
+function Set-LocalAdministratorPassword {
+    param (
+        [Parameter(Mandatory)]$ComputerName,
+        [Parameter(Mandatory)]$Credential,
+        [Parameter(Mandatory)]$NewCredential
+    )
+    Invoke-Command -ComputerName $ComputerName -Credential $Credential {
+        Set-LocalUser -Name administrator -Password $Using:NewCredential.password
     }
 }
 
