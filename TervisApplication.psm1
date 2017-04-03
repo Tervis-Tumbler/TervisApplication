@@ -173,7 +173,9 @@ function Invoke-ClusterApplicationProvision {
         $Credential = Get-PasswordstateCredential -PasswordID $Node.LocalAdminPasswordStateID
         Set-TervisLocalAdministratorPassword -ComputerName $IPAddress -Credential $VMTemplateCredential -NewCredential $Credential
 
+        Set-CurrentNetworkAsPrivateNetwork -ComputerName $IPAddress -Credential $Credential
         Invoke-TervisRenameComputerOnOrOffDomain -ComputerName $Node.ComputerName -IPAddress $IPAddress -Credential $Credential
+        Set-CurrentNetworkAsPrivateNetwork -ComputerName $IPAddress -Credential $Credential
         Invoke-TervisClusterApplicationNodeJoinDomain -ClusterApplicationName $ClusterApplicationName -IPAddress $IPAddress -Credential $Credential -Node $Node
         Invoke-GPUpdate -Computer $Node.ComputerName -RandomDelayInMinutes 0
 
@@ -194,6 +196,16 @@ function Invoke-ClusterApplicationProvision {
         }
 
         Get-NetFirewallRule -name WINRM-HTTP-In-TCP-Public | Set-NetFirewallRule -RemoteAddress LocalSubnet
+    }
+}
+
+function Set-CurrentNetworkAsPrivateNetwork {
+    param (
+        [Parameter(Mandatory)]$ComputerName,
+        [Parameter(Mandatory)]$Credential
+    )
+    Invoke-command -ComputerName $ComputerName -Credential $Credential {
+        Get-NetConnectionProfile | Set-NetConnectionProfile -NetworkCategory Private
     }
 }
 
