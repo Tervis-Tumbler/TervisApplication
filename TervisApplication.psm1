@@ -173,9 +173,8 @@ function Invoke-ClusterApplicationProvision {
         $Credential = Get-PasswordstateCredential -PasswordID $Node.LocalAdminPasswordStateID
         Set-TervisLocalAdministratorPassword -ComputerName $IPAddress -Credential $VMTemplateCredential -NewCredential $Credential
 
-        Set-CurrentNetworkAsPrivateNetwork -ComputerName $IPAddress -Credential $Credential
-        Invoke-TervisRenameComputerOnOrOffDomain -ComputerName $Node.ComputerName -IPAddress $IPAddress -Credential $Credential
-        Set-CurrentNetworkAsPrivateNetwork -ComputerName $IPAddress -Credential $Credential
+        Enable-RemoteWMIFirewallRules -ComputerName $IPAddress -Credential $Credential
+        Invoke-TervisRenameComputerOnOrOffDomain -ComputerName $Node.ComputerName -IPAddress $IPAddress -Credential $Credential       
         Invoke-TervisClusterApplicationNodeJoinDomain -ClusterApplicationName $ClusterApplicationName -IPAddress $IPAddress -Credential $Credential -Node $Node
         Invoke-GPUpdate -Computer $Node.ComputerName -RandomDelayInMinutes 0
 
@@ -195,7 +194,29 @@ function Invoke-ClusterApplicationProvision {
             Install-TervisChocolateyPackages -ChocolateyPackageGroupNames $ClusterApplicationName -ComputerName $Node.ComputerName
         }
 
+        Set-WINRMHTTPInTCPPublicRemoteAddressToLocalSubnet -ComputerName $Node.ComputerName
+    }
+}
+
+function Set-WINRMHTTPInTCPPublicRemoteAddressToLocalSubnet {
+    param (
+        [Parameter(Mandatory)]$ComputerName,
+        $Credential = [System.Management.Automation.PSCredential]::Empty
+    )
+    Invoke-Command -ComputerName $ComputerName -Credential $Credential {
         Get-NetFirewallRule -name WINRM-HTTP-In-TCP-Public | Set-NetFirewallRule -RemoteAddress LocalSubnet
+    }
+}
+function Enable-RemoteWMIFirewallRules {
+    param (
+        [Parameter(Mandatory)]$ComputerName,
+        [Parameter(Mandatory)]$Credential
+    )
+    Invoke-Command -ComputerName $ComputerName -Credential $Credential {
+        "WMI-RPCSS-In-TCP","WMI-WINMGMT-In-TCP" | foreach {
+            Get-NetFirewallRule -Name $_ | 
+            Set-NetFirewallRule -Enabled True
+        }
     }
 }
 
