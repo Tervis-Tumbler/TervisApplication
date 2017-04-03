@@ -171,7 +171,7 @@ function Invoke-ClusterApplicationProvision {
 
         $VMTemplateCredential = Get-PasswordstateCredential -PasswordID 4097
         $Credential = Get-PasswordstateCredential -PasswordID $Node.LocalAdminPasswordStateID
-        Set-LocalAdministratorPassword -ComputerName $IPAddress -Credential $VMTemplateCredential -NewCredential $Credential
+        Set-TervisLocalAdministratorPassword -ComputerName $IPAddress -Credential $VMTemplateCredential -NewCredential $Credential
 
         Invoke-TervisRenameComputerOnOrOffDomain -ComputerName $Node.ComputerName -IPAddress $IPAddress -Credential $Credential
         Invoke-TervisClusterApplicationNodeJoinDomain -ClusterApplicationName $ClusterApplicationName -IPAddress $IPAddress -Credential $Credential -Node $Node
@@ -197,15 +197,23 @@ function Invoke-ClusterApplicationProvision {
     }
 }
 
-function Set-LocalAdministratorPassword {
+function Set-TervisLocalAdministratorPassword {
     param (
         [Parameter(Mandatory)]$ComputerName,
         [Parameter(Mandatory)]$Credential,
         [Parameter(Mandatory)]$NewCredential
     )
-    Invoke-Command -ComputerName $ComputerName -Credential $Credential {
-        Set-LocalUser -Name administrator -Password $Using:NewCredential.password
+    $Session = New-PSSession -ComputerName $ComputerName -Credential $NewCredential -ErrorAction SilentlyContinue
+    if (-not $Session) {
+        Invoke-Command -ComputerName $ComputerName -Credential $Credential {
+            Set-LocalUser -Name administrator -Password $Using:NewCredential.password
+        }
+        $Session = New-PSSession -ComputerName $ComputerName -Credential $NewCredential -ErrorAction SilentlyContinue
+        if (-not $Session) {
+            throw "Cannot create session using new local administrator password"
+        }
     }
+    $Session | Remove-PSSession
 }
 
 function Get-TervisClusterApplicationOU {
