@@ -173,7 +173,7 @@ function Invoke-ClusterApplicationProvision {
         $Credential = Get-PasswordstateCredential -PasswordID $Node.LocalAdminPasswordStateID
         Set-TervisLocalAdministratorPassword -ComputerName $IPAddress -Credential $VMTemplateCredential -NewCredential $Credential
 
-        Enable-RemoteWMIFirewallRules -ComputerName $IPAddress -Credential $Credential
+        Enable-TervisNetFirewallRuleGroup -Name $ClusterApplicationName -ComputerName $IPAddress -Credential $Credential
         Invoke-TervisRenameComputerOnOrOffDomain -ComputerName $Node.ComputerName -IPAddress $IPAddress -Credential $Credential       
         Invoke-TervisClusterApplicationNodeJoinDomain -ClusterApplicationName $ClusterApplicationName -IPAddress $IPAddress -Credential $Credential -Node $Node
         Invoke-GPUpdate -Computer $Node.ComputerName -RandomDelayInMinutes 0
@@ -205,18 +205,6 @@ function Set-WINRMHTTPInTCPPublicRemoteAddressToLocalSubnet {
     )
     Invoke-Command -ComputerName $ComputerName -Credential $Credential {
         Get-NetFirewallRule -name WINRM-HTTP-In-TCP-Public | Set-NetFirewallRule -RemoteAddress LocalSubnet
-    }
-}
-function Enable-RemoteWMIFirewallRules {
-    param (
-        [Parameter(Mandatory)]$ComputerName,
-        [Parameter(Mandatory)]$Credential
-    )
-    Invoke-Command -ComputerName $ComputerName -Credential $Credential {
-        "WMI-RPCSS-In-TCP","WMI-WINMGMT-In-TCP" | foreach {
-            Get-NetFirewallRule -Name $_ | 
-            Set-NetFirewallRule -Enabled True
-        }
     }
 }
 
@@ -290,7 +278,7 @@ function Invoke-TervisJoinDomain {
     $DomainJoinCredential = Get-PasswordstateCredential -PasswordID 2643
 
     $CurrentDomainName = Get-DomainNameOnOrOffDomain -ComputerName $ComputerName -IPAddress $IPAddress -Credential $Credential
-    if ($CurrentDomainName -ne $ADDomain.Name) {
+    if ($CurrentDomainName -ne $ADDomain.DNSRoot) {
         Add-Computer -DomainName $ADDomain.forest -Force -Restart -OUPath $OUPath -ComputerName $IPAddress -LocalCredential $Credential -Credential $DomainJoinCredential
             
         Wait-ForEndpointRestart -IPAddress $IPAddress -PortNumbertoMonitor 5985
@@ -344,7 +332,7 @@ function Invoke-ClusterApplicationNodeVMProvision {
         }
         $TervisVMParameters | Write-VerboseAdvanced -Verbose:($VerbosePreference -ne "SilentlyContinue")
         if ($PSCmdlet.ShouldProcess("$($ClusterToCreateVMOn.Name)","Create VM $Node")) {
-            New-TervisVM @TervisVMParameters | Out-Null
+            New-TervisVM @TervisVMParameters | Start-VM | Out-Null
         }
         
         $Node | Add-NodeVMProperty     
@@ -369,7 +357,7 @@ function Get-DomainName {
         $Credential = [System.Management.Automation.PSCredential]::Empty
     )
     Invoke-Command -Credential $Credential -ComputerName $ComputerName -ScriptBlock {         
-        $env:USERDOMAIN
+        Get-ComputerInfo | select -ExpandProperty CSDomain
     }
 }
 
