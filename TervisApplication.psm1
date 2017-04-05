@@ -198,9 +198,9 @@ function Invoke-ClusterApplicationProvision {
         }
         
         #These lines are inteded to address Kerberos double hop issues accessing our chocolatey repo but even with them we still get access deined
-        #Add-ComputerToPrivilege_PrincipalsAllowedToDelegateToAccount -ComputerName $Node.ComputerName
-        #Restart-Computer -ComputerName $Node.ComputerName
-        #Wait-ForEndpointRestart -IPAddress $Node.ComputerName -PortNumbertoMonitor 5985
+        Add-ComputerToPrivilege_PrincipalsAllowedToDelegateToAccount -ComputerName $Node.ComputerName
+        Restart-Computer -ComputerName $Node.ComputerName
+        Wait-ForEndpointRestart -IPAddress $Node.ComputerName -PortNumbertoMonitor 5985
 
         Install-TervisChocolatey -ComputerName $Node.ComputerName
         if (-Not $SkipInstallTervisChocolateyPackages) {
