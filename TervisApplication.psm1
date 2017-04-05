@@ -105,7 +105,7 @@ function Get-TervisClusterApplicationNode {
                 VMSizeName = $Environment.VMSizeName
                 NameWithoutPrefix = "$($ClusterApplicationDefinition.NodeNameRoot)$($NodeNumber.tostring("00"))"
                 LocalAdminPasswordStateID = $Environment.LocalAdminPasswordStateID
-            } | Add-Member -MemberType ScriptProperty -Name IPAddress -Value {Find-DHCPServerv4LeaseIPAddress -HostName $This.ComputerName} -PassThru
+            } | Add-Member -MemberType ScriptProperty -Name IPAddress -Value {Find-DHCPServerv4LeaseIPAddress -HostName $This.ComputerName -AsString} -PassThru
             
             if ($IncludeVM) {
                 $Node |
