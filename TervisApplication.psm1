@@ -283,7 +283,7 @@ function Invoke-TervisJoinDomain {
             
         Wait-ForEndpointRestart -IPAddress $IPAddress -PortNumbertoMonitor 5985
         $DomainNameAfterRestart = Get-DomainNameOnOrOffDomain -ComputerName $ComputerName -IPAddress $IPAddress -Credential $Credential
-        if ($DomainNameAfterRestart -ne $ADDomain.NetBIOSName) {
+        if ($DomainNameAfterRestart -ne $ADDomain.DNSRoot) {
             Throw "Joining the domain for $ComputerName with ip address $IPAddress failed"
         }
     }
