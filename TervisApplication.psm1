@@ -104,8 +104,8 @@ function Get-TervisClusterApplicationNode {
                 EnvironmentName = $Environment.Name
                 VMSizeName = $Environment.VMSizeName
                 NameWithoutPrefix = "$($ClusterApplicationDefinition.NodeNameRoot)$($NodeNumber.tostring("00"))"
-                LocalAdminPasswordStateID = $Environment.LocalAdminPasswordStateID                
-            } 
+                LocalAdminPasswordStateID = $Environment.LocalAdminPasswordStateID
+            } | Add-Member -MemberType ScriptProperty -Name IPAddress -Value {Find-DHCPServerv4LeaseIPAddress -HostName $This.ComputerName} -PassThru
             
             if ($IncludeVM) {
                 $Node |
@@ -179,7 +179,7 @@ function Invoke-ClusterApplicationProvision {
     }
     
     foreach ($Node in $Nodes) {
-        $IPAddress = $Node.VM.VMNetworkAdapter.IPAddresses | Get-NotIPV6Address
+        $IPAddress = $Node.IPAddress
         $IPAddress | Add-IPAddressToWSManTrustedHosts
 
         $VMTemplateCredential = Get-PasswordstateCredential -PasswordID 4097
