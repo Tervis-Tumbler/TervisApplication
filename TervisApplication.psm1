@@ -31,7 +31,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
 },
 [PSCustomObject][Ordered]@{
     Name = "Progistics"
-    NodeNameRoot = "Progistics"
+    NodeNameRoot = "Progis"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Production"
         NumberOfNodes = 1
