@@ -192,6 +192,7 @@ function Invoke-ClusterApplicationProvision {
         Invoke-TervisClusterApplicationNodeJoinDomain -ClusterApplicationName $ClusterApplicationName -IPAddress $IPAddress -Credential $Credential -Node $Node
         Invoke-GPUpdate -Computer $Node.ComputerName -RandomDelayInMinutes 0
         
+        $Node | Set-ApplicationNodeTimeZone
         $Node | Enable-ApplicationNodeKerberosDoubleHop
         $Node | Enable-ApplicationNodeRemoteDesktop
         $Node | Install-ApplicationNodeWindowsFeature -ClusterApplicationName $ClusterApplicationName
@@ -202,6 +203,17 @@ function Invoke-ClusterApplicationProvision {
         }
 
         Set-WINRMHTTPInTCPPublicRemoteAddressToLocalSubnet -ComputerName $Node.ComputerName
+    }
+}
+
+function Set-ApplicationNodeTimeZone {
+    param (
+        [Parameter(ValueFromPipelineByPropertyName)]$ComputerName
+    )
+    process {
+        Invoke-Command -ComputerName $ComputerName -ScriptBlock {
+            Set-TimeZone -Id "Eastern Standard Time"
+        }
     }
 }
 
