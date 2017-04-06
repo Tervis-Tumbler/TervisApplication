@@ -312,7 +312,7 @@ function Invoke-TervisRenameComputerOnOrOffDomain {
 
     if ($CurrentHostname -ne $ComputerName) {
         Rename-Computer -NewName $ComputerName -Force -Restart -LocalCredential $Credential -ComputerName $IPAddress
-        Wait-ForEndpointRestart -IPAddress $VMIPv4Address -PortNumbertoMonitor 5985
+        Wait-ForEndpointRestart -IPAddress $IPAddress -PortNumbertoMonitor 5985
         $HostnameAfterRestart = Get-ComputerNameOnOrOffDomain @PSBoundParameters
         if ($HostnameAfterRestart -ne $ComputerName) {
             Throw "Rename of $ComputerName with ip address $IPAddress failed"
