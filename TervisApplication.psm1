@@ -179,7 +179,8 @@ function Invoke-ClusterApplicationProvision {
     }
     
     foreach ($Node in $Nodes) {
-        $IPAddress = $Node.IPAddress
+        #$IPAddress = $Node.IPAddress
+        $IPAddress = $Node.VM.VMNetworkAdapter.IPAddresses | Get-NotIPV6Address
         $IPAddress | Add-IPAddressToWSManTrustedHosts
 
         $VMTemplateCredential = Get-PasswordstateCredential -PasswordID 4097
@@ -190,17 +191,10 @@ function Invoke-ClusterApplicationProvision {
         Invoke-TervisRenameComputerOnOrOffDomain -ComputerName $Node.ComputerName -IPAddress $IPAddress -Credential $Credential       
         Invoke-TervisClusterApplicationNodeJoinDomain -ClusterApplicationName $ClusterApplicationName -IPAddress $IPAddress -Credential $Credential -Node $Node
         Invoke-GPUpdate -Computer $Node.ComputerName -RandomDelayInMinutes 0
-
-        $Result = Install-TervisWindowsFeature -WindowsFeatureGroupNames $ClusterApplicationName -ComputerName $Node.ComputerName
-        if ($Result.RestartNeeded | ConvertTo-Boolean) {
-            Restart-Computer -ComputerName $Node.ComputerName
-            Wait-ForEndpointRestart -IPAddress $Node.ComputerName -PortNumbertoMonitor 5985
-        }
         
-        #These lines are inteded to address Kerberos double hop issues accessing our chocolatey repo but even with them we still get access deined
-        Add-ComputerToPrivilege_PrincipalsAllowedToDelegateToAccount -ComputerName $Node.ComputerName
-        Restart-Computer -ComputerName $Node.ComputerName
-        Wait-ForEndpointRestart -IPAddress $Node.ComputerName -PortNumbertoMonitor 5985
+        $Node | Enable-ApplicationNodeKerberosDoubleHop
+        $Node | Enable-ApplicationNodeRemoteDesktop
+        $Node | Install-ApplicationNodeWindowsFeature -ClusterApplicationName $ClusterApplicationName
 
         Install-TervisChocolatey -ComputerName $Node.ComputerName
         if (-Not $SkipInstallTervisChocolateyPackages) {
@@ -208,6 +202,46 @@ function Invoke-ClusterApplicationProvision {
         }
 
         Set-WINRMHTTPInTCPPublicRemoteAddressToLocalSubnet -ComputerName $Node.ComputerName
+    }
+}
+
+function Install-ApplicationNodeWindowsFeature {
+    param (
+        [Parameter(ValueFromPipelineByPropertyName)]$ComputerName,
+        $ClusterApplicationName
+    )
+    process {
+        $Result = Install-TervisWindowsFeature -WindowsFeatureGroupNames $ClusterApplicationName -ComputerName $ComputerName
+        if ($Result.RestartNeeded | ConvertTo-Boolean) {
+            Restart-Computer -ComputerName $ComputerName
+            Wait-ForEndpointRestart -IPAddress $ComputerName -PortNumbertoMonitor 5985
+        }
+    }
+}
+
+function Enable-ApplicationNodeRemoteDesktop {
+    param (
+        [Parameter(ValueFromPipelineByPropertyName)]$ComputerName
+    )
+    process {
+        Invoke-Command -ComputerName $ComputerName -ScriptBlock {
+            New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" -Value 0 -PropertyType dword -Force | Out-Null
+            New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name "UserAuthentication" -Value 1 -PropertyType dword -Force | Out-Null
+        }
+    }
+}
+
+function Enable-ApplicationNodeKerberosDoubleHop {
+    param (
+        [Parameter(ValueFromPipelineByPropertyName)]$ComputerName
+    )
+    process {
+        $Members = Get-ADGroupMember -Identity Privilege_PrincipalsAllowedToDelegateToAccount
+        if (-not ($Members | where Name -EQ $ComputerName)) {
+            Add-ComputerToPrivilege_PrincipalsAllowedToDelegateToAccount -ComputerName $ComputerName
+            Restart-Computer -ComputerName $ComputerName
+            Wait-ForEndpointRestart -IPAddress $ComputerName -PortNumbertoMonitor 5985
+        }
     }
 }
 
