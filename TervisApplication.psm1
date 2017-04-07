@@ -459,13 +459,18 @@ function New-ApplicationNodePSSession {
     New-PSSession
 }
 
-function Get-TervisFunctionParameters {
+function New-SplatVariable {
     param (
-        $Invocation
+        [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$Invocation,
+        $Variables,
+        $ExcludeProperty
     )
     $CommandName = $Invocation.InvocationName
     $ParameterList = (Get-Command -Name $CommandName).Parameters
-    foreach ($Parameter in $ParameterList) {
-        Get-Variable -Name $Parameter.Values.Name -ErrorAction SilentlyContinue -Scope 1
-    }
+    $VariablesToSplat = $Variables | 
+        where Name -In $ParameterList.Values.Name | 
+        where {-Not $ExcludeProperty -or $_.Name -notin $ExcludeProperty}
+    $SplatVariable = @{}
+    $VariablesToSplat | foreach {$SplatVariable[$_.Name] = $_.Value}
+    $SplatVariable
 }
