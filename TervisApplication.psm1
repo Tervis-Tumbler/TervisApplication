@@ -458,3 +458,14 @@ function New-ApplicationNodePSSession {
     Get-TervisClusterApplicationNode @PSBoundParameters |
     New-PSSession
 }
+
+function Get-TervisFunctionParameters {
+    param (
+        $Invocation
+    )
+    $CommandName = $Invocation.InvocationName
+    $ParameterList = (Get-Command -Name $CommandName).Parameters
+    foreach ($Parameter in $ParameterList) {
+        Get-Variable -Name $Parameter.Values.Name -ErrorAction SilentlyContinue -Scope 1
+    }
+}
