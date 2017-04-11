@@ -235,8 +235,6 @@ function Install-TervisChocolateyOnNode {
     )
     process {
         Install-TervisChocolatey -ComputerName $ComputerName
-        Restart-Computer -ComputerName $ComputerName
-        Wait-ForNodeRestart -ComputerName $ComputerName
     }
 
 }
