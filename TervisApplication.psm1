@@ -249,7 +249,7 @@ function Install-ApplicationNodeWindowsFeature {
         $Result = Install-TervisWindowsFeature -WindowsFeatureGroupNames $ClusterApplicationName -ComputerName $ComputerName
         if ($Result.RestartNeeded | ConvertTo-Boolean) {
             Restart-Computer -ComputerName $ComputerName
-            Wait-ForNodeRestart -IPAddress $ComputerName -PortNumbertoMonitor 5985
+            Wait-ForNodeRestart -ComputerName $ComputerName -PortNumbertoMonitor 5985
         }
     }
 }
@@ -275,7 +275,7 @@ function Enable-ApplicationNodeKerberosDoubleHop {
         if (-not ($Members | where Name -EQ $ComputerName)) {
             Add-ComputerToPrivilege_PrincipalsAllowedToDelegateToAccount -ComputerName $ComputerName
             Restart-Computer -ComputerName $ComputerName
-            Wait-ForNodeRestart -IPAddress $ComputerName -PortNumbertoMonitor 5985
+            Wait-ForNodeRestart -ComputerName $ComputerName -PortNumbertoMonitor 5985
         }
     }
 }
@@ -363,7 +363,7 @@ function Invoke-TervisJoinDomain {
     if ($CurrentDomainName -ne $ADDomain.DNSRoot) {
         Add-Computer -DomainName $ADDomain.forest -Force -Restart -OUPath $OUPath -ComputerName $IPAddress -LocalCredential $Credential -Credential $DomainJoinCredential
             
-        Wait-ForNodeRestart -IPAddress $IPAddress -PortNumbertoMonitor 5985 -Credential $Credential
+        Wait-ForNodeRestart -ComputerName $IPAddress -PortNumbertoMonitor 5985 -Credential $Credential
         $DomainNameAfterRestart = Get-DomainNameOnOrOffDomain -ComputerName $ComputerName -IPAddress $IPAddress -Credential $Credential
         if ($DomainNameAfterRestart -ne $ADDomain.DNSRoot) {
             Throw "Joining the domain for $ComputerName with ip address $IPAddress failed"
@@ -381,7 +381,7 @@ function Invoke-TervisRenameComputerOnOrOffDomain {
 
     if ($CurrentHostname -ne $ComputerName) {
         Rename-Computer -NewName $ComputerName -Force -Restart -LocalCredential $Credential -ComputerName $IPAddress
-        Wait-ForNodeRestart -IPAddress $IPAddress -PortNumbertoMonitor 5985 -Credential $Credential
+        Wait-ForNodeRestart -ComputerName $IPAddress -PortNumbertoMonitor 5985 -Credential $Credential
         $HostnameAfterRestart = Get-ComputerNameOnOrOffDomain @PSBoundParameters
         if ($HostnameAfterRestart -ne $ComputerName) {
             Throw "Rename of $ComputerName with ip address $IPAddress failed"
