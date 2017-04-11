@@ -219,10 +219,7 @@ function Invoke-ClusterApplicationProvision {
         $Node | Enable-ApplicationNodeKerberosDoubleHop
         $Node | Enable-ApplicationNodeRemoteDesktop
         $Node | Install-ApplicationNodeWindowsFeature -ClusterApplicationName $ClusterApplicationName
-
-        Install-TervisChocolatey -ComputerName $Node.ComputerName
-        Restart-CommanderService $Node.ComputerName
-        Wait-ForNodeRestart -ComputerName $Node.ComputerName
+        $Node | Install-TervisChocolateyOnNode
 
         if (-Not $SkipInstallTervisChocolateyPackages) {
             Install-TervisChocolateyPackages -ChocolateyPackageGroupNames $ClusterApplicationName -ComputerName $Node.ComputerName
@@ -230,6 +227,18 @@ function Invoke-ClusterApplicationProvision {
 
         Set-WINRMHTTPInTCPPublicRemoteAddressToLocalSubnet -ComputerName $Node.ComputerName
     }
+}
+
+function Install-TervisChocolateyOnNode {
+    param (
+        [Parameter(ValueFromPipelineByPropertyName)]$ComputerName
+    )
+    process {
+        Install-TervisChocolatey -ComputerName $ComputerName
+        Restart-Computer -ComputerName $ComputerName
+        Wait-ForNodeRestart -ComputerName $ComputerName
+    }
+
 }
 
 function Set-ApplicationNodeTimeZone {
