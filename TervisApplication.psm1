@@ -288,7 +288,7 @@ function Install-ApplicationNodeWindowsFeature {
     process {
         $Result = Install-TervisWindowsFeature -WindowsFeatureGroupNames $ClusterApplicationName -ComputerName $ComputerName
         if ($Result.RestartNeeded | ConvertTo-Boolean) {
-            Restart-Computer -ComputerName $ComputerName
+            Restart-Computer -ComputerName $ComputerName -Force
             Wait-ForNodeRestart -ComputerName $ComputerName
         }
     }
@@ -314,7 +314,7 @@ function Enable-ApplicationNodeKerberosDoubleHop {
         $Members = Get-ADGroupMember -Identity Privilege_PrincipalsAllowedToDelegateToAccount
         if (-not ($Members | where Name -EQ $ComputerName)) {
             Add-ComputerToPrivilege_PrincipalsAllowedToDelegateToAccount -ComputerName $ComputerName
-            Restart-Computer -ComputerName $ComputerName
+            Restart-Computer -ComputerName $ComputerName -Force
             Wait-ForNodeRestart -ComputerName $ComputerName
         }
     }
