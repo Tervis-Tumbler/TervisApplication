@@ -153,6 +153,7 @@ function Get-TervisClusterApplicationNode {
             $Node = [PSCustomObject][Ordered]@{                
                 ComputerName = "$EnvironmentPrefix-$($ClusterApplicationDefinition.NodeNameRoot)$($NodeNumber.tostring("00"))"
                 EnvironmentName = $Environment.Name
+                ClusterApplicationDefinitionName = $ClusterApplicationDefinition.Name
                 VMSizeName = $Environment.VMSizeName
                 NameWithoutPrefix = "$($ClusterApplicationDefinition.NodeNameRoot)$($NodeNumber.tostring("00"))"
                 LocalAdminPasswordStateID = $Environment.LocalAdminPasswordStateID
@@ -248,6 +249,7 @@ function Invoke-ClusterApplicationProvision {
         $Node | Enable-ApplicationNodeRemoteDesktop
         $Node | Install-ApplicationNodeWindowsFeature -ClusterApplicationName $ClusterApplicationName
         $Node | Install-TervisChocolateyOnNode
+        $Node | New-ApplicationNodeDnsCnameRecord
 
         if (-Not $SkipInstallTervisChocolateyPackages) {
             Install-TervisChocolateyPackages -ChocolateyPackageGroupNames $ClusterApplicationName -ComputerName $Node.ComputerName
@@ -560,4 +562,25 @@ function New-SplatVariable {
     $SplatVariable = @{}
     $VariablesToSplat | foreach {$SplatVariable[$_.Name] = $_.Value}
     $SplatVariable
+}
+
+function New-ApplicationNodeDnsCnameRecord {
+    param (
+        [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$ComputerName,
+        [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$EnvironmentName,
+        [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$ClusterApplicationDefinitionName
+    )
+    begin {
+        $DomainController = Get-ADDomainController
+        $Name = "$($ClusterApplicationDefinitionName).$EnvironmentName"
+        $DNSServerName = $DomainController.HostName
+        $ZoneName = $DomainController.Domain
+        if (Get-DnsServerResourceRecord -Name $Name -ComputerName $DNSServerName -ZoneName $ZoneName) {
+            Write-Warning "$Name already exists under $ZoneName."
+            return
+        }
+    }
+    process {
+        Add-DnsServerResourceRecordCName -HostNameAlias $ComputerName -Name $Name -ComputerName $DNSServerName -ZoneName $ZoneName 
+    }    
 }
