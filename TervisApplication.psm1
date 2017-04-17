@@ -577,9 +577,7 @@ function New-ApplicationNodeDnsCnameRecord {
     }
     process {
         $Name = "$($ClusterApplicationDefinitionName).$EnvironmentName"
-        if (Get-DnsServerResourceRecord -Name $Name -ComputerName $DNSServerName -ZoneName $ZoneName) {
-            return
-        } else {
+        if (-Not (Get-DnsServerResourceRecord -Name $Name -ComputerName $DNSServerName -ZoneName $ZoneName)) {
             Add-DnsServerResourceRecordCName -HostNameAlias $ComputerName -Name $Name -ComputerName $DNSServerName -ZoneName $ZoneName
         }
     }    
