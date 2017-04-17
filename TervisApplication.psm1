@@ -571,16 +571,16 @@ function New-ApplicationNodeDnsCnameRecord {
         [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$ClusterApplicationDefinitionName
     )
     begin {
-        $DomainController = Get-ADDomainController
-        $Name = "$($ClusterApplicationDefinitionName).$EnvironmentName"
+        $DomainController = Get-ADDomainController        
         $DNSServerName = $DomainController.HostName
         $ZoneName = $DomainController.Domain
-        if (Get-DnsServerResourceRecord -Name $Name -ComputerName $DNSServerName -ZoneName $ZoneName) {
-            Write-Warning "$Name already exists under $ZoneName."
-            return
-        }
     }
     process {
-        Add-DnsServerResourceRecordCName -HostNameAlias $ComputerName -Name $Name -ComputerName $DNSServerName -ZoneName $ZoneName 
+        $Name = "$($ClusterApplicationDefinitionName).$EnvironmentName"
+        if (Get-DnsServerResourceRecord -Name $Name -ComputerName $DNSServerName -ZoneName $ZoneName) {
+            return
+        } else {
+            Add-DnsServerResourceRecordCName -HostNameAlias $ComputerName -Name $Name -ComputerName $DNSServerName -ZoneName $ZoneName
+        }
     }    
 }
