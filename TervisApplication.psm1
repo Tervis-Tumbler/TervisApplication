@@ -120,7 +120,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
     NodeNameRoot = "DirectAcc"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
-        NumberOfNodes = 2
+        NumberOfNodes = 1
         VMSizeName = "Medium"
         LocalAdminPasswordStateID = 4114
     }
