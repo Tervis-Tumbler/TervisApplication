@@ -76,6 +76,17 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
     VMOperatingSystemTemplateName = "Windows Server 2016"
 },
 [PSCustomObject][Ordered]@{
+    Name = "BartenderLicenseServer"
+    NodeNameRoot = "Bartender"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 4121
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
     Name = "WCSJavaApplication"
     NodeNameRoot = "WCSApp"
     Environments = [PSCustomObject][Ordered]@{
