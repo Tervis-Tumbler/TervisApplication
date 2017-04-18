@@ -77,7 +77,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
 },
 [PSCustomObject][Ordered]@{
     Name = "BartenderLicenseServer"
-    NodeNameRoot = "Bartender"
+    NodeNameRoot = "BTLicense"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
         NumberOfNodes = 1
