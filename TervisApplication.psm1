@@ -136,7 +136,19 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         LocalAdminPasswordStateID = 4114
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "SCDPM2016"
+    NodeNameRoot = "SCDPM2016"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Large"
+        LocalAdminPasswordStateID = 4124
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
 }
+
 
 function Get-TervisClusterApplicationDefinition {
     param (
@@ -229,23 +241,23 @@ function Invoke-ClusterApplicationProvision {
     param (
         [Parameter(Mandatory)]$ClusterApplicationName,
         $EnvironmentName,
-        [Switch]$SkipInstallTervisChocolateyPackages
+        [Switch]$SkipInstallTervisChocolateyPackages,
+        [Switch]$UseDesiredStateConfiguration
     )
     $Nodes = Get-TervisClusterApplicationNode -ClusterApplicationName $ClusterApplicationName -IncludeVM -EnvironmentName $EnvironmentName
     
     $Nodes |
     where {-not $_.VM} |
     Invoke-ClusterApplicationNodeVMProvision -ClusterApplicationName $ClusterApplicationName
-    
+  
     if ( $Nodes | where {-not $_.VM} ) {
         throw "Not all nodes have VMs even after Invoke-ClusterApplicationNodeVMProvision"
     }
-    
+
     foreach ($Node in $Nodes) {
         #$IPAddress = $Node.IPAddress
         $IPAddress = $Node.VM.VMNetworkAdapter.IPAddresses | Get-NotIPV6Address
         $IPAddress | Add-IPAddressToWSManTrustedHosts
-
         $VMTemplateCredential = Get-PasswordstateCredential -PasswordID 4097
         $Credential = Get-PasswordstateCredential -PasswordID $Node.LocalAdminPasswordStateID
         Set-TervisLocalAdministratorPassword -ComputerName $IPAddress -Credential $VMTemplateCredential -NewCredential $Credential
@@ -258,7 +270,12 @@ function Invoke-ClusterApplicationProvision {
         $Node | Set-ApplicationNodeTimeZone
         $Node | Enable-ApplicationNodeKerberosDoubleHop
         $Node | Enable-ApplicationNodeRemoteDesktop
-        $Node | Install-ApplicationNodeWindowsFeature -ClusterApplicationName $ClusterApplicationName
+        if (-not $UseDesiredStateConfiguration){
+            $Node | Install-ApplicationNodeWindowsFeature -ClusterApplicationName $ClusterApplicationName
+        }
+        else {
+            $Node | Install-ApplicationNodeDesiredStateConfiguration -ClusterApplicationName $ClusterApplicationName
+        }
         $Node | Install-TervisChocolateyOnNode
         $Node | New-ApplicationNodeDnsCnameRecord
 
@@ -302,6 +319,16 @@ function Install-ApplicationNodeWindowsFeature {
             Restart-Computer -ComputerName $ComputerName -Force
             Wait-ForNodeRestart -ComputerName $ComputerName
         }
+    }
+}
+
+function Install-ApplicationNodeDesiredStateConfiguration {
+    param (
+        [Parameter(ValueFromPipelineByPropertyName)]$ComputerName,
+        $ClusterApplicationName
+    )
+    process {
+        Install-TervisDesiredStateConfiguration -ClusterApplicationName $ClusterApplicationName -ComputerName $ComputerName
     }
 }
 
@@ -482,7 +509,6 @@ function Invoke-ClusterApplicationNodeVMProvision {
         if ($PSCmdlet.ShouldProcess("$($ClusterToCreateVMOn.Name)","Create VM $Node")) {
             New-TervisVM @TervisVMParameters | Start-VM | Out-Null
         }
-        
         $Node | Add-NodeVMProperty     
     }
 }
