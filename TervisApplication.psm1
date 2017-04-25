@@ -18,6 +18,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         LocalAdminPasswordStateID = 4084
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+    NeedsAccesstoSAN = $false
 },
 [PSCustomObject][Ordered]@{
     Name = "Prometheus"
@@ -28,6 +29,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         VMSizeName = "Medium"
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+    NeedsAccesstoSAN = $false
 },
 [PSCustomObject][Ordered]@{
     Name = "Progistics"
@@ -51,6 +53,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         LocalAdminPasswordStateID = 4105
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+    NeedsAccesstoSAN = $false
 },
 [PSCustomObject][Ordered]@{
     Name = "BartenderCommander"
@@ -74,6 +77,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         LocalAdminPasswordStateID = 4102
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+    NeedsAccesstoSAN = $false
 },
 [PSCustomObject][Ordered]@{
     Name = "BartenderLicenseServer"
@@ -85,6 +89,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         LocalAdminPasswordStateID = 4121
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+    NeedsAccesstoSAN = $false
 },
 [PSCustomObject][Ordered]@{
     Name = "WCSJavaApplication"
@@ -108,6 +113,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         LocalAdminPasswordStateID = 4111
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+    NeedsAccesstoSAN = $false
 },
 [PSCustomObject][Ordered]@{
     Name = "PrintServer"
@@ -125,6 +131,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         LocalAdminPasswordStateID = 4113
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+    NeedsAccesstoSAN = $false
 },
 [PSCustomObject][Ordered]@{
     Name = "DirectAccess"
@@ -136,6 +143,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         LocalAdminPasswordStateID = 4114
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+    NeedsAccesstoSAN = $false
 },
 [PSCustomObject][Ordered]@{
     Name = "SCDPM2016"
@@ -147,6 +155,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         LocalAdminPasswordStateID = 4124
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+    NeedsAccesstoSAN = $true
 }
 
 
@@ -219,19 +228,18 @@ function New-TervisTechnicalServicesApplicationVM {
         [ValidateSet('SFTP')]
         $ApplicationDefinitionName
     )
-    $ApplicationDefinitoin = Get-TervisApplicationDefinition -Name $ApplicationDefinitionName
-    
+    $ApplicationDefinition = Get-TervisApplicationDefinition -Name $ApplicationDefinitionName
 
     $LastComputerNameCountFromAD = (
-        get-adcomputer -filter "name -like '$($ApplicationDefinitoin.ComputerNameSuffixInAD)*'" | 
+        get-adcomputer -filter "name -like '$($ApplicationDefinition.ComputerNameSuffixInAD)*'" | 
         select -ExpandProperty name | 
         Sort-Object -Descending | 
         select -last 1
-    ) -replace $ApplicationDefinitoin.ComputernameSuffixInAD,""
+    ) -replace $ApplicationDefinition.ComputernameSuffixInAD,""
 
     $NextComputerNameWithoutEnvironmentPrefix = "sftp" + ([int]$LastComputerNameCountFromAD + 1).tostring("00")
     $VM = New-TervisVM -VMNameWithoutEnvironmentPrefix $NextComputerNameWithoutEnvironmentPrefix `
-        -VMSizeName $ApplicationDefinitoin.VMSizeName -VMOperatingSystemTemplateName $ApplicationDefinitoin.VMOperatingSystemTemplateName -EnvironmentName $ApplicationDefinitoin.Environmentname -Cluster $Cluster -DHCPScopeID $DHCPScopeID -Verbose   
+        -VMSizeName $ApplicationDefinition.VMSizeName -VMOperatingSystemTemplateName $ApplicationDefinition.VMOperatingSystemTemplateName -EnvironmentName $ApplicationDefinition.Environmentname -Cluster $Cluster -DHCPScopeID $DHCPScopeID -NeedsAccessToSAN $ApplicationDefinition.NeedsAccessToSAN -Verbose
     $TervisVMObject = $vm | get-tervisVM
     $TervisVMObject
 }
@@ -241,8 +249,7 @@ function Invoke-ClusterApplicationProvision {
     param (
         [Parameter(Mandatory)]$ClusterApplicationName,
         $EnvironmentName,
-        [Switch]$SkipInstallTervisChocolateyPackages,
-        [Switch]$UseDesiredStateConfiguration
+        [Switch]$SkipInstallTervisChocolateyPackages
     )
     $Nodes = Get-TervisClusterApplicationNode -ClusterApplicationName $ClusterApplicationName -IncludeVM -EnvironmentName $EnvironmentName
     
@@ -253,15 +260,14 @@ function Invoke-ClusterApplicationProvision {
     if ( $Nodes | where {-not $_.VM} ) {
         throw "Not all nodes have VMs even after Invoke-ClusterApplicationNodeVMProvision"
     }
-
+    $VMTemplateCredential = Get-PasswordstateCredential -PasswordID 4097
+    $Credential = Get-PasswordstateCredential -PasswordID $Node.LocalAdminPasswordStateID
+    Wait-ForNodeRestart -ComputerName $Nodes.IPAddress -Credential $Credential
     foreach ($Node in $Nodes) {
         #$IPAddress = $Node.IPAddress
         $IPAddress = $Node.VM.VMNetworkAdapter.IPAddresses | Get-NotIPV6Address
         $IPAddress | Add-IPAddressToWSManTrustedHosts
-        $VMTemplateCredential = Get-PasswordstateCredential -PasswordID 4097
-        $Credential = Get-PasswordstateCredential -PasswordID $Node.LocalAdminPasswordStateID
         Set-TervisLocalAdministratorPassword -ComputerName $IPAddress -Credential $VMTemplateCredential -NewCredential $Credential
-
         Enable-TervisNetFirewallRuleGroup -Name $ClusterApplicationName -ComputerName $IPAddress -Credential $Credential
         Invoke-TervisRenameComputerOnOrOffDomain -ComputerName $Node.ComputerName -IPAddress $IPAddress -Credential $Credential       
         Invoke-TervisClusterApplicationNodeJoinDomain -ClusterApplicationName $ClusterApplicationName -IPAddress $IPAddress -Credential $Credential -Node $Node
@@ -270,12 +276,8 @@ function Invoke-ClusterApplicationProvision {
         $Node | Set-ApplicationNodeTimeZone
         $Node | Enable-ApplicationNodeKerberosDoubleHop
         $Node | Enable-ApplicationNodeRemoteDesktop
-        if (-not $UseDesiredStateConfiguration){
-            $Node | Install-ApplicationNodeWindowsFeature -ClusterApplicationName $ClusterApplicationName
-        }
-        else {
-            $Node | Install-ApplicationNodeDesiredStateConfiguration -ClusterApplicationName $ClusterApplicationName
-        }
+        $Node | Install-ApplicationNodeWindowsFeature -ClusterApplicationName $ClusterApplicationName
+        $Node | Install-ApplicationNodeDesiredStateConfiguration -ClusterApplicationName $ClusterApplicationName
         $Node | Install-TervisChocolateyOnNode
         $Node | New-ApplicationNodeDnsCnameRecord
 
