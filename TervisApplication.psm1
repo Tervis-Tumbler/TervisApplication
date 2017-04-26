@@ -517,7 +517,6 @@ function Invoke-ClusterApplicationNodeVMProvision {
             Out-Null
         }
         $Node | Add-NodeVMProperty
-        $Node.IPAddress
         $VMTemplateCredential = Get-PasswordstateCredential -PasswordID 4097
         Wait-ForNodeRestart -ComputerName $Node.IPAddress -Credential $VMTemplateCredential
     }
