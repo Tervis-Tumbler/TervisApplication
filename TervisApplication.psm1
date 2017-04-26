@@ -260,12 +260,15 @@ function Invoke-ClusterApplicationProvision {
     if ( $Nodes | where {-not $_.VM} ) {
         throw "Not all nodes have VMs even after Invoke-ClusterApplicationNodeVMProvision"
     }
-    $VMTemplateCredential = Get-PasswordstateCredential -PasswordID 4097
-    $Credential = Get-PasswordstateCredential -PasswordID $Node.LocalAdminPasswordStateID
-    Wait-ForNodeRestart -ComputerName $Nodes.IPAddress -Credential $Credential
     foreach ($Node in $Nodes) {
+        $VMNetworkMacAddress = ($node.VM.vmnetworkadapter.MacAddress -replace '..(?!$)', '$&-')
+
+        $IPAddress = Find-DHCPServerv4LeaseIPAddress -MACAddressWithDashes $VMNetworkMacAddress -AsString
+        $VMTemplateCredential = Get-PasswordstateCredential -PasswordID 4097
+        Wait-ForNodeRestart -ComputerName $IPAddress -Credential $Credential
+        $Credential = Get-PasswordstateCredential -PasswordID $Node.LocalAdminPasswordStateID
         #$IPAddress = $Node.IPAddress
-        $IPAddress = $Node.VM.VMNetworkAdapter.IPAddresses | Get-NotIPV6Address
+#        $IPAddress = $Node.VM.VMNetworkAdapter.IPAddresses | Get-NotIPV6Address
         $IPAddress | Add-IPAddressToWSManTrustedHosts
         Set-TervisLocalAdministratorPassword -ComputerName $IPAddress -Credential $VMTemplateCredential -NewCredential $Credential
         Enable-TervisNetFirewallRuleGroup -Name $ClusterApplicationName -ComputerName $IPAddress -Credential $Credential
