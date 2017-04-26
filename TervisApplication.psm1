@@ -262,10 +262,10 @@ function Invoke-ClusterApplicationProvision {
     $ApplicationDefinition = Get-TervisClusterApplicationDefinition -Name $ClusterApplicationName
 
     if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "Windows Server 2016") {
-        foreach ($Node in $Nodes) {
+        $Nodes | Add-IPAddressToWSManTrustedHosts
+        
+        foreach ($Node in $Nodes) {            
             $IPAddress = $Node.IPAddress
-            $IPAddress | Add-IPAddressToWSManTrustedHosts
-
             $VMTemplateCredential = Get-PasswordstateCredential -PasswordID 4097
             $Credential = Get-PasswordstateCredential -PasswordID $Node.LocalAdminPasswordStateID
             Set-TervisLocalAdministratorPassword -ComputerName $IPAddress -Credential $VMTemplateCredential -NewCredential $Credential
