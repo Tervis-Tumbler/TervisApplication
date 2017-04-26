@@ -259,7 +259,8 @@ function Invoke-ClusterApplicationProvision {
         throw "Not all nodes have VMs even after Invoke-ClusterApplicationNodeVMProvision"
     }
     
-    $ApplicationDefinition = Get-TervisApplicationDefinition -Name $ClusterApplicationName
+    $ApplicationDefinition = Get-TervisClusterApplicationDefinition -Name $ClusterApplicationName
+
     if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "Windows Server 2016") {
         foreach ($Node in $Nodes) {
             $IPAddress = $Node.IPAddress
