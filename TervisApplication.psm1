@@ -290,6 +290,24 @@ function Invoke-ClusterApplicationProvision {
         $Nodes | Enable-ApplicationNodeRemoteDesktop
         $Nodes | New-ApplicationNodeDnsCnameRecord
         $Nodes | New-ClusterApplicationAdministratorPrivilegeADGroup -ClusterApplicationName $ClusterApplicationName
+        $Nodes | Add-ClusterApplicationAdministratorPrivilegeADGroupToLocalAdministrators -ClusterApplicationName $ClusterApplicationName
+    }
+}
+
+function Add-ClusterApplicationAdministratorPrivilegeADGroupToLocalAdministrators {
+    param(
+        [Parameter(ValueFromPipelineByPropertyName)]$ComputerName,
+        [Parameter(ValueFromPipelineByPropertyName)]$EnvironmentName,
+        
+        [ValidateScript({$_ -in $ClusterApplicationDefinition.Name})]
+        [Parameter(Mandatory)]
+        $ClusterApplicationName
+    )
+    process {
+        $PrivilegeADGroupName = Get-ClusterApplicationAdministratorPrivilegeADGroupName -EnvironmentName $EnvironmentName -ClusterApplicationName $ClusterApplicationName
+        Invoke-Command -ComputerName $ComputerName -ScriptBlock {                    
+            Add-LocalGroupMember -Name "Administrators" -Member $Using:PrivilegeADGroupName -ErrorAction SilentlyContinue
+        }
     }
 }
 
@@ -303,12 +321,23 @@ function New-ClusterApplicationAdministratorPrivilegeADGroup {
     )
     process {
         $ApplicationOrganizationalUnit = Get-TervisClusterApplicationOrganizationalUnit -ClusterApplicationName $ClusterApplicationName
-        $PrivilegeGroupName = "Privilege_$($EnvironmentName)$($ClusterApplicationName)Administrator"
+        $PrivilegeGroupName = Get-ClusterApplicationAdministratorPrivilegeADGroupName -EnvironmentName $EnvironmentName -ClusterApplicationName $ClusterApplicationName
         $ADGroup = Get-ADGroup -SearchBase $ApplicationOrganizationalUnit -Filter {Name -eq $PrivilegeGroupName}
         if (-Not $ADGroup) {
             New-ADGroup -Name $PrivilegeGroupName -SamAccountName $PrivilegeGroupName -GroupCategory Security -GroupScope Universal -Path $ApplicationOrganizationalUnit
         }
     }
+}
+
+function Get-ClusterApplicationAdministratorPrivilegeADGroupName {
+    param(
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName)]$EnvironmentName,
+        
+        [ValidateScript({$_ -in $ClusterApplicationDefinition.Name})]
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
+        $ClusterApplicationName
+    )
+    "Privilege_$($EnvironmentName)$($ClusterApplicationName)Administrator"
 }
 
 function Get-ClusterApplicationAdministratorPrivilegeADGroup {
