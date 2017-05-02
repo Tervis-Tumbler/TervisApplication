@@ -177,7 +177,7 @@ function Get-TervisClusterApplicationNode {
             $Node = [PSCustomObject][Ordered]@{                
                 ComputerName = "$EnvironmentPrefix-$($ClusterApplicationDefinition.NodeNameRoot)$($NodeNumber.tostring("00"))"
                 EnvironmentName = $Environment.Name
-                ClusterApplicationDefinitionName = $ClusterApplicationDefinition.Name
+                ClusterApplicationName = $ClusterApplicationDefinition.Name
                 VMSizeName = $Environment.VMSizeName
                 NameWithoutPrefix = "$($ClusterApplicationDefinition.NodeNameRoot)$($NodeNumber.tostring("00"))"
                 LocalAdminPasswordStateID = $Environment.LocalAdminPasswordStateID
@@ -289,18 +289,18 @@ function Invoke-ClusterApplicationProvision {
         $Nodes | Enable-ApplicationNodeKerberosDoubleHop
         $Nodes | Enable-ApplicationNodeRemoteDesktop
         $Nodes | New-ApplicationNodeDnsCnameRecord
-        $Nodes | New-ClusterApplicationAdministratorPrivilegeADGroup -ClusterApplicationName $ClusterApplicationName
-        $Nodes | Add-ClusterApplicationAdministratorPrivilegeADGroupToLocalAdministrators -ClusterApplicationName $ClusterApplicationName
+        $Nodes | New-ClusterApplicationAdministratorPrivilegeADGroup
+        $Nodes | Add-ClusterApplicationAdministratorPrivilegeADGroupToLocalAdministrators
     }
 }
 
 function Add-ClusterApplicationAdministratorPrivilegeADGroupToLocalAdministrators {
     param(
-        [Parameter(ValueFromPipelineByPropertyName)]$ComputerName,
-        [Parameter(ValueFromPipelineByPropertyName)]$EnvironmentName,
+        [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$ComputerName,
+        [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$EnvironmentName,
         
         [ValidateScript({$_ -in $ClusterApplicationDefinition.Name})]
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
         $ClusterApplicationName
     )
     process {
@@ -314,10 +314,10 @@ function Add-ClusterApplicationAdministratorPrivilegeADGroupToLocalAdministrator
 function New-ClusterApplicationAdministratorPrivilegeADGroup {
     param(
         [ValidateScript({$_ -in $ClusterApplicationDefinition.Name})]
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         $ClusterApplicationName,
 
-        [Parameter(ValueFromPipelineByPropertyName)]$EnvironmentName
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName)]$EnvironmentName
     )
     process {
         $ApplicationOrganizationalUnit = Get-TervisClusterApplicationOrganizationalUnit -ClusterApplicationName $ClusterApplicationName
@@ -677,7 +677,7 @@ function New-ApplicationNodeDnsCnameRecord {
     param (
         [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$ComputerName,
         [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$EnvironmentName,
-        [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$ClusterApplicationDefinitionName
+        [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$ClusterApplicationName
     )
     begin {
         $DomainController = Get-ADDomainController        
@@ -685,7 +685,7 @@ function New-ApplicationNodeDnsCnameRecord {
         $ZoneName = $DomainController.Domain
     }
     process {
-        $Name = "$($ClusterApplicationDefinitionName).$EnvironmentName"
+        $Name = "$($ClusterApplicationName).$EnvironmentName"
         $HostNameAlias = "$ComputerName.$($DomainController.Domain)"        
         if (-Not (Get-DnsServerResourceRecord -Name $Name -ComputerName $DNSServerName -ZoneName $ZoneName -ErrorAction SilentlyContinue)) {
             Add-DnsServerResourceRecordCName -HostNameAlias $HostNameAlias -Name $Name -ComputerName $DNSServerName -ZoneName $ZoneName
