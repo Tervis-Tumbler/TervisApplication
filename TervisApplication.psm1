@@ -289,6 +289,40 @@ function Invoke-ClusterApplicationProvision {
         $Nodes | Enable-ApplicationNodeKerberosDoubleHop
         $Nodes | Enable-ApplicationNodeRemoteDesktop
         $Nodes | New-ApplicationNodeDnsCnameRecord
+        $Nodes | New-ClusterApplicationAdministratorPrivilegeADGroup -ClusterApplicationName $ClusterApplicationName
+    }
+}
+
+function New-ClusterApplicationAdministratorPrivilegeADGroup {
+    param(
+        [ValidateScript({$_ -in $ClusterApplicationDefinition.Name})]
+        [Parameter(Mandatory)]
+        $ClusterApplicationName,
+
+        [Parameter(ValueFromPipelineByPropertyName)]$EnvironmentName
+    )
+    process {
+        $ApplicationOrganizationalUnit = Get-TervisClusterApplicationOrganizationalUnit -ClusterApplicationName $ClusterApplicationName
+        $PrivilegeGroupName = "Privilege_$($EnvironmentName)$($ClusterApplicationName)Administrator"
+        $ADGroup = Get-ADGroup -SearchBase $ApplicationOrganizationalUnit -Filter {Name -eq $PrivilegeGroupName}
+        if (-Not $ADGroup) {
+            New-ADGroup -Name $PrivilegeGroupName -SamAccountName $PrivilegeGroupName -GroupCategory Security -GroupScope Universal -Path $ApplicationOrganizationalUnit
+        }
+    }
+}
+
+function Get-ClusterApplicationAdministratorPrivilegeADGroup {
+    param(
+        [ValidateScript({$_ -in $ClusterApplicationDefinition.Name})]
+        [Parameter(Mandatory)]
+        $ClusterApplicationName,
+
+        [Parameter(ValueFromPipelineByPropertyName)]$EnvironmentName
+    )
+    process {
+        $ApplicationOrganizationalUnit = Get-TervisClusterApplicationOrganizationalUnit -ClusterApplicationName $ClusterApplicationName
+        $PrivilegeGroupName = "Privilege_$($EnvironmentName)$($ClusterApplicationName)Administrator"
+        Get-ADGroup -SearchBase $ApplicationOrganizationalUnit -Filter {Name -eq $PrivilegeGroupName}
     }
 }
 
@@ -402,7 +436,7 @@ function Set-TervisLocalAdministratorPassword {
     $Session | Remove-PSSession
 }
 
-function Get-TervisClusterApplicationOU {
+function Get-TervisClusterApplicationOrganizationalUnit {
     param(
         [ValidateScript({$_ -in $ClusterApplicationDefinition.Name})]
         [Parameter(Mandatory)]
@@ -428,8 +462,8 @@ function Invoke-TervisClusterApplicationNodeJoinDomain {
         [Parameter(Mandatory)]$Credential
 
     )
-    $OU = Get-TervisClusterApplicationOU -ClusterApplicationName $ClusterApplicationName
-    Invoke-TervisJoinDomain -OUPath $OU.DistinguishedName -ComputerName $Node.ComputerName -IPAddress $IPAddress -Credential $Credential
+    $OrganizationalUnit = Get-TervisClusterApplicationOrganizationalUnit -ClusterApplicationName $ClusterApplicationName
+    Invoke-TervisJoinDomain -OUPath $OrganizationalUnit.DistinguishedName -ComputerName $Node.ComputerName -IPAddress $IPAddress -Credential $Credential
 }
 
 function Invoke-TervisJoinDomain {
