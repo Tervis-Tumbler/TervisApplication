@@ -675,15 +675,18 @@ function New-SplatVariable {
 
 function Remove-HashtableKeysWithEmptyOrNullValues {
     param (
-        [Parameter(Mandatory)][Hashtable]$Hashtable
+        [Parameter(ValueFromPipeline,Mandatory)]
+        [Hashtable]$Hashtable
     )
-    $NewHashtable = @{}
-    foreach ($Key in $Hashtable.Keys) {
-        if (($Hashtable.$Key -ne $null) -and ($Hashtable.$Key -ne "")) {
-            $NewHashtable += @{$Key = $Hashtable.$Key}
+    process {
+        $NewHashtable = @{}
+        foreach ($Key in $Hashtable.Keys) {
+            if (($Hashtable.$Key -ne $null) -and ($Hashtable.$Key -ne "")) {
+                $NewHashtable += @{$Key = $Hashtable.$Key}
+            }
         }
+        $NewHashtable
     }
-    $NewHashtable
 }
 
 function New-ApplicationNodeDnsCnameRecord {
