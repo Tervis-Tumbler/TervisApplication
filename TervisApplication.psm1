@@ -673,6 +673,19 @@ function New-SplatVariable {
     $SplatVariable
 }
 
+function Remove-HashtableKeysWithEmptyOrNullValues {
+    param (
+        [Parameter(Mandatory)][Hashtable]$Hashtable
+    )
+    $NewHashtable = @{}
+    foreach ($Key in $Hashtable.Keys) {
+        if (($Hashtable.$Key -ne $null) -and ($Hashtable.$Key -ne "")) {
+            $NewHashtable += @{$Key = $Hashtable.$Key}
+        }
+    }
+    $NewHashtable
+}
+
 function New-ApplicationNodeDnsCnameRecord {
     param (
         [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$ComputerName,
