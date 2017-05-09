@@ -708,3 +708,12 @@ function New-ApplicationNodeDnsCnameRecord {
         }
     }    
 }
+
+function Invoke-NodeGPUpdate {
+    param (
+        [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$ComputerName
+    )
+    process {
+        Invoke-GPUpdate -Computer $ComputerName -RandomDelayInMinutes 0
+    }    
+}
