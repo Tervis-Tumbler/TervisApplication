@@ -538,7 +538,7 @@ function Invoke-TervisRenameComputerOnOrOffDomain {
     $CurrentHostname = Get-ComputerNameOnOrOffDomain @PSBoundParameters
 
     if ($CurrentHostname -ne $ComputerName) {
-        Rename-Computer -NewName $ComputerName -Force -Restart -LocalCredential $Credential -ComputerName $IPAddress
+        Rename-Computer -NewName $ComputerName -Force -Restart -LocalCredential $Credential -ComputerName $IPAddress -Protocol WSMan
         Wait-ForNodeRestart -ComputerName $IPAddress -Credential $Credential
         $HostnameAfterRestart = Get-ComputerNameOnOrOffDomain @PSBoundParameters
         if ($HostnameAfterRestart -ne $ComputerName) {
