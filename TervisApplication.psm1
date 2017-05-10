@@ -519,8 +519,13 @@ function Invoke-TervisJoinDomain {
 
     $CurrentDomainName = Get-DomainNameOnOrOffDomain -ComputerName $ComputerName -IPAddress $IPAddress -Credential $Credential
     if ($CurrentDomainName -ne $ADDomain.DNSRoot) {
-        Add-Computer -DomainName $ADDomain.forest -Force -Restart -OUPath $OUPath -ComputerName $IPAddress -LocalCredential $Credential -Credential $DomainJoinCredential
-            
+        try {
+            Add-Computer -DomainName $Using:ADDomain.forest -Force -Restart -OUPath $Using:OUPath -Credential $Using:DomainJoinCredential -ErrorAction Stop
+        } catch {
+            Invoke-Command -ComputerName $IPAddress -Credential $Credential -ScriptBlock {
+                Add-Computer -DomainName $Using:ADDomain.forest -Force -Restart -OUPath $Using:OUPath -Credential $Using:DomainJoinCredential
+            }         
+        }
         Wait-ForNodeRestart -ComputerName $IPAddress -Credential $Credential
         $DomainNameAfterRestart = Get-DomainNameOnOrOffDomain -ComputerName $ComputerName -IPAddress $IPAddress -Credential $Credential
         if ($DomainNameAfterRestart -ne $ADDomain.DNSRoot) {
