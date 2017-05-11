@@ -742,7 +742,7 @@ function Start-ServiceOnNode {
     )
     process {
         Invoke-Command -ComputerName $ComputerName -ScriptBlock {
-            Start-Service -Name $Name
+            Start-Service -Name $Using:Name
         }
     }
 }
@@ -754,7 +754,7 @@ function Stop-ServiceOnNode {
     )
     process {
         Invoke-Command -ComputerName $ComputerName -ScriptBlock {
-            Stop-Service -Name $Name
+            Stop-Service -Name $Using:Name
         }
     }
 }
