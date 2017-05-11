@@ -734,3 +734,15 @@ function Invoke-NodeGPUpdate {
         Invoke-GPUpdate -Computer $ComputerName -RandomDelayInMinutes 0
     }    
 }
+
+function Start-ServiceOnNode {
+    param (
+        [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$ComputerName,
+        [Parameter(Mandatory)]$Name
+    )
+    process {
+        Invoke-Command -ComputerName $ComputerName -ScriptBlock {
+            Start-Service -Name $Name
+        }
+    }
+}
