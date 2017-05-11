@@ -746,3 +746,15 @@ function Start-ServiceOnNode {
         }
     }
 }
+
+function Stop-ServiceOnNode {
+    param (
+        [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$ComputerName,
+        [Parameter(Mandatory)]$Name
+    )
+    process {
+        Invoke-Command -ComputerName $ComputerName -ScriptBlock {
+            Stop-Service -Name $Name
+        }
+    }
+}
