@@ -194,7 +194,7 @@ function Get-TervisClusterApplicationNode {
                 NameWithoutPrefix = "$($ClusterApplicationDefinition.NodeNameRoot)$($NodeNumber.tostring("00"))"
                 LocalAdminPasswordStateID = $Environment.LocalAdminPasswordStateID
             } | Add-Member -MemberType ScriptProperty -Name IPAddress -Value {
-                Find-DHCPServerv4LeaseIPAddress -HostName $This.ComputerName -AsString
+                Find-DHCPServerv4LeaseIPAddress -HostName $This.ComputerName
             } -PassThru
             
             if ($IncludeVM) {
@@ -202,7 +202,7 @@ function Get-TervisClusterApplicationNode {
                 Add-NodeVMProperty -PassThru | 
                 Add-Member -MemberType ScriptProperty -Name IPAddress -Value {
                     $VMNetworkMacAddress = ($This.VM.vmnetworkadapter.MacAddress -replace '..(?!$)', '$&-')
-                    Find-DHCPServerv4LeaseIPAddress -MACAddressWithDashes $VMNetworkMacAddress -AsString
+                    Find-DHCPServerv4LeaseIPAddress -MACAddressWithDashes $VMNetworkMacAddress
                 } -PassThru -Force
             } else {
                 $Node
