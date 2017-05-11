@@ -154,7 +154,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
     NodeNameRoot = "SCDPM2016"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
-        NumberOfNodes = 1
+        NumberOfNodes = 2
         VMSizeName = "Large"
         LocalAdminPasswordStateID = 4124
     }
