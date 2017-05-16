@@ -160,8 +160,18 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
     NeedsAccesstoSAN = $true
+},
+[PSCustomObject][Ordered]@{
+    Name = "Phishing"
+    NodeNameRoot = "Phishing"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 4158
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
 }
-
 
 function Get-TervisClusterApplicationDefinition {
     param (
