@@ -171,6 +171,26 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         LocalAdminPasswordStateID = 4158
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "RMSHQManagerRemoteApp"
+    NodeNameRoot = "HQMgrApp"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Production"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+    },
+    [PSCustomObject][Ordered]@{
+        Name = "Epsilon"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+    },
+    [PSCustomObject][Ordered]@{
+        Name = "Delta"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
 }
 
 function Get-TervisClusterApplicationDefinition {
