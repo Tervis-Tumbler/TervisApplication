@@ -173,17 +173,6 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
     VMOperatingSystemTemplateName = "Windows Server 2016"
 },
 [PSCustomObject][Ordered]@{
-    Name = "RemoteWebBrowserApp"
-    NodeNameRoot = "RmtWebApp"
-    Environments = [PSCustomObject][Ordered]@{
-        Name = "Infrastructure"
-        NumberOfNodes = 1
-        VMSizeName = "Large"
-        LocalAdminPasswordStateID = 4170
-    }
-    VMOperatingSystemTemplateName = "Windows Server 2016"
-},
-[PSCustomObject][Ordered]@{
     Name = "RMSHQManagerRemoteApp"
     NodeNameRoot = "HQMgrApp"
     Environments = [PSCustomObject][Ordered]@{
@@ -202,7 +191,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         VMSizeName = "Medium"
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
-}
+},
 [PSCustomObject][Ordered]@{
     Name = "OraDBARMTDkt"
     NodeNameRoot = "OraDBARMTDkt"
