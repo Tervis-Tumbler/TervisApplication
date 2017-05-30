@@ -199,6 +199,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
         NumberOfNodes = 1
         VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 4171
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
 }
