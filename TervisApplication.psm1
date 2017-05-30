@@ -193,8 +193,8 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
     VMOperatingSystemTemplateName = "Windows Server 2016"
 },
 [PSCustomObject][Ordered]@{
-    Name = "OraDBARMTDkt"
-    NodeNameRoot = "OraDBARMTDkt"
+    Name = "OraDBARMT"
+    NodeNameRoot = "OraDBARMT"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
         NumberOfNodes = 1
