@@ -193,7 +193,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
     VMOperatingSystemTemplateName = "Windows Server 2016"
 },
 [PSCustomObject][Ordered]@{
-    Name = "OraDBARMT"
+    Name = "OracleDBA Remote Desktop"
     NodeNameRoot = "OraDBARMT"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
@@ -211,17 +211,6 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         NumberOfNodes = 1
         VMSizeName = "Large"
         LocalAdminPasswordStateID = 4170
-    }
-    VMOperatingSystemTemplateName = "Windows Server 2016"
-},
-[PSCustomObject][Ordered]@{
-    Name = "ODBARMT"
-    NodeNameRoot = "ODBARMT"
-    Environments = [PSCustomObject][Ordered]@{
-        Name = "Infrastructure"
-        NumberOfNodes = 1
-        VMSizeName = "Large"
-        LocalAdminPasswordStateID = 4171
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
 },
