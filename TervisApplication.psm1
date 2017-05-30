@@ -215,6 +215,17 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
     VMOperatingSystemTemplateName = "Windows Server 2016"
 },
 [PSCustomObject][Ordered]@{
+    Name = "ODBARMT"
+    NodeNameRoot = "ODBARMT"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Large"
+        LocalAdminPasswordStateID = 4171
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
     Name = "StoresRemoteDesktop"
     NodeNameRoot = "StoresRDS"
     Environments = [PSCustomObject][Ordered]@{
