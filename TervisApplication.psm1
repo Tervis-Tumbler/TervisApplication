@@ -179,16 +179,19 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         Name = "Production"
         NumberOfNodes = 1
         VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 4166
     },
     [PSCustomObject][Ordered]@{
         Name = "Epsilon"
         NumberOfNodes = 1
         VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 4167
     },
     [PSCustomObject][Ordered]@{
         Name = "Delta"
         NumberOfNodes = 1
         VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 4168
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
 }
