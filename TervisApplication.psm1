@@ -194,7 +194,42 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         LocalAdminPasswordStateID = 4168
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "OracleDBA Remote Desktop"
+    NodeNameRoot = "OraDBARMT"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 4171
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "RemoteWebBrowserApp"
+    NodeNameRoot = "RmtWebApp"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Large"
+        LocalAdminPasswordStateID = 4170
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "StoresRemoteDesktop"
+    NodeNameRoot = "StoresRDS"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Large"
+        LocalAdminPasswordStateID = 4170
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
 }
+
+
 
 function Get-TervisClusterApplicationDefinition {
     param (
