@@ -240,8 +240,8 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
     VMOperatingSystemTemplateName = "Windows Server 2016"
 },
 [PSCustomObject][Ordered]@{
-    Name = "Keyscan"
-    NodeNameRoot = "Keyscan"
+    Name = "KeyscanRemoteApp"
+    NodeNameRoot = "KeyscanAp"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
         NumberOfNodes = 1
