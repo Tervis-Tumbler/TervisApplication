@@ -300,10 +300,10 @@ function Get-TervisClusterApplicationNode {
                     Add-Member -MemberType ScriptProperty -Name IPAddress -Value {
                         $VMNetworkMacAddress = ($This.VM.vmnetworkadapter.MacAddress -replace '..(?!$)', '$&-')
                         Find-DHCPServerv4LeaseIPAddress -MACAddressWithDashes $VMNetworkMacAddress
-                    } -PassThru -Force
-                } else {
-                    $Node
+                    } -Force                    
                 }
+
+                $Node                
             }
         }
     }
