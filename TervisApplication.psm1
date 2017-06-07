@@ -830,3 +830,39 @@ function Stop-ServiceOnNode {
         }
     }
 }
+
+function Get-NodePendingRebootForWindowsUpdate {
+    $Nodes = Get-TervisClusterApplicationNode -All
+    $ConnectionResults = $Nodes | Test-NetConnection
+    
+    $ActiveNodes = $Nodes |
+    where ComputerName -in (
+        $ConnectionResults | 
+        where PingSucceeded |
+        select -ExpandProperty ComputerName
+    )
+
+    $ComputerNamesPendingWindowsUpdateReboot = $ActiveNodes | 
+    Get-PendingReboot |
+    where { $_.WindowsUpdate } |
+    Select -ExpandProperty Computer
+
+    $ActiveNodes | 
+    where ComputerName -In $ComputerNamesPendingWindowsUpdateReboot
+}
+
+function Reboot-NodePendingRebootForWindowsUpdate {
+    $ActiveNodesThatNeedReboot = Get-NodePendingRebootForWindowsUpdate
+
+    $ClusterApplicationGroups = $ActiveNodesThatNeedReboot | Group-Object -Property ClusterApplicationName
+    foreach ($ClusterApplicationGroup in $ClusterApplicationGroups.Group) {
+        $EnvironmentGroups = $ClusterApplicationGroup | Group-Object -Property Environment
+        foreach ($EnvironmentGroup in $EnvironmentGroups.Group) {
+            $NodeToReboot = $EnvironmentGroup |
+            select -First 1 
+            
+            $NodeToReboot | Restart-Computer -Force
+            $NodeToReboot | Wait-ForNodeRestart            
+        }
+    }
+}
