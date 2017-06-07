@@ -317,6 +317,7 @@ function Add-NodeIPAddressProperty {
                 Find-DHCPServerv4LeaseIPAddress -HostName $This.ComputerName
             }
         }
+        if ($PassThru) { $Node }
     }
 }
 
@@ -328,7 +329,7 @@ function Add-NodeVMProperty {
     process {
         $Node | Add-Member -MemberType NoteProperty -Name VM -PassThru:$PassThru -Force -Value $(
             Find-TervisVM -Name $Node.ComputerName
-        )
+        )        
     }
 }
 
