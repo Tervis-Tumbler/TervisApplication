@@ -295,7 +295,8 @@ function Get-TervisClusterApplicationNode {
             
                 if ($IncludeVM) {
                     $Node |
-                    Add-NodeVMProperty -PassThru | 
+                    Add-NodeVMProperty -PassThru |
+                    where {$_.VM} |
                     Add-Member -MemberType ScriptProperty -Name IPAddress -Value {
                         $VMNetworkMacAddress = ($This.VM.vmnetworkadapter.MacAddress -replace '..(?!$)', '$&-')
                         Find-DHCPServerv4LeaseIPAddress -MACAddressWithDashes $VMNetworkMacAddress
