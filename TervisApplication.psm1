@@ -310,11 +310,11 @@ function Add-NodeIPAddressProperty {
         if ($Node.VM) {
             $Node | Add-Member -MemberType ScriptProperty -Name IPAddress -Value {
                 $VMNetworkMacAddress = ($This.VM.vmnetworkadapter.MacAddress -replace '..(?!$)', '$&-')
-                Find-DHCPServerv4LeaseIPAddress -MACAddressWithDashes $VMNetworkMacAddress
+                Find-DHCPServerv4LeaseIPAddress -MACAddressWithDashes $VMNetworkMacAddress -AsString
             }
         } else {
             $Node | Add-Member -MemberType ScriptProperty -Name IPAddress -Value {
-                Find-DHCPServerv4LeaseIPAddress -HostName $This.ComputerName
+                Find-DHCPServerv4LeaseIPAddress -HostName $This.ComputerName -AsString
             }
         }
         if ($PassThru) { $Node }
