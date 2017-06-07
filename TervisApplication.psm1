@@ -179,16 +179,19 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         Name = "Production"
         NumberOfNodes = 1
         VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 4166
     },
     [PSCustomObject][Ordered]@{
         Name = "Epsilon"
         NumberOfNodes = 1
         VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 4167
     },
     [PSCustomObject][Ordered]@{
         Name = "Delta"
         NumberOfNodes = 1
         VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 4168
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
 },
@@ -222,6 +225,28 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         NumberOfNodes = 1
         VMSizeName = "Large"
         LocalAdminPasswordStateID = 4170
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "ScheduledTasks"
+    NodeNameRoot = "SchedTask"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 4176
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "KeyscanRemoteApp"
+    NodeNameRoot = "KeyscanAp"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Small"
+        LocalAdminPasswordStateID = 4180
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
 }
