@@ -626,17 +626,19 @@ function Invoke-TervisRenameComputerOnOrOffDomain {
 
 function Wait-ForNodeRestart {    
     param (
-        [Parameter(Mandatory)]$ComputerName,
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName)]$ComputerName,
         $PortNumbertoMonitor = 5985,
         $Credential = [System.Management.Automation.PSCredential]::Empty
     )
-    $StartTime = Get-Date
+    process {
+        $StartTime = Get-Date
 
-    do {
-        sleep 3
-        Wait-ForPortAvailable -ComputerName $ComputerName -PortNumbertoMonitor $PortNumbertoMonitor -WarningAction SilentlyContinue
-        $UpTime = Get-Uptime -ComputerName $ComputerName -Credential $Credential -ErrorAction SilentlyContinue
-    } While ($UpTime -gt ((Get-Date) - $StartTime)) 
+        do {
+            sleep 3
+            Wait-ForPortAvailable -ComputerName $ComputerName -PortNumbertoMonitor $PortNumbertoMonitor -WarningAction SilentlyContinue
+            $UpTime = Get-Uptime -ComputerName $ComputerName -Credential $Credential -ErrorAction SilentlyContinue
+        } While ($UpTime -gt ((Get-Date) - $StartTime)) 
+    }
 }
 
 function Invoke-ClusterApplicationNodeVMProvision {
