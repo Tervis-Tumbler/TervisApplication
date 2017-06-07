@@ -238,6 +238,17 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         LocalAdminPasswordStateID = 4176
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "Keyscan"
+    NodeNameRoot = "Keyscan"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Small"
+        LocalAdminPasswordStateID = 4180
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
 }
 
 
