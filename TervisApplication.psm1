@@ -239,38 +239,45 @@ function Get-TervisClusterApplicationDefinition {
 
 function Get-TervisClusterApplicationNode {
     param (
-        [Parameter(Mandatory)]$ClusterApplicationName,
+        [Parameter(Mandatory,ParameterSetName="ClusterApplicationName")]$ClusterApplicationName,
+        [Parameter(Mandatory,ParameterSetName="All")][Switch]$All,
         [String[]]$EnvironmentName,
         [Switch]$IncludeVM        
     )
-    $ClusterApplicationDefinition = Get-TervisClusterApplicationDefinition -Name $ClusterApplicationName
-    
-    $Environments = $ClusterApplicationDefinition.Environments |
-    where {-not $EnvironmentName -or $_.Name -In $EnvironmentName}
+    $ClusterApplicationDefinitions = if ($ClusterApplicationName) {
+        Get-TervisClusterApplicationDefinition -Name $ClusterApplicationName
+    } else {
+        $ClusterApplicationDefinition
+    }
 
-    foreach ($Environment in $Environments) {
-        foreach ($NodeNumber in 1..$Environment.NumberOfNodes) {
-            $EnvironmentPrefix = get-TervisEnvironmentPrefix -EnvironmentName $Environment.Name
-            $Node = [PSCustomObject][Ordered]@{                
-                ComputerName = "$EnvironmentPrefix-$($ClusterApplicationDefinition.NodeNameRoot)$($NodeNumber.tostring("00"))"
-                EnvironmentName = $Environment.Name
-                ClusterApplicationName = $ClusterApplicationDefinition.Name
-                VMSizeName = $Environment.VMSizeName
-                NameWithoutPrefix = "$($ClusterApplicationDefinition.NodeNameRoot)$($NodeNumber.tostring("00"))"
-                LocalAdminPasswordStateID = $Environment.LocalAdminPasswordStateID
-            } | Add-Member -MemberType ScriptProperty -Name IPAddress -Value {
-                Find-DHCPServerv4LeaseIPAddress -HostName $This.ComputerName
-            } -PassThru
+    foreach ($ClusterApplicationDefinition in $ClusterApplicationDefinitions) {    
+        $Environments = $ClusterApplicationDefinition.Environments |
+        where {-not $EnvironmentName -or $_.Name -In $EnvironmentName}
+
+        foreach ($Environment in $Environments) {
+            foreach ($NodeNumber in 1..$Environment.NumberOfNodes) {
+                $EnvironmentPrefix = get-TervisEnvironmentPrefix -EnvironmentName $Environment.Name
+                $Node = [PSCustomObject][Ordered]@{                
+                    ComputerName = "$EnvironmentPrefix-$($ClusterApplicationDefinition.NodeNameRoot)$($NodeNumber.tostring("00"))"
+                    EnvironmentName = $Environment.Name
+                    ClusterApplicationName = $ClusterApplicationDefinition.Name
+                    VMSizeName = $Environment.VMSizeName
+                    NameWithoutPrefix = "$($ClusterApplicationDefinition.NodeNameRoot)$($NodeNumber.tostring("00"))"
+                    LocalAdminPasswordStateID = $Environment.LocalAdminPasswordStateID
+                } | Add-Member -MemberType ScriptProperty -Name IPAddress -Value {
+                    Find-DHCPServerv4LeaseIPAddress -HostName $This.ComputerName
+                } -PassThru
             
-            if ($IncludeVM) {
-                $Node |
-                Add-NodeVMProperty -PassThru | 
-                Add-Member -MemberType ScriptProperty -Name IPAddress -Value {
-                    $VMNetworkMacAddress = ($This.VM.vmnetworkadapter.MacAddress -replace '..(?!$)', '$&-')
-                    Find-DHCPServerv4LeaseIPAddress -MACAddressWithDashes $VMNetworkMacAddress
-                } -PassThru -Force
-            } else {
-                $Node
+                if ($IncludeVM) {
+                    $Node |
+                    Add-NodeVMProperty -PassThru | 
+                    Add-Member -MemberType ScriptProperty -Name IPAddress -Value {
+                        $VMNetworkMacAddress = ($This.VM.vmnetworkadapter.MacAddress -replace '..(?!$)', '$&-')
+                        Find-DHCPServerv4LeaseIPAddress -MACAddressWithDashes $VMNetworkMacAddress
+                    } -PassThru -Force
+                } else {
+                    $Node
+                }
             }
         }
     }
