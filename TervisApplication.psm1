@@ -289,21 +289,32 @@ function Get-TervisClusterApplicationNode {
                     VMSizeName = $Environment.VMSizeName
                     NameWithoutPrefix = "$($ClusterApplicationDefinition.NodeNameRoot)$($NodeNumber.tostring("00"))"
                     LocalAdminPasswordStateID = $Environment.LocalAdminPasswordStateID
-                } | Add-Member -MemberType ScriptProperty -Name IPAddress -Value {
-                    Find-DHCPServerv4LeaseIPAddress -HostName $This.ComputerName
-                } -PassThru
+                }
             
                 if ($IncludeVM) {
-                    $Node |
-                    Add-NodeVMProperty -PassThru |
-                    where {$_.VM} |
-                    Add-Member -MemberType ScriptProperty -Name IPAddress -Value {
-                        $VMNetworkMacAddress = ($This.VM.vmnetworkadapter.MacAddress -replace '..(?!$)', '$&-')
-                        Find-DHCPServerv4LeaseIPAddress -MACAddressWithDashes $VMNetworkMacAddress
-                    } -Force                    
+                    $Node | Add-NodeVMProperty
                 }
 
-                $Node                
+                $Node | Add-NodeIPAddressProperty -PassThru
+            }
+        }
+    }
+}
+
+function Add-NodeIPAddressProperty {
+    param (
+        [Parameter(ValueFromPipeline)]$Node,
+        [Switch]$PassThru
+    )
+    process {
+        if ($Node.VM) {
+            $Node | Add-Member -MemberType ScriptProperty -Name IPAddress -Value {
+                $VMNetworkMacAddress = ($This.VM.vmnetworkadapter.MacAddress -replace '..(?!$)', '$&-')
+                Find-DHCPServerv4LeaseIPAddress -MACAddressWithDashes $VMNetworkMacAddress
+            }
+        } else {
+            $Node | Add-Member -MemberType ScriptProperty -Name IPAddress -Value {
+                Find-DHCPServerv4LeaseIPAddress -HostName $This.ComputerName
             }
         }
     }
@@ -696,7 +707,7 @@ function Invoke-ClusterApplicationNodeVMProvision {
             Start-VM |
             Out-Null
         }
-        $Node | Add-NodeVMProperty
+        $Node | Add-NodeVMProperty -PassThru | Add-NodeIPAddressProperty
         $VMTemplateCredential = Get-PasswordstateCredential -PasswordID 4097
         Wait-ForNodeRestart -ComputerName $Node.IPAddress -Credential $VMTemplateCredential
     }
