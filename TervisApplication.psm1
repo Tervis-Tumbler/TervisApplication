@@ -249,6 +249,29 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         LocalAdminPasswordStateID = 4180
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "WCSRemoteApp"
+    NodeNameRoot = "WCSRmtApp"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Production"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 4183
+    },
+    [PSCustomObject][Ordered]@{
+        Name = "Epsilon"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 4182
+    },
+    [PSCustomObject][Ordered]@{
+        Name = "Delta"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 4181
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
 }
 
 
