@@ -753,9 +753,10 @@ function Get-Uptime {
         $ComputerName,
         $Credential = [System.Management.Automation.PSCredential]::Empty
     )
-    Invoke-Command -Credential $Credential -ComputerName $ComputerName -ScriptBlock {         
-        Get-ComputerInfo | select -ExpandProperty OsUptime
-    }
+    $OperatingSystemObject = Get-WmiObject -ComputerName $ComputerName Win32_OperatingSystem -Credential $Credential
+    $ConvertedUptimeString = [Management.ManagementDateTimeConverter]::ToDateTime($OperatingSystemObject.LastBootUpTime)
+    $CurrentUptimeCalculation = (get-date) - $ConvertedUptimeString
+    $CurrentUptimeCalculation
 }
 
 function Get-ComputerNameOnOrOffDomain {
