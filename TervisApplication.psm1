@@ -256,7 +256,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
     Environments = [PSCustomObject][Ordered]@{
         Name = "Production"
         NumberOfNodes = 1
-        VMSizeName = "Medium"
+        VMSizeName = "Large"
         LocalAdminPasswordStateID = 4183
     },
     [PSCustomObject][Ordered]@{
