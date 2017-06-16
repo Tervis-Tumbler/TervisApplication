@@ -271,6 +271,17 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         LocalAdminPasswordStateID = 4188
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "RemoteDesktopWebAccess"
+    NodeNameRoot = "RDWebAcc"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Large"
+        LocalAdminPasswordStateID = 4190
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
 }
 
 
