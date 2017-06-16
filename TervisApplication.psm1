@@ -69,7 +69,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
     NodeNameRoot = "Bartender"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Production"
-        NumberOfNodes = 1
+        NumberOfNodes = 2
         VMSizeName = "Medium"
         LocalAdminPasswordStateID = 4095
     },
