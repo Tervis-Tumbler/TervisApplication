@@ -46,7 +46,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
     NodeNameRoot = "Progis"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Production"
-        NumberOfNodes = 1
+        NumberOfNodes = 2
         VMSizeName = "Medium"
         LocalAdminPasswordStateID = 4104
     },
@@ -260,8 +260,29 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         LocalAdminPasswordStateID = 4183
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "RemoteDesktopGateway"
+    NodeNameRoot = "RDGateway"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Large"
+        LocalAdminPasswordStateID = 4188
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "RemoteDesktopWebAccess"
+    NodeNameRoot = "RDWebAcc"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Large"
+        LocalAdminPasswordStateID = 4190
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
 }
-
 
 
 function Get-TervisClusterApplicationDefinition {
