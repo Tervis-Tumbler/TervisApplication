@@ -294,6 +294,18 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
     NeedsAccesstoSAN = $true
+},
+[PSCustomObject][Ordered]@{
+    Name = "DataLoadClassic"
+    NodeNameRoot = "DataLoad"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Small"
+        LocalAdminPasswordStateID = 4280
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
+    NeedsAccesstoSAN = $true
 }
 
 function Get-TervisClusterApplicationDefinition {
