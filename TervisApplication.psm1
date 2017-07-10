@@ -282,8 +282,19 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         LocalAdminPasswordStateID = 4190
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "SCDPM2016FileServer"
+    NodeNameRoot = "SCDPM2016FS"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Small"
+        LocalAdminPasswordStateID = 4124
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
+    NeedsAccesstoSAN = $true
 }
-
 
 function Get-TervisClusterApplicationDefinition {
     param (
