@@ -285,7 +285,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
 },
 [PSCustomObject][Ordered]@{
     Name = "SCDPM2016FileServer"
-    NodeNameRoot = "SCDPM2016FS"
+    NodeNameRoot = "DPM2016FS"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
         NumberOfNodes = 1
