@@ -291,6 +291,9 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         NumberOfNodes = 1
         VMSizeName = "Small"
         LocalAdminPasswordStateID = 4124
+        SQLSAPassword = 4038
+        DPMServiceAccountPassword = 4037
+
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
     NeedsAccesstoSAN = $true
