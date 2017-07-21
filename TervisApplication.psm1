@@ -412,17 +412,28 @@ function Invoke-ClusterApplicationProvision {
     if ( $Nodes | where {-not $_.VM} ) {
         throw "Not all nodes have VMs even after Invoke-ClusterApplicationNodeVMProvision"
     }
-    
-    $ApplicationDefinition = Get-TervisClusterApplicationDefinition -Name $ClusterApplicationName
 
-    if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "Windows Server 2016") {
-        $Nodes | Add-IPAddressToWSManTrustedHosts
+    $Nodes | Invoke-ClusterApplicationNodeProvision -ClusterApplicationName $ClusterApplicationName -EnvironmentName $EnvironmentName -SkipInstallTervisChocolateyPackages:$SkipInstallTervisChocolateyPackages
+}
+
+function Invoke-ClusterApplicationNodeProvision {
+    [CmdletBinding(SupportsShouldProcess)]
+    param (
+        [Parameter(Mandatory,ValueFromPipeline)]$Node,
+        [Parameter(Mandatory)]$ClusterApplicationName,
+        $EnvironmentName,
+        [Switch]$SkipInstallTervisChocolateyPackages
+    )
+    process {
+        $ApplicationDefinition = Get-TervisClusterApplicationDefinition -Name $ClusterApplicationName
+
+        if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "Windows Server 2016") {
+            $Node | Add-IPAddressToWSManTrustedHosts
         
-        foreach ($Node in $Nodes) {            
             $IPAddress = $Node.IPAddress
-            $VMTemplateCredential = Get-PasswordstateCredential -PasswordID 4097
+            $TemplateCredential = Get-PasswordstateCredential -PasswordID 4097
             $Credential = Get-PasswordstateCredential -PasswordID $Node.LocalAdminPasswordStateID
-            Set-TervisLocalAdministratorPassword -ComputerName $IPAddress -Credential $VMTemplateCredential -NewCredential $Credential
+            Set-TervisLocalAdministratorPassword -ComputerName $IPAddress -Credential $TemplateCredential -NewCredential $Credential
             Enable-TervisNetFirewallRuleGroup -Name $ClusterApplicationName -ComputerName $IPAddress -Credential $Credential
             Invoke-TervisRenameComputerOnOrOffDomain -ComputerName $Node.ComputerName -IPAddress $IPAddress -Credential $Credential       
             Invoke-TervisClusterApplicationNodeJoinDomain -ClusterApplicationName $ClusterApplicationName -IPAddress $IPAddress -Credential $Credential -Node $Node
@@ -437,14 +448,14 @@ function Invoke-ClusterApplicationProvision {
             }
 
             Set-WINRMHTTPInTCPPublicRemoteAddressToLocalSubnet -ComputerName $Node.ComputerName
-        }
     
-        $Nodes | Set-ApplicationNodeTimeZone
-        $Nodes | Enable-ApplicationNodeKerberosDoubleHop
-        $Nodes | Enable-ApplicationNodeRemoteDesktop
-        $Nodes | New-ApplicationNodeDnsCnameRecord
-        $Nodes | New-ClusterApplicationAdministratorPrivilegeADGroup
-        $Nodes | Add-ClusterApplicationAdministratorPrivilegeADGroupToLocalAdministrators
+            $Node | Set-ApplicationNodeTimeZone
+            $Node | Enable-ApplicationNodeKerberosDoubleHop
+            $Node | Enable-ApplicationNodeRemoteDesktop
+            $Node | New-ApplicationNodeDnsCnameRecord
+            $Node | New-ClusterApplicationAdministratorPrivilegeADGroup
+            $Node | Add-ClusterApplicationAdministratorPrivilegeADGroupToLocalAdministrators
+        }
     }
 }
 
