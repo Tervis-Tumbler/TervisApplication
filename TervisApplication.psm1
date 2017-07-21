@@ -310,6 +310,26 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
     VMOperatingSystemTemplateName = "Windows Server 2016"
 },
 [PSCustomObject][Ordered]@{
+    Name = "HyperVCluster5"
+    NodeNameRoot = "HyperVC5N"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 6
+        LocalAdminPasswordStateID = 4348
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "HyperVCluster6"
+    NodeNameRoot = "HyperVC6N"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 2
+        LocalAdminPasswordStateID = 4349
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
     Name = "WindowsApps"
     NodeNameRoot = "WinRmtApp"
     Environments = [PSCustomObject][Ordered]@{
