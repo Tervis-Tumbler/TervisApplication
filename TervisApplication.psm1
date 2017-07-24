@@ -367,6 +367,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
 [PSCustomObject][Ordered]@{
     Name = "EBSRemoteApp"
     NodeNameRoot = "EBSRmtApp"
+    ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
         NumberOfNodes = 3
