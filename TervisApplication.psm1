@@ -11,6 +11,7 @@
 $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
     Name = "KafkaBroker"
     NodeNameRoot = "Kafka"
+    ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Production"
         NumberOfNodes = 3
@@ -34,6 +35,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
 [PSCustomObject][Ordered]@{
     Name = "Prometheus"
     NodeNameRoot = "Prometh"
+    ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Production"
         NumberOfNodes = 1
@@ -44,6 +46,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
 [PSCustomObject][Ordered]@{
     Name = "Progistics"
     NodeNameRoot = "Progis"
+    ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Production"
         NumberOfNodes = 2
@@ -67,6 +70,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
 [PSCustomObject][Ordered]@{
     Name = "BartenderCommander"
     NodeNameRoot = "Bartender"
+    ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Production"
         NumberOfNodes = 2
@@ -90,6 +94,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
 [PSCustomObject][Ordered]@{
     Name = "BartenderLicenseServer"
     NodeNameRoot = "BTLicense"
+    ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
         NumberOfNodes = 1
@@ -101,6 +106,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
 [PSCustomObject][Ordered]@{
     Name = "WCSJavaApplication"
     NodeNameRoot = "WCSApp"
+    ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Production"
         NumberOfNodes = 1
@@ -124,6 +130,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
 [PSCustomObject][Ordered]@{
     Name = "PrintServer"
     NodeNameRoot = "PrintSrv"
+    ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
         NumberOfNodes = 1
@@ -141,6 +148,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
 [PSCustomObject][Ordered]@{
     Name = "DirectAccess"
     NodeNameRoot = "DirectAcc"
+    ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
         NumberOfNodes = 1
@@ -152,6 +160,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
 [PSCustomObject][Ordered]@{
     Name = "SCDPM2016"
     NodeNameRoot = "SCDPM2016"
+    ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
         NumberOfNodes = 2
@@ -164,6 +173,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
 [PSCustomObject][Ordered]@{
     Name = "Phishing"
     NodeNameRoot = "Phishing"
+    ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
         NumberOfNodes = 1
@@ -175,6 +185,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
 [PSCustomObject][Ordered]@{
     Name = "RMSHQManagerRemoteApp"
     NodeNameRoot = "HQMgrApp"
+    ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Production"
         NumberOfNodes = 1
@@ -198,6 +209,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
 [PSCustomObject][Ordered]@{
     Name = "OracleDBA Remote Desktop"
     NodeNameRoot = "OraDBARMT"
+    ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
         NumberOfNodes = 1
@@ -209,6 +221,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
 [PSCustomObject][Ordered]@{
     Name = "RemoteWebBrowserApp"
     NodeNameRoot = "RmtWebApp"
+    ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
         NumberOfNodes = 1
@@ -220,6 +233,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
 [PSCustomObject][Ordered]@{
     Name = "StoresRemoteDesktop"
     NodeNameRoot = "StoresRDS"
+    ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
         NumberOfNodes = 1
@@ -231,6 +245,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
 [PSCustomObject][Ordered]@{
     Name = "ScheduledTasks"
     NodeNameRoot = "SchedTask"
+    ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
         NumberOfNodes = 1
@@ -242,6 +257,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
 [PSCustomObject][Ordered]@{
     Name = "KeyscanRemoteApp"
     NodeNameRoot = "KeyscanAp"
+    ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
         NumberOfNodes = 1
@@ -253,6 +269,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
 [PSCustomObject][Ordered]@{
     Name = "WCSRemoteApp"
     NodeNameRoot = "WCSRmtApp"
+    ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
         NumberOfNodes = 1
@@ -264,6 +281,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
 [PSCustomObject][Ordered]@{
     Name = "RemoteDesktopGateway"
     NodeNameRoot = "RDGateway"
+    ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
         NumberOfNodes = 1
@@ -275,6 +293,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
 [PSCustomObject][Ordered]@{
     Name = "RemoteDesktopWebAccess"
     NodeNameRoot = "RDWebAcc"
+    ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
         NumberOfNodes = 1
@@ -286,6 +305,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
 [PSCustomObject][Ordered]@{
     Name = "SCDPM2016FileServer"
     NodeNameRoot = "DPM2016FS"
+    ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
         NumberOfNodes = 1
@@ -301,6 +321,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
 [PSCustomObject][Ordered]@{
     Name = "DataLoadClassic"
     NodeNameRoot = "DataLoad"
+    ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
         NumberOfNodes = 1
@@ -312,6 +333,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
 [PSCustomObject][Ordered]@{
     Name = "HyperVCluster5"
     NodeNameRoot = "HyperVC5N"
+    ComputeType = "Physical"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
         NumberOfNodes = 6
@@ -322,6 +344,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
 [PSCustomObject][Ordered]@{
     Name = "HyperVCluster6"
     NodeNameRoot = "HyperVC6N"
+    ComputeType = "Physical"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
         NumberOfNodes = 2
@@ -332,6 +355,7 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
 [PSCustomObject][Ordered]@{
     Name = "WindowsApps"
     NodeNameRoot = "WinRmtApp"
+    ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
         NumberOfNodes = 1
@@ -374,12 +398,12 @@ function Get-TervisClusterApplicationNode {
                     ComputerName = "$EnvironmentPrefix-$($ClusterApplicationDefinition.NodeNameRoot)$($NodeNumber.tostring("00"))"
                     EnvironmentName = $Environment.Name
                     ClusterApplicationName = $ClusterApplicationDefinition.Name
-                    VMSizeName = $Environment.VMSizeName
                     NameWithoutPrefix = "$($ClusterApplicationDefinition.NodeNameRoot)$($NodeNumber.tostring("00"))"
                     LocalAdminPasswordStateID = $Environment.LocalAdminPasswordStateID
                 }
             
                 if ($IncludeVM) {
+                    $Node | Add-Member -MemberType NoteProperty -Name VMSizeName -Value $Environment.VMSizeName
                     $Node | Add-NodeVMProperty
                 }
 
@@ -459,7 +483,13 @@ function Invoke-ClusterApplicationProvision {
         $EnvironmentName,
         [Switch]$SkipInstallTervisChocolateyPackages
     )
-    $Nodes = Get-TervisClusterApplicationNode -ClusterApplicationName $ClusterApplicationName -IncludeVM -EnvironmentName $EnvironmentName
+    $ApplicationDefinition = Get-TervisClusterApplicationDefinition -Name $ClusterApplicationName
+
+    if ($ApplicationDefinition.ComputeType -eq "Virtual") {
+        $Nodes = Get-TervisClusterApplicationNode -ClusterApplicationName $ClusterApplicationName -IncludeVM -EnvironmentName $EnvironmentName
+    } elseif ($ApplicationDefinition.ComputeType -eq "Physical") {
+        $Nodes = Get-TervisClusterApplicationNode -ClusterApplicationName $ClusterApplicationName -EnvironmentName $EnvironmentName
+    }
     
     $Nodes |
     where {-not $_.VM} |
