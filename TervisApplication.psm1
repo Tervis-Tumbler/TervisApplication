@@ -92,6 +92,30 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
     VMOperatingSystemTemplateName = "Windows Server 2016"
 },
 [PSCustomObject][Ordered]@{
+    Name = "BartenderIntegrationService"
+    NodeNameRoot = "BartendIS"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Production"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 4356
+    },
+    [PSCustomObject][Ordered]@{
+        Name = "Epsilon"
+        NumberOfNodes = 1
+        VMSizeName = "Small"
+        LocalAdminPasswordStateID = 4357
+    },
+    [PSCustomObject][Ordered]@{
+        Name = "Delta"
+        NumberOfNodes = 1
+        VMSizeName = "Small"
+        LocalAdminPasswordStateID = 4358
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
     Name = "BartenderLicenseServer"
     NodeNameRoot = "BTLicense"
     ComputeType = "Virtual"
