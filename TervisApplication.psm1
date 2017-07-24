@@ -499,18 +499,19 @@ function Invoke-ClusterApplicationProvision {
 
     if ($ApplicationDefinition.ComputeType -eq "Virtual") {
         $Nodes = Get-TervisClusterApplicationNode -ClusterApplicationName $ClusterApplicationName -IncludeVM -EnvironmentName $EnvironmentName
+        
+        $Nodes |
+        where {-not $_.VM} |
+        Invoke-ClusterApplicationNodeVMProvision -ClusterApplicationName $ClusterApplicationName
+  
+        if ( $Nodes | where {-not $_.VM} ) {
+            throw "Not all nodes have VMs even after Invoke-ClusterApplicationNodeVMProvision"
+        }
+
     } elseif ($ApplicationDefinition.ComputeType -eq "Physical") {
         $Nodes = Get-TervisClusterApplicationNode -ClusterApplicationName $ClusterApplicationName -EnvironmentName $EnvironmentName
     }
     
-    $Nodes |
-    where {-not $_.VM} |
-    Invoke-ClusterApplicationNodeVMProvision -ClusterApplicationName $ClusterApplicationName
-  
-    if ( $Nodes | where {-not $_.VM} ) {
-        throw "Not all nodes have VMs even after Invoke-ClusterApplicationNodeVMProvision"
-    }
-
     $Nodes | Invoke-ClusterApplicationNodeProvision -ClusterApplicationName $ClusterApplicationName -EnvironmentName $EnvironmentName -SkipInstallTervisChocolateyPackages:$SkipInstallTervisChocolateyPackages
 }
 
