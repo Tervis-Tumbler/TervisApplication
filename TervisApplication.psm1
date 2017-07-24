@@ -512,19 +512,17 @@ function Invoke-ClusterApplicationProvision {
         $Nodes = Get-TervisClusterApplicationNode -ClusterApplicationName $ClusterApplicationName -EnvironmentName $EnvironmentName
     }
     
-    $Nodes | Invoke-ClusterApplicationNodeProvision -ClusterApplicationName $ClusterApplicationName -EnvironmentName $EnvironmentName -SkipInstallTervisChocolateyPackages:$SkipInstallTervisChocolateyPackages
+    $Nodes | Invoke-ClusterApplicationNodeProvision -SkipInstallTervisChocolateyPackages:$SkipInstallTervisChocolateyPackages
 }
 
 function Invoke-ClusterApplicationNodeProvision {
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory,ValueFromPipeline)]$Node,
-        [Parameter(Mandatory)]$ClusterApplicationName,
-        $EnvironmentName,
         [Switch]$SkipInstallTervisChocolateyPackages
     )
     process {
-        $ApplicationDefinition = Get-TervisClusterApplicationDefinition -Name $ClusterApplicationName
+        $ApplicationDefinition = Get-TervisClusterApplicationDefinition -Name $Node.ClusterApplicationName
 
         if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "Windows Server 2016") {
             $Node | Add-IPAddressToWSManTrustedHosts
@@ -533,17 +531,17 @@ function Invoke-ClusterApplicationNodeProvision {
             $TemplateCredential = Get-PasswordstateCredential -PasswordID 4097
             $Credential = Get-PasswordstateCredential -PasswordID $Node.LocalAdminPasswordStateID
             Set-TervisLocalAdministratorPassword -ComputerName $IPAddress -Credential $TemplateCredential -NewCredential $Credential
-            Enable-TervisNetFirewallRuleGroup -Name $ClusterApplicationName -ComputerName $IPAddress -Credential $Credential
+            Enable-TervisNetFirewallRuleGroup -Name $Node.ClusterApplicationName -ComputerName $IPAddress -Credential $Credential
             Invoke-TervisRenameComputerOnOrOffDomain -ComputerName $Node.ComputerName -IPAddress $IPAddress -Credential $Credential       
-            Invoke-TervisClusterApplicationNodeJoinDomain -ClusterApplicationName $ClusterApplicationName -IPAddress $IPAddress -Credential $Credential -Node $Node
+            Invoke-TervisClusterApplicationNodeJoinDomain -IPAddress $IPAddress -Credential $Credential -Node $Node
             Invoke-GPUpdate -Computer $Node.ComputerName -RandomDelayInMinutes 0
         
-            $Node | Install-ApplicationNodeWindowsFeature -ClusterApplicationName $ClusterApplicationName
-            $Node | Install-ApplicationNodeDesiredStateConfiguration -ClusterApplicationName $ClusterApplicationName
+            $Node | Install-ApplicationNodeWindowsFeature
+            $Node | Install-ApplicationNodeDesiredStateConfiguration
             $Node | Install-TervisChocolateyOnNode
 
             if (-Not $SkipInstallTervisChocolateyPackages) {
-                Install-TervisChocolateyPackages -ChocolateyPackageGroupNames $ClusterApplicationName -ComputerName $Node.ComputerName
+                Install-TervisChocolateyPackages -ChocolateyPackageGroupNames $Node.ClusterApplicationName -ComputerName $Node.ComputerName
             }
 
             Set-WINRMHTTPInTCPPublicRemoteAddressToLocalSubnet -ComputerName $Node.ComputerName
@@ -643,7 +641,7 @@ function Set-ApplicationNodeTimeZone {
 function Install-ApplicationNodeWindowsFeature {
     param (
         [Parameter(ValueFromPipelineByPropertyName)]$ComputerName,
-        $ClusterApplicationName
+        [Parameter(ValueFromPipelineByPropertyName)]$ClusterApplicationName
     )
     process {
         $Result = Install-TervisWindowsFeature -WindowsFeatureGroupNames $ClusterApplicationName -ComputerName $ComputerName
@@ -657,7 +655,7 @@ function Install-ApplicationNodeWindowsFeature {
 function Install-ApplicationNodeDesiredStateConfiguration {
     param (
         [Parameter(ValueFromPipelineByPropertyName)]$ComputerName,
-        $ClusterApplicationName
+        [Parameter(ValueFromPipelineByPropertyName)]$ClusterApplicationName
     )
     process {
         Install-TervisDesiredStateConfiguration -ClusterApplicationName $ClusterApplicationName -ComputerName $ComputerName
@@ -746,16 +744,12 @@ function Get-TervisClusterApplicationOrganizationalUnit {
 
 function Invoke-TervisClusterApplicationNodeJoinDomain {
     param(
-        [ValidateScript({$_ -in $ClusterApplicationDefinition.Name})]
-        [Parameter(Mandatory)]
-        $ClusterApplicationName,
-
         [Parameter(Mandatory)]$Node,
         [Parameter(Mandatory)]$IPAddress,
         [Parameter(Mandatory)]$Credential
 
     )
-    $OrganizationalUnit = Get-TervisClusterApplicationOrganizationalUnit -ClusterApplicationName $ClusterApplicationName
+    $OrganizationalUnit = Get-TervisClusterApplicationOrganizationalUnit -ClusterApplicationName $Node.ClusterApplicationName
     Invoke-TervisJoinDomain -OUPath $OrganizationalUnit.DistinguishedName -ComputerName $Node.ComputerName -IPAddress $IPAddress -Credential $Credential
 }
 
