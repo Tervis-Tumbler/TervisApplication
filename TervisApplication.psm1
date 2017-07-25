@@ -390,11 +390,11 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
 },
 [PSCustomObject][Ordered]@{
     Name = "EBSRemoteApp"
-    NodeNameRoot = "EBSRmtApp"
+    NodeNameRoot = "EBSRemote"
     ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
-        NumberOfNodes = 3
+        NumberOfNodes = 2
         VMSizeName = "Large"
         LocalAdminPasswordStateID = 4351
     }
