@@ -1,4 +1,4 @@
-﻿$ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
+﻿$ApplicationDefinition = [PSCustomObject][Ordered]@{
     Name = "KafkaBroker"
     NodeNameRoot = "Kafka"
     ComputeType = "Virtual"
@@ -402,40 +402,40 @@
     VMOperatingSystemTemplateName = "CentOS 7"
 }
 
-function Get-TervisClusterApplicationDefinition {
+function Get-TervisApplicationDefinition {
     param (
         [Parameter(Mandatory)]$Name
     )
     
-    $ClusterApplicationDefinition | 
+    $ApplicationDefinition | 
     where Name -EQ $Name
 }
 
-function Get-TervisClusterApplicationNode {
+function Get-TervisApplicationNode {
     param (
-        [Parameter(Mandatory,ParameterSetName="ClusterApplicationName")]$ClusterApplicationName,
+        [Parameter(Mandatory,ParameterSetName="ApplicationName")]$ApplicationName,
         [Parameter(Mandatory,ParameterSetName="All")][Switch]$All,
         [String[]]$EnvironmentName,
         [Switch]$IncludeVM        
     )
-    $ClusterApplicationDefinitions = if ($ClusterApplicationName) {
-        Get-TervisClusterApplicationDefinition -Name $ClusterApplicationName
+    $ApplicationDefinitions = if ($ApplicationName) {
+        Get-TervisApplicationDefinition -Name $ApplicationName
     } else {
-        $ClusterApplicationDefinition
+        $ApplicationDefinition
     }
 
-    foreach ($ClusterApplicationDefinition in $ClusterApplicationDefinitions) {    
-        $Environments = $ClusterApplicationDefinition.Environments |
+    foreach ($ApplicationDefinition in $ApplicationDefinitions) {    
+        $Environments = $ApplicationDefinition.Environments |
         where {-not $EnvironmentName -or $_.Name -In $EnvironmentName}
 
         foreach ($Environment in $Environments) {
             foreach ($NodeNumber in 1..$Environment.NumberOfNodes) {
                 $EnvironmentPrefix = get-TervisEnvironmentPrefix -EnvironmentName $Environment.Name
                 $Node = [PSCustomObject][Ordered]@{                
-                    ComputerName = "$EnvironmentPrefix-$($ClusterApplicationDefinition.NodeNameRoot)$($NodeNumber.tostring("00"))"
+                    ComputerName = "$EnvironmentPrefix-$($ApplicationDefinition.NodeNameRoot)$($NodeNumber.tostring("00"))"
                     EnvironmentName = $Environment.Name
-                    ClusterApplicationName = $ClusterApplicationDefinition.Name
-                    NameWithoutPrefix = "$($ClusterApplicationDefinition.NodeNameRoot)$($NodeNumber.tostring("00"))"
+                    ApplicationName = $ApplicationDefinition.Name
+                    NameWithoutPrefix = "$($ApplicationDefinition.NodeNameRoot)$($NodeNumber.tostring("00"))"
                     LocalAdminPasswordStateID = $Environment.LocalAdminPasswordStateID
                 }
             
@@ -482,41 +482,41 @@ function Add-NodeVMProperty {
     }
 }
 
-function Invoke-ClusterApplicationProvision {
+function Invoke-ApplicationProvision {
     [CmdletBinding(SupportsShouldProcess)]
     param (
-        [Parameter(Mandatory)]$ClusterApplicationName,
+        [Parameter(Mandatory)]$ApplicationName,
         $EnvironmentName,
         [Switch]$SkipInstallTervisChocolateyPackages
     )
-    $ApplicationDefinition = Get-TervisClusterApplicationDefinition -Name $ClusterApplicationName
+    $ApplicationDefinition = Get-TervisApplicationDefinition -Name $ApplicationName
 
     if ($ApplicationDefinition.ComputeType -eq "Virtual") {
-        $Nodes = Get-TervisClusterApplicationNode -ClusterApplicationName $ClusterApplicationName -IncludeVM -EnvironmentName $EnvironmentName
+        $Nodes = Get-TervisApplicationNode -ApplicationName $ApplicationName -IncludeVM -EnvironmentName $EnvironmentName
         
         $Nodes |
         where {-not $_.VM} |
-        Invoke-ClusterApplicationNodeVMProvision -ClusterApplicationName $ClusterApplicationName
+        Invoke-ApplicationNodeVMProvision -ApplicationName $ApplicationName
   
         if ( $Nodes | where {-not $_.VM} ) {
-            throw "Not all nodes have VMs even after Invoke-ClusterApplicationNodeVMProvision"
+            throw "Not all nodes have VMs even after Invoke-ApplicationNodeVMProvision"
         }
 
     } elseif ($ApplicationDefinition.ComputeType -eq "Physical") {
-        $Nodes = Get-TervisClusterApplicationNode -ClusterApplicationName $ClusterApplicationName -EnvironmentName $EnvironmentName
+        $Nodes = Get-TervisApplicationNode -ApplicationName $ApplicationName -EnvironmentName $EnvironmentName
     }
     
-    $Nodes | Invoke-ClusterApplicationNodeProvision -SkipInstallTervisChocolateyPackages:$SkipInstallTervisChocolateyPackages
+    $Nodes | Invoke-ApplicationNodeProvision -SkipInstallTervisChocolateyPackages:$SkipInstallTervisChocolateyPackages
 }
 
-function Invoke-ClusterApplicationNodeProvision {
+function Invoke-ApplicationNodeProvision {
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory,ValueFromPipeline)]$Node,
         [Switch]$SkipInstallTervisChocolateyPackages
     )
     process {
-        $ApplicationDefinition = Get-TervisClusterApplicationDefinition -Name $Node.ClusterApplicationName
+        $ApplicationDefinition = Get-TervisApplicationDefinition -Name $Node.ApplicationName
 
         if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "Windows Server 2016") {
             $Node | Add-IPAddressToWSManTrustedHosts
@@ -525,9 +525,9 @@ function Invoke-ClusterApplicationNodeProvision {
             $TemplateCredential = Get-PasswordstateCredential -PasswordID 4097
             $Credential = Get-PasswordstateCredential -PasswordID $Node.LocalAdminPasswordStateID
             Set-TervisLocalAdministratorPassword -ComputerName $IPAddress -Credential $TemplateCredential -NewCredential $Credential
-            Enable-TervisNetFirewallRuleGroup -Name $Node.ClusterApplicationName -ComputerName $IPAddress -Credential $Credential
+            Enable-TervisNetFirewallRuleGroup -Name $Node.ApplicationName -ComputerName $IPAddress -Credential $Credential
             Invoke-TervisRenameComputerOnOrOffDomain -ComputerName $Node.ComputerName -IPAddress $IPAddress -Credential $Credential       
-            Invoke-TervisClusterApplicationNodeJoinDomain -IPAddress $IPAddress -Credential $Credential -Node $Node
+            Invoke-TervisApplicationNodeJoinDomain -IPAddress $IPAddress -Credential $Credential -Node $Node
             Invoke-GPUpdate -Computer $Node.ComputerName -RandomDelayInMinutes 0
         
             $Node | Install-ApplicationNodeWindowsFeature
@@ -535,7 +535,7 @@ function Invoke-ClusterApplicationNodeProvision {
             $Node | Install-TervisChocolateyOnNode
 
             if (-Not $SkipInstallTervisChocolateyPackages) {
-                Install-TervisChocolateyPackages -ChocolateyPackageGroupNames $Node.ClusterApplicationName -ComputerName $Node.ComputerName
+                Install-TervisChocolateyPackages -ChocolateyPackageGroupNames $Node.ApplicationName -ComputerName $Node.ComputerName
             }
 
             Set-WINRMHTTPInTCPPublicRemoteAddressToLocalSubnet -ComputerName $Node.ComputerName
@@ -544,8 +544,8 @@ function Invoke-ClusterApplicationNodeProvision {
             $Node | Enable-ApplicationNodeKerberosDoubleHop
             $Node | Enable-ApplicationNodeRemoteDesktop
             $Node | New-ApplicationNodeDnsCnameRecord
-            $Node | New-ClusterApplicationAdministratorPrivilegeADGroup
-            $Node | Add-ClusterApplicationAdministratorPrivilegeADGroupToLocalAdministrators
+            $Node | New-ApplicationAdministratorPrivilegeADGroup
+            $Node | Add-ApplicationAdministratorPrivilegeADGroupToLocalAdministrators
         }
         if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "CentOS 7") {
             ####Generic Linux Code Goes Here####
@@ -553,34 +553,34 @@ function Invoke-ClusterApplicationNodeProvision {
     }
 }
 
-function Add-ClusterApplicationAdministratorPrivilegeADGroupToLocalAdministrators {
+function Add-ApplicationAdministratorPrivilegeADGroupToLocalAdministrators {
     param(
         [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$ComputerName,
         [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$EnvironmentName,
         
-        [ValidateScript({$_ -in $ClusterApplicationDefinition.Name})]
+        [ValidateScript({$_ -in $ApplicationDefinition.Name})]
         [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
-        $ClusterApplicationName
+        $ApplicationName
     )
     process {
-        $PrivilegeADGroupName = Get-ClusterApplicationAdministratorPrivilegeADGroupName -EnvironmentName $EnvironmentName -ClusterApplicationName $ClusterApplicationName
+        $PrivilegeADGroupName = Get-ApplicationAdministratorPrivilegeADGroupName -EnvironmentName $EnvironmentName -ApplicationName $ApplicationName
         Invoke-Command -ComputerName $ComputerName -ScriptBlock {                    
             Add-LocalGroupMember -Name "Administrators" -Member $Using:PrivilegeADGroupName -ErrorAction SilentlyContinue
         }
     }
 }
 
-function New-ClusterApplicationAdministratorPrivilegeADGroup {
+function New-ApplicationAdministratorPrivilegeADGroup {
     param(
-        [ValidateScript({$_ -in $ClusterApplicationDefinition.Name})]
+        [ValidateScript({$_ -in $ApplicationDefinition.Name})]
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
-        $ClusterApplicationName,
+        $ApplicationName,
 
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]$EnvironmentName
     )
     process {
-        $ApplicationOrganizationalUnit = Get-TervisClusterApplicationOrganizationalUnit -ClusterApplicationName $ClusterApplicationName
-        $PrivilegeGroupName = Get-ClusterApplicationAdministratorPrivilegeADGroupName -EnvironmentName $EnvironmentName -ClusterApplicationName $ClusterApplicationName
+        $ApplicationOrganizationalUnit = Get-TervisApplicationOrganizationalUnit -ApplicationName $ApplicationName
+        $PrivilegeGroupName = Get-ApplicationAdministratorPrivilegeADGroupName -EnvironmentName $EnvironmentName -ApplicationName $ApplicationName
         $ADGroup = Get-ADGroup -SearchBase $ApplicationOrganizationalUnit -Filter {Name -eq $PrivilegeGroupName}
         if (-Not $ADGroup) {
             New-ADGroup -Name $PrivilegeGroupName -SamAccountName $PrivilegeGroupName -GroupCategory Security -GroupScope Universal -Path $ApplicationOrganizationalUnit
@@ -588,28 +588,28 @@ function New-ClusterApplicationAdministratorPrivilegeADGroup {
     }
 }
 
-function Get-ClusterApplicationAdministratorPrivilegeADGroupName {
+function Get-ApplicationAdministratorPrivilegeADGroupName {
     param(
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]$EnvironmentName,
         
-        [ValidateScript({$_ -in $ClusterApplicationDefinition.Name})]
+        [ValidateScript({$_ -in $ApplicationDefinition.Name})]
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
-        $ClusterApplicationName
+        $ApplicationName
     )
-    "Privilege_$($EnvironmentName)$($ClusterApplicationName)Administrator"
+    "Privilege_$($EnvironmentName)$($ApplicationName)Administrator"
 }
 
-function Get-ClusterApplicationAdministratorPrivilegeADGroup {
+function Get-ApplicationAdministratorPrivilegeADGroup {
     param(
-        [ValidateScript({$_ -in $ClusterApplicationDefinition.Name})]
+        [ValidateScript({$_ -in $ApplicationDefinition.Name})]
         [Parameter(Mandatory)]
-        $ClusterApplicationName,
+        $ApplicationName,
 
         [Parameter(ValueFromPipelineByPropertyName)]$EnvironmentName
     )
     process {
-        $ApplicationOrganizationalUnit = Get-TervisClusterApplicationOrganizationalUnit -ClusterApplicationName $ClusterApplicationName
-        $PrivilegeGroupName = "Privilege_$($EnvironmentName)$($ClusterApplicationName)Administrator"
+        $ApplicationOrganizationalUnit = Get-TervisApplicationOrganizationalUnit -ApplicationName $ApplicationName
+        $PrivilegeGroupName = "Privilege_$($EnvironmentName)$($ApplicationName)Administrator"
         Get-ADGroup -SearchBase $ApplicationOrganizationalUnit -Filter {Name -eq $PrivilegeGroupName}
     }
 }
@@ -638,10 +638,10 @@ function Set-ApplicationNodeTimeZone {
 function Install-ApplicationNodeWindowsFeature {
     param (
         [Parameter(ValueFromPipelineByPropertyName)]$ComputerName,
-        [Parameter(ValueFromPipelineByPropertyName)]$ClusterApplicationName
+        [Parameter(ValueFromPipelineByPropertyName)]$ApplicationName
     )
     process {
-        $Result = Install-TervisWindowsFeature -WindowsFeatureGroupNames $ClusterApplicationName -ComputerName $ComputerName
+        $Result = Install-TervisWindowsFeature -WindowsFeatureGroupNames $ApplicationName -ComputerName $ComputerName
         if ($Result.RestartNeeded | ConvertTo-Boolean) {
             Restart-Computer -ComputerName $ComputerName -Force
             Wait-ForNodeRestart -ComputerName $ComputerName
@@ -652,10 +652,10 @@ function Install-ApplicationNodeWindowsFeature {
 function Install-ApplicationNodeDesiredStateConfiguration {
     param (
         [Parameter(ValueFromPipelineByPropertyName)]$ComputerName,
-        [Parameter(ValueFromPipelineByPropertyName)]$ClusterApplicationName
+        [Parameter(ValueFromPipelineByPropertyName)]$ApplicationName
     )
     process {
-        Install-TervisDesiredStateConfiguration -ClusterApplicationName $ClusterApplicationName -ComputerName $ComputerName
+        Install-TervisDesiredStateConfiguration -ApplicationName $ApplicationName -ComputerName $ComputerName
     }
 }
 
@@ -724,29 +724,29 @@ function Set-TervisLocalAdministratorPassword {
     $Session | Remove-PSSession
 }
 
-function Get-TervisClusterApplicationOrganizationalUnit {
+function Get-TervisApplicationOrganizationalUnit {
     param(
-        [ValidateScript({$_ -in $ClusterApplicationDefinition.Name})]
+        [ValidateScript({$_ -in $ApplicationDefinition.Name})]
         [Parameter(Mandatory)]
-        $ClusterApplicationName
+        $ApplicationName
     )
-    $ApplicationOU = Get-ADOrganizationalUnit -Filter {Name -eq $ClusterApplicationName}
+    $ApplicationOU = Get-ADOrganizationalUnit -Filter {Name -eq $ApplicationName}
     if ( -not $ApplicationOU) {
         $CattleOU = Get-ADOrganizationalUnit -Filter {Name -eq "Cattle"}
-        New-ADOrganizationalUnit -Path $CattleOU.DistinguishedName -Name $ClusterApplicationName -ProtectedFromAccidentalDeletion:$false -PassThru
+        New-ADOrganizationalUnit -Path $CattleOU.DistinguishedName -Name $ApplicationName -ProtectedFromAccidentalDeletion:$false -PassThru
     } else {
         $ApplicationOU
     }
 }
 
-function Invoke-TervisClusterApplicationNodeJoinDomain {
+function Invoke-TervisApplicationNodeJoinDomain {
     param(
         [Parameter(Mandatory)]$Node,
         [Parameter(Mandatory)]$IPAddress,
         [Parameter(Mandatory)]$Credential
 
     )
-    $OrganizationalUnit = Get-TervisClusterApplicationOrganizationalUnit -ClusterApplicationName $Node.ClusterApplicationName
+    $OrganizationalUnit = Get-TervisApplicationOrganizationalUnit -ApplicationName $Node.ApplicationName
     Invoke-TervisJoinDomain -OUPath $OrganizationalUnit.DistinguishedName -ComputerName $Node.ComputerName -IPAddress $IPAddress -Credential $Credential
 }
 
@@ -812,16 +812,16 @@ function Wait-ForNodeRestart {
     }
 }
 
-function Invoke-ClusterApplicationNodeVMProvision {
+function Invoke-ApplicationNodeVMProvision {
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory,ValueFromPipeline)]$Node,
-        [Parameter(Mandatory)]$ClusterApplicationName,
+        [Parameter(Mandatory)]$ApplicationName,
         [Switch]$PassThru
     )
     begin {
         $ADDomain = Get-ADDomain
-        $ClusterApplicationDefinition = Get-TervisClusterApplicationDefinition -Name $ClusterApplicationName
+        $ApplicationDefinition = Get-TervisApplicationDefinition -Name $ApplicationName
     }
     process {
         $Clusters = Get-TervisCluster -Domain $ADDomain.DNSRoot
@@ -831,13 +831,13 @@ function Invoke-ClusterApplicationNodeVMProvision {
         $TervisVMParameters = @{
             VMNameWithoutEnvironmentPrefix = $Node.NameWithoutPrefix
             VMSizeName = $Node.VMSizeName
-            VMOperatingSystemTemplateName = $ClusterApplicationDefinition.VMOperatingSystemTemplateName
+            VMOperatingSystemTemplateName = $ApplicationDefinition.VMOperatingSystemTemplateName
             EnvironmentName = $Node.EnvironmentName
             Cluster = $ClusterToCreateVMOn.Name
         }
         $TervisVMParameters | Write-VerboseAdvanced -Verbose:($VerbosePreference -ne "SilentlyContinue")
         if ($PSCmdlet.ShouldProcess("$($ClusterToCreateVMOn.Name)","Create VM $Node")) {
-            New-TervisVM @TervisVMParameters -NeedsAccessToSAN:$($ClusterApplicationDefinition.NeedsAccessToSAN) |
+            New-TervisVM @TervisVMParameters -NeedsAccessToSAN:$($ApplicationDefinition.NeedsAccessToSAN) |
             Start-VM |
             Out-Null
         }
@@ -913,10 +913,10 @@ function Get-DomainNameOnOrOffDomain {
 
 function New-ApplicationNodePSSession {
     param (
-        [Parameter(Mandatory)]$ClusterApplicationName,
+        [Parameter(Mandatory)]$ApplicationName,
         $EnvironmentName
     )
-    Get-TervisClusterApplicationNode @PSBoundParameters |
+    Get-TervisApplicationNode @PSBoundParameters |
     New-PSSession
 }
 
@@ -956,7 +956,7 @@ function New-ApplicationNodeDnsCnameRecord {
     param (
         [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$ComputerName,
         [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$EnvironmentName,
-        [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$ClusterApplicationName
+        [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$ApplicationName
     )
     begin {
         $DomainController = Get-ADDomainController        
@@ -964,7 +964,7 @@ function New-ApplicationNodeDnsCnameRecord {
         $ZoneName = $DomainController.Domain
     }
     process {
-        $Name = "$($ClusterApplicationName).$EnvironmentName"
+        $Name = "$($ApplicationName).$EnvironmentName"
         $HostNameAlias = "$ComputerName.$($DomainController.Domain)"        
         if (-Not (Get-DnsServerResourceRecord -Name $Name -ComputerName $DNSServerName -ZoneName $ZoneName -ErrorAction SilentlyContinue)) {
             Add-DnsServerResourceRecordCName -HostNameAlias $HostNameAlias -Name $Name -ComputerName $DNSServerName -ZoneName $ZoneName
@@ -1006,7 +1006,7 @@ function Stop-ServiceOnNode {
 }
 
 function Get-NodePendingRebootForWindowsUpdate {
-    $Nodes = Get-TervisClusterApplicationNode -All
+    $Nodes = Get-TervisApplicationNode -All
     $ConnectionResults = $Nodes | Test-NetConnection
     
     $ActiveNodes = $Nodes |
@@ -1028,9 +1028,9 @@ function Get-NodePendingRebootForWindowsUpdate {
 function Reboot-NodePendingRebootForWindowsUpdate {
     $ActiveNodesThatNeedReboot = Get-NodePendingRebootForWindowsUpdate
 
-    $ClusterApplicationGroups = $ActiveNodesThatNeedReboot | Group-Object -Property ClusterApplicationName
-    foreach ($ClusterApplicationGroup in $ClusterApplicationGroups.Group) {
-        $EnvironmentGroups = $ClusterApplicationGroup | Group-Object -Property Environment
+    $ApplicationGroups = $ActiveNodesThatNeedReboot | Group-Object -Property ApplicationName
+    foreach ($ApplicationGroup in $ApplicationGroups.Group) {
+        $EnvironmentGroups = $ApplicationGroup | Group-Object -Property Environment
         foreach ($EnvironmentGroup in $EnvironmentGroups.Group) {
             $NodeToReboot = $EnvironmentGroup |
             select -First 1 
