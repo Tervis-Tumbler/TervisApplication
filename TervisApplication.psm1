@@ -1,14 +1,4 @@
-﻿$ApplicationDefinition = [PSCustomObject][Ordered]@{
-    Name = "SFTP"
-    VMSizeName = "Small"
-    VMOperatingSystemTemplateName = "CentOS 7"
-    Environmentname = "Infrastructure"
-    Cluster = "hypervcluster5"
-    DHCPScopeID = "10.172.44.0"
-    ComputernameSuffixInAD = "inf-sftp"
-}
-
-$ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
+﻿$ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
     Name = "KafkaBroker"
     NodeNameRoot = "Kafka"
     ComputeType = "Virtual"
@@ -399,6 +389,17 @@ $ClusterApplicationDefinition = [PSCustomObject][Ordered]@{
         LocalAdminPasswordStateID = 4351
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "SFTP"
+    NodeNameRoot = "SFTP"
+    ComputerType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 2
+        VMSizeName = "Small"
+    }
+    VMOperatingSystemTemplateName = "CentOS 7"
 }
 
 function Get-TervisClusterApplicationDefinition {
@@ -481,37 +482,6 @@ function Add-NodeVMProperty {
     }
 }
 
-function Get-TervisApplicationDefinition {
-    param (
-        [Parameter(Mandatory)]$Name
-    )
-    
-    $ApplicationDefinition | 
-    where Name -EQ $Name
-}
-
-function New-TervisTechnicalServicesApplicationVM {
-    Param(
-        [Parameter(Mandatory)]
-        [ValidateSet('SFTP')]
-        $ApplicationDefinitionName
-    )
-    $ApplicationDefinition = Get-TervisApplicationDefinition -Name $ApplicationDefinitionName
-
-    $LastComputerNameCountFromAD = (
-        get-adcomputer -filter "name -like '$($ApplicationDefinition.ComputerNameSuffixInAD)*'" | 
-        select -ExpandProperty name | 
-        Sort-Object -Descending | 
-        select -last 1
-    ) -replace $ApplicationDefinition.ComputernameSuffixInAD,""
-
-    $NextComputerNameWithoutEnvironmentPrefix = "sftp" + ([int]$LastComputerNameCountFromAD + 1).tostring("00")
-    $VM = New-TervisVM -VMNameWithoutEnvironmentPrefix $NextComputerNameWithoutEnvironmentPrefix `
-        -VMSizeName $ApplicationDefinition.VMSizeName -VMOperatingSystemTemplateName $ApplicationDefinition.VMOperatingSystemTemplateName -EnvironmentName $ApplicationDefinition.Environmentname -Cluster $Cluster -DHCPScopeID $DHCPScopeID -NeedsAccessToSAN $ApplicationDefinition.NeedsAccessToSAN -Verbose
-    $TervisVMObject = $vm | get-tervisVM
-    $TervisVMObject
-}
-
 function Invoke-ClusterApplicationProvision {
     [CmdletBinding(SupportsShouldProcess)]
     param (
@@ -576,6 +546,9 @@ function Invoke-ClusterApplicationNodeProvision {
             $Node | New-ApplicationNodeDnsCnameRecord
             $Node | New-ClusterApplicationAdministratorPrivilegeADGroup
             $Node | Add-ClusterApplicationAdministratorPrivilegeADGroupToLocalAdministrators
+        }
+        if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "CentOS 7") {
+            ####Generic Linux Code Goes Here####
         }
     }
 }
