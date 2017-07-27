@@ -354,6 +354,7 @@
         LocalAdminPasswordStateID = 4348
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+    NeedsAccesstoSAN = $true
 },
 [PSCustomObject][Ordered]@{
     Name = "HyperVCluster6"
@@ -365,6 +366,7 @@
         LocalAdminPasswordStateID = 4349
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+    NeedsAccesstoSAN = $true
 },
 [PSCustomObject][Ordered]@{
     Name = "WindowsApps"
