@@ -333,6 +333,22 @@
     NeedsAccesstoSAN = $true
 },
 [PSCustomObject][Ordered]@{
+    Name = "SCDPM2016SQL"
+    NodeNameRoot = "SCDPMSQL"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 4124
+        SQLSAPassword = 4038
+        DPMServiceAccountPassword = 4037
+
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
+    NeedsAccesstoSAN = $true
+},
+[PSCustomObject][Ordered]@{
     Name = "DataLoadClassic"
     NodeNameRoot = "DataLoad"
     ComputeType = "Virtual"
