@@ -94,13 +94,13 @@
     [PSCustomObject][Ordered]@{
         Name = "Epsilon"
         NumberOfNodes = 1
-        VMSizeName = "Small"
+        VMSizeName = "Medium"
         LocalAdminPasswordStateID = 4357
     },
     [PSCustomObject][Ordered]@{
         Name = "Delta"
         NumberOfNodes = 1
-        VMSizeName = "Small"
+        VMSizeName = "Medium"
         LocalAdminPasswordStateID = 4358
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
