@@ -662,8 +662,7 @@ function Install-ApplicationNodeWindowsFeature {
     process {
         $Result = Install-TervisWindowsFeature -WindowsFeatureGroupNames $ApplicationName -ComputerName $ComputerName
         if ($Result.RestartNeeded | ConvertTo-Boolean) {
-            Restart-Computer -ComputerName $ComputerName -Force
-            Wait-ForNodeRestart -ComputerName $ComputerName
+            Restart-Computer -ComputerName $ComputerName -Force -Wait
         }
     }
 }
@@ -698,8 +697,7 @@ function Enable-ApplicationNodeKerberosDoubleHop {
         $Members = Get-ADGroupMember -Identity Privilege_PrincipalsAllowedToDelegateToAccount
         if (-not ($Members | where Name -EQ $ComputerName)) {
             Add-ComputerToPrivilege_PrincipalsAllowedToDelegateToAccount -ComputerName $ComputerName
-            Restart-Computer -ComputerName $ComputerName -Force
-            Wait-ForNodeRestart -ComputerName $ComputerName
+            Restart-Computer -ComputerName $ComputerName -Force -Wait
         }
     }
 }
@@ -1054,8 +1052,7 @@ function Reboot-NodePendingRebootForWindowsUpdate {
             $NodeToReboot = $EnvironmentGroup |
             select -First 1 
             
-            $NodeToReboot | Restart-Computer -Force
-            $NodeToReboot | Wait-ForNodeRestart            
+            $NodeToReboot | Restart-Computer -Force -Wait              
         }
     }
 }
