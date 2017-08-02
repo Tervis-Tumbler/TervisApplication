@@ -463,7 +463,8 @@ function Add-NodeIPAddressProperty {
             }
         } else {
             $Node | Add-Member -MemberType ScriptProperty -Force -Name IPAddress -Value {
-                Find-DHCPServerv4LeaseIPAddress -HostName $This.ComputerName -AsString
+                Find-DHCPServerv4LeaseIPAddress -HostName $This.ComputerName -AsString |
+                Select-Object -First 1
             }
         }
         if ($PassThru) { $Node }
