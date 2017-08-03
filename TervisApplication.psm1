@@ -129,9 +129,16 @@ function Invoke-ApplicationNodeProvision {
             Invoke-TervisRenameComputerOnOrOffDomain -ComputerName $Node.ComputerName -IPAddress $IPAddress -Credential $Credential       
             Invoke-TervisApplicationNodeJoinDomain -IPAddress $IPAddress -Credential $Credential -Node $Node
             Invoke-GPUpdate -Computer $Node.ComputerName -RandomDelayInMinutes 0
-        
+            
+            $Node | Set-ApplicationNodeTimeZone
+            $Node | Enable-ApplicationNodeKerberosDoubleHop
+            $Node | Enable-ApplicationNodeRemoteDesktop
+            $Node | New-ApplicationNodeDnsCnameRecord
+            $Node | New-ApplicationAdministratorPrivilegeADGroup
+            $Node | Add-ApplicationAdministratorPrivilegeADGroupToLocalAdministrators
             $Node | Install-ApplicationNodeWindowsFeature
             $Node | Install-ApplicationNodeDesiredStateConfiguration
+            
             $Node | Install-TervisChocolateyOnNode
 
             if (-Not $SkipInstallTervisChocolateyPackages) {
@@ -139,13 +146,6 @@ function Invoke-ApplicationNodeProvision {
             }
 
             Set-WINRMHTTPInTCPPublicRemoteAddressToLocalSubnet -ComputerName $Node.ComputerName
-    
-            $Node | Set-ApplicationNodeTimeZone
-            $Node | Enable-ApplicationNodeKerberosDoubleHop
-            $Node | Enable-ApplicationNodeRemoteDesktop
-            $Node | New-ApplicationNodeDnsCnameRecord
-            $Node | New-ApplicationAdministratorPrivilegeADGroup
-            $Node | Add-ApplicationAdministratorPrivilegeADGroupToLocalAdministrators
         }
         if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "CentOS 7") {
             ####Generic Linux Code Goes Here####
