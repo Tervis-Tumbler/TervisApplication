@@ -418,4 +418,16 @@
         VMSizeName = "Small"
     }
     VMOperatingSystemTemplateName = "CentOS 7"
+},
+[PSCustomObject][Ordered]@{
+    Name = "EMC Storage Integrator for Windows Suite"
+    NodeNameRoot = "ESI"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 4860
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
 }
