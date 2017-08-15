@@ -366,7 +366,7 @@
     ComputeType = "Physical"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
-        NumberOfNodes = 4
+        NumberOfNodes = 6
         LocalAdminPasswordStateID = 4348
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
@@ -380,6 +380,18 @@
         Name = "Infrastructure"
         NumberOfNodes = 2
         LocalAdminPasswordStateID = 4349
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
+    NeedsAccesstoSAN = $true
+},
+[PSCustomObject][Ordered]@{
+    Name = "VDICluster1"
+    NodeNameRoot = "VDIC1N"
+    ComputeType = "Physical"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        LocalAdminPasswordStateID = 4873
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
     NeedsAccesstoSAN = $true
