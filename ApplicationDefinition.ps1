@@ -397,6 +397,18 @@
     NeedsAccesstoSAN = $true
 },
 [PSCustomObject][Ordered]@{
+    Name = "StandaloneHyperVServer"
+    NodeNameRoot = "HyperV"
+    ComputeType = "Physical"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        LocalAdminPasswordStateID = 4875
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
+    NeedsAccesstoSAN = $true
+},
+[PSCustomObject][Ordered]@{
     Name = "WindowsApps"
     NodeNameRoot = "WinRmtApp"
     ComputeType = "Virtual"
