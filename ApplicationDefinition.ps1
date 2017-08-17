@@ -454,4 +454,16 @@
         LocalAdminPasswordStateID = 4860
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "iSNS"
+    NodeNameRoot = "iSNS"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 4876
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
 }
