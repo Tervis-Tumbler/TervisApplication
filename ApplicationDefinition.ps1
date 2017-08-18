@@ -461,8 +461,8 @@
     ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
-        NumberOfNodes = 1
-        VMSizeName = "Medium"
+        NumberOfNodes = 2
+        VMSizeName = "Small"
         LocalAdminPasswordStateID = 4876
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
