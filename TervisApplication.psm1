@@ -601,7 +601,7 @@ function Stop-ServiceOnNode {
     }
 }
 
-function Get-NodePendingRebootForWindowsUpdate {
+function Get-NodePendingRestartForWindowsUpdate {
     $Nodes = Get-TervisApplicationNode -All
     $ConnectionResults = $Nodes | Test-NetConnection
     
@@ -612,26 +612,26 @@ function Get-NodePendingRebootForWindowsUpdate {
         select -ExpandProperty ComputerName
     )
 
-    $ComputerNamesPendingWindowsUpdateReboot = $ActiveNodes | 
+    $ComputerNamesPendingWindowsUpdateRestart = $ActiveNodes | 
     Get-PendingRestart |
     where { $_.WindowsUpdate } |
     Select -ExpandProperty Computer
 
     $ActiveNodes | 
-    where ComputerName -In $ComputerNamesPendingWindowsUpdateReboot
+    where ComputerName -In $ComputerNamesPendingWindowsUpdateRestart
 }
 
-function Restart-NodePendingRebootForWindowsUpdate {
-    $ActiveNodesThatNeedReboot = Get-NodePendingRebootForWindowsUpdate
+function Restart-NodePendingRestartForWindowsUpdate {
+    $ActiveNodesThatNeedRestart = Get-NodePendingRestartForWindowsUpdate
 
-    $ApplicationGroups = $ActiveNodesThatNeedReboot | Group-Object -Property ApplicationName
+    $ApplicationGroups = $ActiveNodesThatNeedRestart | Group-Object -Property ApplicationName
     foreach ($ApplicationGroup in $ApplicationGroups.Group) {
         $EnvironmentGroups = $ApplicationGroup | Group-Object -Property Environment
         foreach ($EnvironmentGroup in $EnvironmentGroups.Group) {
-            $NodeToReboot = $EnvironmentGroup |
+            $NodeToRestart = $EnvironmentGroup |
             select -First 1 
             
-            $NodeToReboot | Restart-Computer -Force -Wait              
+            $NodeToRestart | Restart-Computer -Force -Wait              
         }
     }
 }
