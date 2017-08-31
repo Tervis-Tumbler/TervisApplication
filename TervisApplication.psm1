@@ -621,7 +621,7 @@ function Get-NodePendingRebootForWindowsUpdate {
     where ComputerName -In $ComputerNamesPendingWindowsUpdateReboot
 }
 
-function Reboot-NodePendingRebootForWindowsUpdate {
+function Restart-NodePendingRebootForWindowsUpdate {
     $ActiveNodesThatNeedReboot = Get-NodePendingRebootForWindowsUpdate
 
     $ApplicationGroups = $ActiveNodesThatNeedReboot | Group-Object -Property ApplicationName
