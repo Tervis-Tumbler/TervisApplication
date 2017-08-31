@@ -613,7 +613,7 @@ function Get-NodePendingRebootForWindowsUpdate {
     )
 
     $ComputerNamesPendingWindowsUpdateReboot = $ActiveNodes | 
-    Get-PendingReboot |
+    Get-PendingRestart |
     where { $_.WindowsUpdate } |
     Select -ExpandProperty Computer
 
