@@ -466,4 +466,28 @@
         LocalAdminPasswordStateID = 4876
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "SQL Anywhere"
+    NodeNameRoot = "SQLA"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Production"
+        NumberOfNodes = 1
+        VMSizeName = "Large"
+        LocalAdminPasswordStateID = 4966
+    },
+    [PSCustomObject][Ordered]@{
+        Name = "Epsilon"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 4967
+    },
+    [PSCustomObject][Ordered]@{
+        Name = "Delta"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 4968
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
 }
