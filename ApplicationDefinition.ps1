@@ -490,4 +490,16 @@
         LocalAdminPasswordStateID = 4968
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "RemoteDesktopLicensing"
+    NodeNameRoot = "RDLicense"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Small"
+        LocalAdminPasswordStateID = 4971
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
 }
