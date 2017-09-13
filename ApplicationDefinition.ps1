@@ -502,4 +502,28 @@
         LocalAdminPasswordStateID = 4971
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "ADFS"
+    NodeNameRoot = "ADFS"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 2
+        VMSizeName = "Large"
+        LocalAdminPasswordStateID = 4977
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "ADFSProxy"
+    NodeNameRoot = "ADFSProxy"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 4978
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
 }
