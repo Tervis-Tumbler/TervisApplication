@@ -526,4 +526,17 @@
         LocalAdminPasswordStateID = 4978
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "DomainController"
+    NodeNameRoot = "DC"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Large"
+        LocalAdminPasswordStateID = 2643
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
 }
+
