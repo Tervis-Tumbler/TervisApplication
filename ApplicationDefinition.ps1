@@ -538,5 +538,16 @@
         LocalAdminPasswordStateID = 2643
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "SilverlightIE"
+    NodeNameRoot = "SlvrLtIE"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 5001
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
 }
-
