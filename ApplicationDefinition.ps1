@@ -498,7 +498,7 @@
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
         NumberOfNodes = 1
-        VMSizeName = "Small"
+        VMSizeName = "Medium"
         LocalAdminPasswordStateID = 4971
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
