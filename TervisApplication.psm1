@@ -518,11 +518,13 @@ function New-ApplicationNodePSSession {
 
 function New-SplatVariable {
     param (
-        [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$Invocation,
+        [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName="Invocation")]$Invocation,
+        [Parameter(Mandatory,ValueFromPipelineByPropertyName,ParameterSetName="Function")]$Function,
         $Variables,
         $ExcludeProperty
     )
-    $CommandName = $Invocation.InvocationName
+    if ($Invocation){$CommandName = $Invocation.InvocationName}
+    elseif ($Function){$CommandName = $Function}
     $ParameterList = (Get-Command -Name $CommandName).Parameters
     $VariablesToSplat = $Variables | 
         where Name -In $ParameterList.Values.Name | 
