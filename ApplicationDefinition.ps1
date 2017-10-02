@@ -550,4 +550,16 @@
         LocalAdminPasswordStateID = 5001
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "FedExShipManager"
+    NodeNameRoot = "FedExSM"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 5031
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
 }
