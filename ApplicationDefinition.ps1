@@ -576,7 +576,7 @@
     VMOperatingSystemTemplateName = "VyOS"
 },
 [PSCustomObject][Ordered]@{
-    Name = "ZeroTierRouter"
+    Name = "ZeroTier Router"
     NodeNameRoot = "ZTRouter"
     ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
