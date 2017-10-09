@@ -562,4 +562,28 @@
         LocalAdminPasswordStateID = 5031
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "VyOS"
+    NodeNameRoot = "VyOS"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 2
+        VMSizeName = "Small"
+        LocalAdminPasswordStateID = 4996
+    }
+    VMOperatingSystemTemplateName = "VyOS"
+},
+[PSCustomObject][Ordered]@{
+    Name = "ZeroTierRouter"
+    NodeNameRoot = "ZTRouter"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 5071
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
 }
