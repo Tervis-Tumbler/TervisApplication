@@ -586,4 +586,16 @@
         LocalAdminPasswordStateID = 5071
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "ZeroTierBridge"
+    NodeNameRoot = "ZTBridge"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Small"
+        LocalAdminPasswordStateID = 5088
+    }
+    VMOperatingSystemTemplateName = "CentOS 7"
 }
