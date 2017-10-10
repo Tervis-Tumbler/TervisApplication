@@ -588,6 +588,18 @@
     VMOperatingSystemTemplateName = "Windows Server 2016"
 },
 [PSCustomObject][Ordered]@{
+    Name = "SCCM 2016"
+    NodeNameRoot = "SCCM2016"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Large"
+        LocalAdminPasswordStateID = 5090
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
     Name = "ZeroTierBridge"
     NodeNameRoot = "ZTBridge"
     ComputeType = "Virtual"
