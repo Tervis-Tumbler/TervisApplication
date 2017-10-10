@@ -43,7 +43,9 @@ function Get-TervisApplicationNode {
                     $Node | Add-NodeVMProperty
                 }
 
-                $Node | Add-NodeIPAddressProperty -PassThru
+                $Node | 
+                Add-NodeIPAddressProperty -PassThru |
+                Add-NodeCredentialProperty -PassThru
             }
         }
     }
@@ -148,7 +150,27 @@ function Invoke-ApplicationNodeProvision {
             Set-WINRMHTTPInTCPPublicRemoteAddressToLocalSubnet -ComputerName $Node.ComputerName
         }
         if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "CentOS 7") {
-            ####Generic Linux Code Goes Here####
+            $TemplateCredential = Get-PasswordstateCredential -PasswordID 3948
+            Set-LinuxAccountPassword -ComputerName $Node.IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential
+            $Node | Add-SSHSessionCustomProperty
+            Install-YumTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
+            $Node | Set-LinuxHostname
+            $Node | Join-LinuxToADDomain
+
+            ###
+            
+            Enable-TervisNetFirewallRuleGroup -Name $Node.ApplicationName -ComputerName $IPAddress -Credential $Credential
+            Invoke-GPUpdate -Computer $Node.ComputerName -RandomDelayInMinutes 0
+            
+            $Node | Set-ApplicationNodeTimeZone
+            $Node | Enable-ApplicationNodeKerberosDoubleHop
+            $Node | Enable-ApplicationNodeRemoteDesktop
+            $Node | New-ApplicationNodeDnsCnameRecord
+            $Node | New-ApplicationAdministratorPrivilegeADGroup
+            $Node | Add-ApplicationAdministratorPrivilegeADGroupToLocalAdministrators
+            $Node | Install-ApplicationNodeWindowsFeature
+            $Node | Install-ApplicationNodeDesiredStateConfiguration
+
         }
     }
 }
@@ -635,5 +657,49 @@ function Restart-NodePendingRestartForWindowsUpdate {
             
             $NodeToRestart | Restart-Computer -Force -Wait              
         }
+    }
+}
+
+function Set-LinuxAccountPassword {
+    param (
+        [Parameter(Mandatory)]$ComputerName,
+        [Parameter(Mandatory)]$Credential,
+        [Parameter(Mandatory)]$NewCredential
+    )
+    $SSHSession = New-SSHSession -ComputerName $ComputerName -Credential $Credential -AcceptKey
+    $Command = "echo `"$($NewCredential.UserName):$($NewCredential.GetNetworkCredential().Password)`" | chpasswd"
+    Invoke-SSHCommand -Command $Command -SSHSession $SSHSession
+    Remove-SSHSession -SSHSession $SSHSession
+}
+
+function Add-SSHSessionCustomProperty {
+    param (
+        [Parameter(Mandatory,ValueFromPipeline)]$Node,
+        [Switch]$PassThru
+    )
+    process {
+        $Node |
+        Add-Member -MemberType ScriptProperty -Name SSHSession -Force -Value {
+            $SSHSession = Get-SSHSession -ComputerName $This.IPAddress
+            if ($SSHSession -and $SSHSession.Connected -eq $true) {
+                $SSHSession
+            } else {
+                if ($SSHSession) { $SSHSession | Remove-SSHSession | Out-Null }
+                New-SSHSession -ComputerName $This.IPAddress -Credential $This.Credential -AcceptKey
+            }
+        } -PassThru:$PassThru 
+    }
+}
+
+function Add-NodeCredentialProperty {
+    param (
+        [Parameter(Mandatory,ValueFromPipeline)]$Node,
+        [Switch]$PassThru
+    )
+    process {
+        $Node |
+        Add-Member -MemberType ScriptProperty -Name Credential -Force -Value {
+            Get-PasswordstateCredential -PasswordID $This.LocalAdminPasswordStateID
+        } -PassThru:$PassThru 
     }
 }
