@@ -598,6 +598,7 @@
         LocalAdminPasswordStateID = 5090
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+<<<<<<< HEAD
 },
 [PSCustomObject][Ordered]@{
     Name = "ZeroTierBridge"
@@ -610,4 +611,6 @@
         LocalAdminPasswordStateID = 5088
     }
     VMOperatingSystemTemplateName = "CentOS 7"
+=======
+>>>>>>> 2e47752c1f38ae7a90987063e329340e7c08e86f
 }
