@@ -588,7 +588,7 @@
     VMOperatingSystemTemplateName = "Windows Server 2016"
 },
 [PSCustomObject][Ordered]@{
-    Name = "SCCM 2016"
+    Name = "SCCM2016"
     NodeNameRoot = "SCCM"
     ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
