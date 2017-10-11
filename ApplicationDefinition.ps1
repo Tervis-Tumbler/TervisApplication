@@ -589,7 +589,7 @@
 },
 [PSCustomObject][Ordered]@{
     Name = "SCCM 2016"
-    NodeNameRoot = "SCCM2016"
+    NodeNameRoot = "SCCM2016-"
     ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
