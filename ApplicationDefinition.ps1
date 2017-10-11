@@ -596,6 +596,8 @@
         NumberOfNodes = 1
         VMSizeName = "Large"
         LocalAdminPasswordStateID = 5090
+        SQLSAPassword = 5091
+        SCCMServiceAccountPassword = 2994
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
 },
