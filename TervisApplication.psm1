@@ -156,21 +156,6 @@ function Invoke-ApplicationNodeProvision {
             Install-YumTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
             $Node | Set-LinuxHostname
             $Node | Join-LinuxToADDomain
-
-            ###
-            
-            Enable-TervisNetFirewallRuleGroup -Name $Node.ApplicationName -ComputerName $IPAddress -Credential $Credential
-            Invoke-GPUpdate -Computer $Node.ComputerName -RandomDelayInMinutes 0
-            
-            $Node | Set-ApplicationNodeTimeZone
-            $Node | Enable-ApplicationNodeKerberosDoubleHop
-            $Node | Enable-ApplicationNodeRemoteDesktop
-            $Node | New-ApplicationNodeDnsCnameRecord
-            $Node | New-ApplicationAdministratorPrivilegeADGroup
-            $Node | Add-ApplicationAdministratorPrivilegeADGroupToLocalAdministrators
-            $Node | Install-ApplicationNodeWindowsFeature
-            $Node | Install-ApplicationNodeDesiredStateConfiguration
-
         }
     }
 }
