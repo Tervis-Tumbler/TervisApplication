@@ -15,7 +15,8 @@ function Get-TervisApplicationNode {
         [Parameter(Mandatory,ParameterSetName="ApplicationName")]$ApplicationName,
         [Parameter(Mandatory,ParameterSetName="All")][Switch]$All,
         [String[]]$EnvironmentName,
-        [Switch]$IncludeVM        
+        [Switch]$IncludeVM,
+        [Switch]$IncludeSSHSession
     )
     $ApplicationDefinitions = if ($ApplicationName) {
         Get-TervisApplicationDefinition -Name $ApplicationName
@@ -41,6 +42,10 @@ function Get-TervisApplicationNode {
                 if ($IncludeVM) {
                     $Node | Add-Member -MemberType NoteProperty -Name VMSizeName -Value $Environment.VMSizeName
                     $Node | Add-NodeVMProperty
+                }
+
+                if ($IncludeSSHSession) {
+                    $Node | Add-SSHSessionCustomProperty
                 }
 
                 $Node | 
