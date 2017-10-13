@@ -612,4 +612,16 @@
         LocalAdminPasswordStateID = 5088
     }
     VMOperatingSystemTemplateName = "CentOS 7"
+},
+[PSCustomObject][Ordered]@{
+    Name = "UnifiController"
+    NodeNameRoot = "Unifi"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 5104
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
 }
