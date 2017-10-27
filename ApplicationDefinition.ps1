@@ -349,6 +349,22 @@
     NeedsAccesstoSAN = $true
 },
 [PSCustomObject][Ordered]@{
+    Name = "SCDPMOraBackups"
+    NodeNameRoot = "SCDPMORA"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 4124
+        SQLSAPassword = 5157
+        DPMServiceAccountPassword = 4037
+
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
+    NeedsAccesstoSAN = $true
+},
+[PSCustomObject][Ordered]@{
     Name = "DataLoadClassic"
     NodeNameRoot = "DataLoad"
     ComputeType = "Virtual"
