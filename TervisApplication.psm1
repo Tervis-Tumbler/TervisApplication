@@ -16,7 +16,8 @@ function Get-TervisApplicationNode {
         [Parameter(Mandatory,ParameterSetName="All")][Switch]$All,
         [String[]]$EnvironmentName,
         [Switch]$IncludeVM,
-        [Switch]$IncludeSSHSession
+        [Switch]$IncludeSSHSession,
+        [Switch]$IncludeSFTSession
     )
     $ApplicationDefinitions = if ($ApplicationName) {
         Get-TervisApplicationDefinition -Name $ApplicationName
@@ -46,6 +47,10 @@ function Get-TervisApplicationNode {
 
                 if ($IncludeSSHSession) {
                     $Node | Add-SSHSessionCustomProperty
+                }
+
+                if ($IncludeSFTSession) {
+                    $Node | Add-SFTPSessionCustomProperty
                 }
 
                 $Node | 
@@ -676,6 +681,25 @@ function Add-SSHSessionCustomProperty {
             } else {
                 if ($SSHSession) { $SSHSession | Remove-SSHSession | Out-Null }
                 New-SSHSession -ComputerName $This.IPAddress -Credential $This.Credential -AcceptKey
+            }
+        } -PassThru:$PassThru 
+    }
+}
+
+function Add-SFTPSessionCustomProperty {
+    param (
+        [Parameter(Mandatory,ValueFromPipeline)]$Node,
+        [Switch]$PassThru
+    )
+    process {
+        $Node |
+        Add-Member -MemberType ScriptProperty -Name SFTPSession -Force -Value {
+            $SFTPSession = Get-SFTPSession | where Host -eq $This.IPAddress
+            if ($SFTPSession -and $SFTPSession.Connected -eq $true) {
+                $SFTPSession
+            } else {
+                if ($SFTPSession) { $SFTPSession | Remove-SFTPSession | Out-Null }
+                New-SFTPSession -ComputerName $This.IPAddress -Credential $This.Credential -AcceptKey
             }
         } -PassThru:$PassThru 
     }
