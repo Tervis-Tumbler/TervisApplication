@@ -624,4 +624,16 @@
         LocalAdminPasswordStateID = 5104
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "ArchRouter"
+    NodeNameRoot = "ArchRT"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 5183
+    }
+    VMOperatingSystemTemplateName = "Arch Linux"
 }
