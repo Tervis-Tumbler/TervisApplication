@@ -176,7 +176,7 @@ function Invoke-ApplicationNodeProvision {
             $Node | Set-LinuxHostname
             $Node | Add-ApplicationNodeDnsServerResourceRecord
 
-            Install-YumTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
+            Install-PacmanTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
         }
     }
 }
