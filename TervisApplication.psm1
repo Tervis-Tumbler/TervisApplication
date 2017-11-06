@@ -165,6 +165,7 @@ function Invoke-ApplicationNodeProvision {
             $Node | Add-SSHSessionCustomProperty
             Install-YumTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
             $Node | Set-LinuxHostname
+            $Node | Add-ApplicationNodeDnsServerResourceRecord
             $Node | Join-LinuxToADDomain
         }
     }
@@ -717,3 +718,18 @@ function Add-NodeCredentialProperty {
         } -PassThru:$PassThru 
     }
 }
+
+function Add-ApplicationNodeDnsServerResourceRecord {
+    param (
+        [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$ComputerName,
+        [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$IPAddress
+    )
+    begin {
+        $ZoneName = Get-ADDomain | Select -ExpandProperty DNSRoot
+        $DNSServerComputerName = Get-ADDomainController | Select -ExpandProperty HostName
+    }
+    process {
+        Add-DnsServerResourceRecord -ZoneName $ZoneName -ComputerName $DNSServerComputerName -IPv4Address $IPAddress -Name $ComputerName -A
+    }
+}
+
