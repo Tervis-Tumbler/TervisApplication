@@ -168,6 +168,16 @@ function Invoke-ApplicationNodeProvision {
             $Node | Add-ApplicationNodeDnsServerResourceRecord
             $Node | Join-LinuxToADDomain
         }
+        if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "Arch Linux") {
+            $TemplateCredential = Get-PasswordstateCredential -PasswordID 5183
+            New-LinuxUser -ComputerName $Node.IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential -Administrator
+            $Node | Add-SSHSessionCustomProperty
+            $Node | Set-LinuxTimeZone -Country US -ZoneName East
+            $Node | Set-LinuxHostname
+            $Node | Add-ApplicationNodeDnsServerResourceRecord
+
+            Install-YumTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
+        }
     }
 }
 
@@ -654,18 +664,6 @@ function Restart-NodePendingRestartForWindowsUpdate {
             $NodeToRestart | Restart-Computer -Force -Wait              
         }
     }
-}
-
-function Set-LinuxAccountPassword {
-    param (
-        [Parameter(Mandatory)]$ComputerName,
-        [Parameter(Mandatory)]$Credential,
-        [Parameter(Mandatory)]$NewCredential
-    )
-    $SSHSession = New-SSHSession -ComputerName $ComputerName -Credential $Credential -AcceptKey
-    $Command = "echo `"$($NewCredential.UserName):$($NewCredential.GetNetworkCredential().Password)`" | chpasswd"
-    Invoke-SSHCommand -Command $Command -SSHSession $SSHSession
-    Remove-SSHSession -SSHSession $SSHSession
 }
 
 function Add-SSHSessionCustomProperty {
