@@ -16,7 +16,8 @@ function Get-TervisApplicationNode {
         [Parameter(Mandatory,ParameterSetName="All")][Switch]$All,
         [String[]]$EnvironmentName,
         [Switch]$IncludeVM,
-        [Switch]$IncludeSSHSession
+        [Switch]$IncludeSSHSession,
+        [Switch]$IncludeSFTSession
     )
     $ApplicationDefinitions = if ($ApplicationName) {
         Get-TervisApplicationDefinition -Name $ApplicationName
@@ -46,6 +47,10 @@ function Get-TervisApplicationNode {
 
                 if ($IncludeSSHSession) {
                     $Node | Add-SSHSessionCustomProperty
+                }
+
+                if ($IncludeSFTSession) {
+                    $Node | Add-SFTPSessionCustomProperty
                 }
 
                 $Node | 
@@ -160,7 +165,18 @@ function Invoke-ApplicationNodeProvision {
             $Node | Add-SSHSessionCustomProperty
             Install-YumTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
             $Node | Set-LinuxHostname
+            $Node | Add-ApplicationNodeDnsServerResourceRecord
             $Node | Join-LinuxToADDomain
+        }
+        if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "Arch Linux") {
+            $TemplateCredential = Get-PasswordstateCredential -PasswordID 5183
+            New-LinuxUser -ComputerName $Node.IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential -Administrator
+            $Node | Add-SSHSessionCustomProperty
+            $Node | Set-LinuxTimeZone -Country US -ZoneName East
+            $Node | Set-LinuxHostname
+            $Node | Add-ApplicationNodeDnsServerResourceRecord
+
+            Install-PacmanTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
         }
     }
 }
@@ -650,18 +666,6 @@ function Restart-NodePendingRestartForWindowsUpdate {
     }
 }
 
-function Set-LinuxAccountPassword {
-    param (
-        [Parameter(Mandatory)]$ComputerName,
-        [Parameter(Mandatory)]$Credential,
-        [Parameter(Mandatory)]$NewCredential
-    )
-    $SSHSession = New-SSHSession -ComputerName $ComputerName -Credential $Credential -AcceptKey
-    $Command = "echo `"$($NewCredential.UserName):$($NewCredential.GetNetworkCredential().Password)`" | chpasswd"
-    Invoke-SSHCommand -Command $Command -SSHSession $SSHSession
-    Remove-SSHSession -SSHSession $SSHSession
-}
-
 function Add-SSHSessionCustomProperty {
     param (
         [Parameter(Mandatory,ValueFromPipeline)]$Node,
@@ -681,6 +685,25 @@ function Add-SSHSessionCustomProperty {
     }
 }
 
+function Add-SFTPSessionCustomProperty {
+    param (
+        [Parameter(Mandatory,ValueFromPipeline)]$Node,
+        [Switch]$PassThru
+    )
+    process {
+        $Node |
+        Add-Member -MemberType ScriptProperty -Name SFTPSession -Force -Value {
+            $SFTPSession = Get-SFTPSession | where Host -eq $This.IPAddress
+            if ($SFTPSession -and $SFTPSession.Connected -eq $true) {
+                $SFTPSession
+            } else {
+                if ($SFTPSession) { $SFTPSession | Remove-SFTPSession | Out-Null }
+                New-SFTPSession -ComputerName $This.IPAddress -Credential $This.Credential -AcceptKey
+            }
+        } -PassThru:$PassThru 
+    }
+}
+
 function Add-NodeCredentialProperty {
     param (
         [Parameter(Mandatory,ValueFromPipeline)]$Node,
@@ -693,3 +716,18 @@ function Add-NodeCredentialProperty {
         } -PassThru:$PassThru 
     }
 }
+
+function Add-ApplicationNodeDnsServerResourceRecord {
+    param (
+        [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$ComputerName,
+        [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$IPAddress
+    )
+    begin {
+        $ZoneName = Get-ADDomain | Select -ExpandProperty DNSRoot
+        $DNSServerComputerName = Get-ADDomainController | Select -ExpandProperty HostName
+    }
+    process {
+        Add-DnsServerResourceRecord -ZoneName $ZoneName -ComputerName $DNSServerComputerName -IPv4Address $IPAddress -Name $ComputerName -A
+    }
+}
+
