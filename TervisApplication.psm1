@@ -375,9 +375,9 @@ function Invoke-TervisJoinDomain {
         Invoke-Command -ComputerName $IPAddress -Credential $Credential -ScriptBlock {
             Add-Computer -DomainName $Using:ADDomain.forest -Force -OUPath $Using:OUPath -Credential $Using:DomainJoinCredential
         }
-        Restart-Computer -ComputerName $IPAddress -Credential $Credential -Wait -Protocol WSMan -Force
+        Restart-Computer -ComputerName $IPAddress -Credential $DomainJoinCredential -Wait -Protocol WSMan -Force
                 
-        $DomainNameAfterRestart = Get-DomainNameOnOrOffDomain -ComputerName $ComputerName -IPAddress $IPAddress -Credential $Credential
+        $DomainNameAfterRestart = Get-DomainNameOnOrOffDomain -ComputerName $ComputerName -IPAddress $IPAddress -Credential $DomainJoinCredential
         if ($DomainNameAfterRestart -ne $ADDomain.DNSRoot) {
             Throw "Joining the domain for $ComputerName with ip address $IPAddress failed"
         }
