@@ -450,7 +450,10 @@ function Invoke-ApplicationNodeVMProvision {
     process {
         $Clusters = Get-TervisCluster -Domain $ADDomain.DNSRoot
         $LocalComputerADSite = Get-ComputerSite -ComputerName $Env:COMPUTERNAME
-        $ClusterToCreateVMOn = $Clusters | where ADSite -eq $LocalComputerADSite
+        $ClusterToCreateVMOn = $Clusters | 
+        Where-Object ADSite -eq $LocalComputerADSite |
+        Sort-Object Name |
+        Select-Object -First 1
         
         $TervisVMParameters = @{
             VMNameWithoutEnvironmentPrefix = $Node.NameWithoutPrefix

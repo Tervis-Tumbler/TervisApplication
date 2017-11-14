@@ -150,12 +150,6 @@
         NumberOfNodes = 1
         VMSizeName = "Large"
         LocalAdminPasswordStateID = 4112
-    },
-    [PSCustomObject][Ordered]@{
-        Name = "Epsilon"
-        NumberOfNodes = 1
-        VMSizeName = "Medium"
-        LocalAdminPasswordStateID = 4113
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
 },
