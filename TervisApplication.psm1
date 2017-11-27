@@ -151,7 +151,7 @@ function Invoke-ApplicationNodeProvision {
             $Node | Install-ApplicationNodeWindowsFeature
             $Node | Install-ApplicationNodeDesiredStateConfiguration
             
-            $Node | Install-TervisChocolateyOnNode
+            $Node | Install-TervisChocolatey
 
             if (-Not $SkipInstallTervisChocolateyPackages) {
                 Install-TervisChocolateyPackages -ChocolateyPackageGroupNames $Node.ApplicationName -ComputerName $Node.ComputerName
@@ -240,16 +240,6 @@ function Get-ApplicationAdministratorPrivilegeADGroup {
         $PrivilegeGroupName = "Privilege_$($EnvironmentName)$($ApplicationName)Administrator"
         Get-ADGroup -SearchBase $ApplicationOrganizationalUnit -Filter {Name -eq $PrivilegeGroupName}
     }
-}
-
-function Install-TervisChocolateyOnNode {
-    param (
-        [Parameter(ValueFromPipelineByPropertyName)]$ComputerName
-    )
-    process {
-        Install-TervisChocolatey -ComputerName $ComputerName
-    }
-
 }
 
 function Set-ApplicationNodeTimeZone {
