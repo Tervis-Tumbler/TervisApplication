@@ -492,10 +492,12 @@ function Get-Uptime {
         $ComputerName,
         $Credential = [System.Management.Automation.PSCredential]::Empty
     )
-    $OperatingSystemObject = Get-WmiObject -ComputerName $ComputerName Win32_OperatingSystem -Credential $Credential
-    $ConvertedUptimeString = [Management.ManagementDateTimeConverter]::ToDateTime($OperatingSystemObject.LastBootUpTime)
-    $CurrentUptimeCalculation = (get-date) - $ConvertedUptimeString
-    $CurrentUptimeCalculation
+    if (Test-NetConnection $ComputerName | Select-Object -ExpandProperty PingSucceeded) {
+        $OperatingSystemObject = Get-WmiObject -ComputerName $ComputerName Win32_OperatingSystem -Credential $Credential
+        $ConvertedUptimeString = [Management.ManagementDateTimeConverter]::ToDateTime($OperatingSystemObject.LastBootUpTime)
+        $CurrentUptimeCalculation = (get-date) - $ConvertedUptimeString
+        $CurrentUptimeCalculation
+    }
 }
 
 function Get-ComputerNameOnOrOffDomain {
