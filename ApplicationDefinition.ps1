@@ -312,11 +312,11 @@
 },
 [PSCustomObject][Ordered]@{
     Name = "SCDPM2016FileServer"
-    NodeNameRoot = "DPM2016FS"
+    NodeNameRoot = "SCDPMFS"
     ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
-        NumberOfNodes = 2
+        NumberOfNodes = 1
         VMSizeName = "Medium"
         LocalAdminPasswordStateID = 4124
         SQLSAPassword = 4038
