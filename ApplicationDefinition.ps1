@@ -316,8 +316,8 @@
     ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
-        NumberOfNodes = 1
-        VMSizeName = "Small"
+        NumberOfNodes = 2
+        VMSizeName = "Medium"
         LocalAdminPasswordStateID = 4124
         SQLSAPassword = 4038
         DPMServiceAccountPassword = 4037
@@ -450,6 +450,18 @@
         Name = "Infrastructure"
         NumberOfNodes = 2
         VMSizeName = "Small"
+    }
+    VMOperatingSystemTemplateName = "CentOS 7"
+},
+[PSCustomObject][Ordered]@{
+    Name = "FreshDeskSFTP"
+    NodeNameRoot = "FDeskSFTP"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Small"
+        LocalAdminPasswordStateID = 5239
     }
     VMOperatingSystemTemplateName = "CentOS 7"
 },
