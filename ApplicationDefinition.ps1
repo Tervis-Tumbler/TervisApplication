@@ -658,4 +658,28 @@
         LocalAdminPasswordStateID = 5183
     }
     VMOperatingSystemTemplateName = "Arch Linux"
+},
+[PSCustomObject][Ordered]@{
+    Name = "EBSBusinessIntelligenceRemoteApp"
+    NodeNameRoot = "EBSBI"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 2
+        VMSizeName = "Large"
+        LocalAdminPasswordStateID = 5308
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "EBSDiscovererRemoteApp"
+    NodeNameRoot = "EBSDISC"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 2
+        VMSizeName = "Large"
+        LocalAdminPasswordStateID = 5309
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
 }
