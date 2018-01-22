@@ -7,7 +7,7 @@ function Get-TervisApplicationDefinition {
     )
     
     $ApplicationDefinition | 
-    where Name -EQ $Name
+    where Name -In $Name
 }
 
 function Get-TervisApplicationNode {
@@ -19,11 +19,7 @@ function Get-TervisApplicationNode {
         [Switch]$IncludeSSHSession,
         [Switch]$IncludeSFTSession
     )
-    $ApplicationDefinitions = if ($ApplicationName) {
-        Get-TervisApplicationDefinition -Name $ApplicationName
-    } else {
-        $ApplicationDefinition
-    }
+    $ApplicationDefinitions = Get-TervisApplicationDefinition -Name $ApplicationName
 
     foreach ($ApplicationDefinition in $ApplicationDefinitions) {    
         $Environments = $ApplicationDefinition.Environments |
