@@ -682,4 +682,17 @@
         LocalAdminPasswordStateID = 5309
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "AzureBackupServer"
+    NodeNameRoot = "AzureBK"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 5320
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
 }
+
