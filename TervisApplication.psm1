@@ -151,7 +151,7 @@ function Invoke-ApplicationNodeProvision {
             $Node | Install-TervisChocolatey
 
             if (-Not $SkipInstallTervisChocolateyPackages) {
-                Install-TervisChocolateyPackages -ChocolateyPackageGroupNames $Node.ApplicationName -ComputerName $Node.ComputerName
+                $Node | Install-TervisChocolateyPackages -ChocolateyPackageGroupNames $Node.ApplicationName
             }
 
             Set-WINRMHTTPInTCPPublicRemoteAddressToLocalSubnet -ComputerName $Node.ComputerName
