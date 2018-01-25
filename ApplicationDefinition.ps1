@@ -174,6 +174,8 @@
         NumberOfNodes = 3
         VMSizeName = "Large"
         LocalAdminPasswordStateID = 4124
+        SQLSAPassword = 4038
+        DPMServiceAccountPassword = 4037
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
     NeedsAccesstoSAN = $true
