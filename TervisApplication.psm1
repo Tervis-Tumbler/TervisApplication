@@ -7,7 +7,7 @@ function Get-TervisApplicationDefinition {
     )
     
     $ApplicationDefinition | 
-    where Name -EQ $Name
+    where Name -In $Name
 }
 
 function Get-TervisApplicationNode {
@@ -19,11 +19,7 @@ function Get-TervisApplicationNode {
         [Switch]$IncludeSSHSession,
         [Switch]$IncludeSFTSession
     )
-    $ApplicationDefinitions = if ($ApplicationName) {
-        Get-TervisApplicationDefinition -Name $ApplicationName
-    } else {
-        $ApplicationDefinition
-    }
+    $ApplicationDefinitions = Get-TervisApplicationDefinition -Name $ApplicationName
 
     foreach ($ApplicationDefinition in $ApplicationDefinitions) {    
         $Environments = $ApplicationDefinition.Environments |
@@ -150,12 +146,12 @@ function Invoke-ApplicationNodeProvision {
             $Node | New-ApplicationAdministratorPrivilegeADGroup
             $Node | Add-ApplicationAdministratorPrivilegeADGroupToLocalAdministrators
             $Node | Install-ApplicationNodeWindowsFeature
-            $Node | Install-ApplicationNodeDesiredStateConfiguration
+            $Node | Install-TervisDesiredStateConfiguration
             
             $Node | Install-TervisChocolatey
 
             if (-Not $SkipInstallTervisChocolateyPackages) {
-                Install-TervisChocolateyPackages -ChocolateyPackageGroupNames $Node.ApplicationName -ComputerName $Node.ComputerName
+                $Node | Install-TervisChocolateyPackages -ChocolateyPackageGroupNames $Node.ApplicationName
             }
 
             Set-WINRMHTTPInTCPPublicRemoteAddressToLocalSubnet -ComputerName $Node.ComputerName
@@ -264,16 +260,6 @@ function Install-ApplicationNodeWindowsFeature {
         if ($Result.RestartNeeded | ConvertTo-Boolean) {
             Restart-Computer -ComputerName $ComputerName -Force -Wait
         }
-    }
-}
-
-function Install-ApplicationNodeDesiredStateConfiguration {
-    param (
-        [Parameter(ValueFromPipelineByPropertyName)]$ComputerName,
-        [Parameter(ValueFromPipelineByPropertyName)]$ApplicationName
-    )
-    process {
-        Install-TervisDesiredStateConfiguration -ApplicationName $ApplicationName -ComputerName $ComputerName
     }
 }
 
