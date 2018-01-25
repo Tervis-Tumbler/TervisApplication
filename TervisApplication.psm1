@@ -146,7 +146,7 @@ function Invoke-ApplicationNodeProvision {
             $Node | New-ApplicationAdministratorPrivilegeADGroup
             $Node | Add-ApplicationAdministratorPrivilegeADGroupToLocalAdministrators
             $Node | Install-ApplicationNodeWindowsFeature
-            $Node | Install-ApplicationNodeDesiredStateConfiguration
+            $Node | Install-TervisDesiredStateConfiguration
             
             $Node | Install-TervisChocolatey
 
@@ -260,16 +260,6 @@ function Install-ApplicationNodeWindowsFeature {
         if ($Result.RestartNeeded | ConvertTo-Boolean) {
             Restart-Computer -ComputerName $ComputerName -Force -Wait
         }
-    }
-}
-
-function Install-ApplicationNodeDesiredStateConfiguration {
-    param (
-        [Parameter(ValueFromPipelineByPropertyName)]$ComputerName,
-        [Parameter(ValueFromPipelineByPropertyName)]$ApplicationName
-    )
-    process {
-        Install-TervisDesiredStateConfiguration -ApplicationName $ApplicationName -ComputerName $ComputerName
     }
 }
 
