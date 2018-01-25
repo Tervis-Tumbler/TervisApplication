@@ -316,7 +316,7 @@
     ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
-        NumberOfNodes = 2
+        NumberOfNodes = 4
         VMSizeName = "Medium"
         LocalAdminPasswordStateID = 4124
         SQLSAPassword = 4038
