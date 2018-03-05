@@ -696,18 +696,5 @@
         LocalAdminPasswordStateID = 5320
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
-},
-[PSCustomObject][Ordered]@{
-    Name = "OracleODBEE"
-    NodeNameRoot = "ODBEE"
-    ComputeType = "OracleVM"
-    Environments = [PSCustomObject][Ordered]@{
-        Name = "Zeta"
-        NumberOfNodes = 1
-        VMSizeName = "Medium"
-        LocalAdminPasswordStateID = 5231
-        Network = "Servers-VLAN"
-    }
-    VMOperatingSystemTemplateName = "OEL 7"
 }
 
