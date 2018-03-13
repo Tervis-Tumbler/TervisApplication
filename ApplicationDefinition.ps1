@@ -696,5 +696,19 @@
         LocalAdminPasswordStateID = 5320
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "OracleODBEE"
+    NodeNameRoot = "ODBEE"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        RootPasswordStateID = 5361
+        OracleUserCredential = 4312
+        ApplmgrUserCredential = 4311
+        OracleSMBShareADCredential = 4169
+    }
+    VMOperatingSystemTemplateName = ""
 }
 
