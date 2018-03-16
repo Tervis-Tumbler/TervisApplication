@@ -700,15 +700,16 @@
 [PSCustomObject][Ordered]@{
     Name = "OracleODBEE"
     NodeNameRoot = "ODBEE"
+    ComputeType = "OracleVM"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
         NumberOfNodes = 1
         VMSizeName = "Medium"
-        RootPasswordStateID = 5361
+        LocalAdminPasswordStateID = 5361
         OracleUserCredential = 4312
         ApplmgrUserCredential = 4311
         OracleSMBShareADCredential = 4169
     }
-    VMOperatingSystemTemplateName = ""
+    VMOperatingSystemTemplateName = "OEL-75-Template"
 }
 

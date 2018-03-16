@@ -37,8 +37,13 @@ function Get-TervisApplicationNode {
                 }
             
                 if ($IncludeVM) {
-                    $Node | Add-Member -MemberType NoteProperty -Name VMSizeName -Value $Environment.VMSizeName
-                    $Node | Add-NodeVMProperty
+                    if($applicationdefinition.ComputeType -eq "OracleVM"){
+                        $Node | Add-NodeOracleVMProperty
+                    }
+                    Else{
+                        $Node | Add-Member -MemberType NoteProperty -Name VMSizeName -Value $Environment.VMSizeName
+                        $Node | Add-NodeVMProperty
+                    }
                 }
 
                 if ($IncludeSSHSession) {
