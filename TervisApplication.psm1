@@ -53,10 +53,16 @@ function Get-TervisApplicationNode {
                 if ($IncludeSFTSession) {
                     $Node | Add-SFTPSessionCustomProperty
                 }
-
-                $Node | 
-                Add-NodeIPAddressProperty -PassThru |
-                Add-NodeCredentialProperty -PassThru
+                if($applicationdefinition.ComputeType -eq "OracleVM"){
+                    $Node | 
+                    Add-OVMNodeIPAddressProperty -PassThru |
+                    Add-NodeCredentialProperty -PassThru
+                }
+                else {
+                    $Node | 
+                    Add-NodeIPAddressProperty -PassThru |
+                    Add-NodeCredentialProperty -PassThru
+                }
             }
         }
     }
