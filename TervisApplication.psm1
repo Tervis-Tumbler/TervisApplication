@@ -675,14 +675,14 @@ function Add-SSHSessionCustomProperty {
         [Switch]$PassThru
     )
     process {
+        $ComputerName = if ($UseIPAddress) {$This.IPAddress} else {$This.ComputerName}
         $Node |
         Add-Member -MemberType ScriptProperty -Name SSHSession -Force -Value {
-            $SSHSession = Get-SSHSession -ComputerName $This.IPAddress
+            $SSHSession = Get-SSHSession -ComputerName $ComputerName
             if ($SSHSession -and $SSHSession.Connected -eq $true) {
                 $SSHSession
             } else {
-                if ($SSHSession) { $SSHSession | Remove-SSHSession | Out-Null }
-                $ComputerName = if ($UseIPAddress) {$This.IPAddress} else {$This.ComputerName}
+                if ($SSHSession) { $SSHSession | Remove-SSHSession | Out-Null }                
                 New-SSHSession -ComputerName $ComputerName -Credential $This.Credential -AcceptKey
             }
         } -PassThru:$PassThru 
@@ -696,14 +696,14 @@ function Add-SFTPSessionCustomProperty {
         [Switch]$PassThru
     )
     process {
+        $ComputerName = if ($UseIPAddress) {$This.IPAddress} else {$This.ComputerName}
         $Node |
         Add-Member -MemberType ScriptProperty -Name SFTPSession -Force -Value {
-            $SFTPSession = Get-SFTPSession | where Host -eq $This.IPAddress
+            $SFTPSession = Get-SFTPSession | where Host -eq $ComputerName
             if ($SFTPSession -and $SFTPSession.Connected -eq $true) {
                 $SFTPSession
             } else {
-                if ($SFTPSession) { $SFTPSession | Remove-SFTPSession | Out-Null }
-                $ComputerName = if ($UseIPAddress) {$This.IPAddress} else {$This.ComputerName}
+                if ($SFTPSession) { $SFTPSession | Remove-SFTPSession | Out-Null }                
                 New-SFTPSession -ComputerName $ComputerName -Credential $This.Credential -AcceptKey
             }
         } -PassThru:$PassThru 
