@@ -675,9 +675,9 @@ function Add-SSHSessionCustomProperty {
         [Switch]$PassThru
     )
     process {
-        $ComputerName = if ($UseIPAddress) {$This.IPAddress} else {$This.ComputerName}
         $Node |
         Add-Member -MemberType ScriptProperty -Name SSHSession -Force -Value {
+            $ComputerName = if ($UseIPAddress) {$This.IPAddress} else {$This.ComputerName}
             $SSHSession = Get-SSHSession -ComputerName $ComputerName
             if ($SSHSession -and $SSHSession.Connected -eq $true) {
                 $SSHSession
@@ -696,9 +696,9 @@ function Add-SFTPSessionCustomProperty {
         [Switch]$PassThru
     )
     process {
-        $ComputerName = if ($UseIPAddress) {$This.IPAddress} else {$This.ComputerName}
         $Node |
         Add-Member -MemberType ScriptProperty -Name SFTPSession -Force -Value {
+            $ComputerName = if ($UseIPAddress) {$This.IPAddress} else {$This.ComputerName}
             $SFTPSession = Get-SFTPSession | where Host -eq $ComputerName
             if ($SFTPSession -and $SFTPSession.Connected -eq $true) {
                 $SFTPSession
