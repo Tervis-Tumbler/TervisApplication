@@ -690,6 +690,7 @@ function Add-SSHSessionCustomProperty {
 function Add-SFTPSessionCustomProperty {
     param (
         [Parameter(Mandatory,ValueFromPipeline)]$Node,
+        [Switch]$UseIPAddress = $true,
         [Switch]$PassThru
     )
     process {
@@ -700,7 +701,8 @@ function Add-SFTPSessionCustomProperty {
                 $SFTPSession
             } else {
                 if ($SFTPSession) { $SFTPSession | Remove-SFTPSession | Out-Null }
-                New-SFTPSession -ComputerName $This.IPAddress -Credential $This.Credential -AcceptKey
+                $ComputerName = if ($UseIPAddress) {$This.IPAddress} else {$This.ComputerName}
+                New-SFTPSession -ComputerName $ComputerName -Credential $This.Credential -AcceptKey
             }
         } -PassThru:$PassThru 
     }
