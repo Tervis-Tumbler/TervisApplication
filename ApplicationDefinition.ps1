@@ -703,7 +703,7 @@
     ComputeType = "OracleVM"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
-        NumberOfNodes = 1
+        NumberOfNodes = 2
         VMSizeName = "Medium"
         LocalAdminPasswordStateID = 5361
         OracleUserCredential = 4312
