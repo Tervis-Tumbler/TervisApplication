@@ -186,7 +186,7 @@ function Invoke-ApplicationNodeProvision {
 
             Install-PacmanTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
         }
-        if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "OEL-75-Template") {
+        if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "OEL 7") {
             #$TemplateCredential = Get-PasswordstateCredential -PasswordID $Node.LocalAdminPasswordStateID
             #New-LinuxUser -ComputerName $Node.IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential -Administrator
             $Node | Add-SSHSessionCustomProperty
@@ -671,6 +671,7 @@ function Restart-NodePendingRestartForWindowsUpdate {
 function Add-SSHSessionCustomProperty {
     param (
         [Parameter(Mandatory,ValueFromPipeline)]$Node,
+        [Switch]$UseIPAddress = $true,
         [Switch]$PassThru
     )
     process {
@@ -681,7 +682,8 @@ function Add-SSHSessionCustomProperty {
                 $SSHSession
             } else {
                 if ($SSHSession) { $SSHSession | Remove-SSHSession | Out-Null }
-                New-SSHSession -ComputerName $This.IPAddress -Credential $This.Credential -AcceptKey
+                $ComputerName = if ($UseIPAddress) {$This.IPAddress} else {$This.ComputerName}
+                New-SSHSession -ComputerName $ComputerName -Credential $This.Credential -AcceptKey
             }
         } -PassThru:$PassThru 
     }
