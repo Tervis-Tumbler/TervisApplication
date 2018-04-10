@@ -711,5 +711,17 @@
         OracleSMBShareADCredential = 4169
     }
     VMOperatingSystemTemplateName = "OEL-75-Template"
+},
+[PSCustomObject][Ordered]@{
+    Name = "SMTPRelay"
+    NodeNameRoot = "SMTPRelay"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Small"
+        LocalAdminPasswordStateID = 5385
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
 }
 
