@@ -175,8 +175,8 @@
         VMSizeName = "Large"
         LocalAdminPasswordStateID = 4124
         SQLSAPassword = 4038
-        DPMServiceAccountPassword = 4037
     }
+    DPMServiceAccountPassword = 4037
     VMOperatingSystemTemplateName = "Windows Server 2016"
     NeedsAccesstoSAN = $true
 },
@@ -322,9 +322,8 @@
         VMSizeName = "Medium"
         LocalAdminPasswordStateID = 4124
         SQLSAPassword = 4038
-        DPMServiceAccountPassword = 4037
-
     }
+    DPMServiceAccountPassword = 4037
     VMOperatingSystemTemplateName = "Windows Server 2016"
     NeedsAccesstoSAN = $true
 },
@@ -338,9 +337,8 @@
         VMSizeName = "Medium"
         LocalAdminPasswordStateID = 4124
         SQLSAPassword = 4038
-        DPMServiceAccountPassword = 4037
-
     }
+    DPMServiceAccountPassword = 4037
     VMOperatingSystemTemplateName = "Windows Server 2016"
     NeedsAccesstoSAN = $true
 },
@@ -354,9 +352,8 @@
         VMSizeName = "Medium"
         LocalAdminPasswordStateID = 4124
         SQLSAPassword = 5157
-        DPMServiceAccountPassword = 4037
-
     }
+    Password = 4037
     VMOperatingSystemTemplateName = "Windows Server 2016"
     NeedsAccesstoSAN = $true
 },
