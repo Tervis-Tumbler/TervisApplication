@@ -175,8 +175,8 @@
         VMSizeName = "Large"
         LocalAdminPasswordStateID = 4124
         SQLSAPassword = 4038
-        DPMServiceAccountPassword = 4037
     }
+    DPMServiceAccountPassword = 4037
     VMOperatingSystemTemplateName = "Windows Server 2016"
     NeedsAccesstoSAN = $true
 },
@@ -322,9 +322,8 @@
         VMSizeName = "Medium"
         LocalAdminPasswordStateID = 4124
         SQLSAPassword = 4038
-        DPMServiceAccountPassword = 4037
-
     }
+    DPMServiceAccountPassword = 4037
     VMOperatingSystemTemplateName = "Windows Server 2016"
     NeedsAccesstoSAN = $true
 },
@@ -338,9 +337,8 @@
         VMSizeName = "Medium"
         LocalAdminPasswordStateID = 4124
         SQLSAPassword = 4038
-        DPMServiceAccountPassword = 4037
-
     }
+    DPMServiceAccountPassword = 4037
     VMOperatingSystemTemplateName = "Windows Server 2016"
     NeedsAccesstoSAN = $true
 },
@@ -350,13 +348,12 @@
     ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
-        NumberOfNodes = 1
+        NumberOfNodes = 2
         VMSizeName = "Medium"
         LocalAdminPasswordStateID = 4124
         SQLSAPassword = 5157
-        DPMServiceAccountPassword = 4037
-
     }
+    Password = 4037
     VMOperatingSystemTemplateName = "Windows Server 2016"
     NeedsAccesstoSAN = $true
 },
@@ -703,7 +700,7 @@
     ComputeType = "OracleVM"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
-        NumberOfNodes = 1
+        NumberOfNodes = 2
         VMSizeName = "Medium"
         LocalAdminPasswordStateID = 5361
         OracleUserCredential = 4312
@@ -711,6 +708,18 @@
         OracleSMBShareADCredential = 4169
     }
     VMOperatingSystemTemplateName = "OEL-75-Template"
+},
+[PSCustomObject][Ordered]@{
+    Name = "SMTPRelay"
+    NodeNameRoot = "SMTPRelay"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Small"
+        LocalAdminPasswordStateID = 5385
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
 },
 [PSCustomObject][Ordered]@{
     Name = "ITToolbox"
@@ -732,7 +741,7 @@
         Name = "Infrastructure"
         NumberOfNodes = 1
         VMSizeName = "Small"
-        LocalAdminPasswordStateID = 5376
+        LocalAdminPasswordStateID = 5388
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
 }

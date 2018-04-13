@@ -187,13 +187,13 @@ function Invoke-ApplicationNodeProvision {
             Install-PacmanTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
         }
         if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "OEL 7") {
-            $TemplateCredential = Get-PasswordstateCredential -PasswordID 4040
-            New-LinuxUser -ComputerName $Node.IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential -Administrator
+            #$TemplateCredential = Get-PasswordstateCredential -PasswordID $Node.LocalAdminPasswordStateID
+            #New-LinuxUser -ComputerName $Node.IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential -Administrator
             $Node | Add-SSHSessionCustomProperty
             $Node | Set-LinuxTimeZone -Country US -ZoneName East
             $Node | Add-ApplicationNodeDnsServerResourceRecord
-
-            Install-PacmanTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
+            Install-YumTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
+            $Node | Join-LinuxToADDomain
         }
     }
 }
@@ -671,17 +671,19 @@ function Restart-NodePendingRestartForWindowsUpdate {
 function Add-SSHSessionCustomProperty {
     param (
         [Parameter(Mandatory,ValueFromPipeline)]$Node,
+        [Switch]$UseIPAddress = $true,
         [Switch]$PassThru
     )
     process {
         $Node |
         Add-Member -MemberType ScriptProperty -Name SSHSession -Force -Value {
-            $SSHSession = Get-SSHSession -ComputerName $This.IPAddress
+            $ComputerName = if ($UseIPAddress) {$This.IPAddress} else {$This.ComputerName}
+            $SSHSession = Get-SSHSession -ComputerName $ComputerName
             if ($SSHSession -and $SSHSession.Connected -eq $true) {
                 $SSHSession
             } else {
-                if ($SSHSession) { $SSHSession | Remove-SSHSession | Out-Null }
-                New-SSHSession -ComputerName $This.IPAddress -Credential $This.Credential -AcceptKey
+                if ($SSHSession) { $SSHSession | Remove-SSHSession | Out-Null }                
+                New-SSHSession -ComputerName $ComputerName -Credential $This.Credential -AcceptKey
             }
         } -PassThru:$PassThru 
     }
@@ -690,17 +692,19 @@ function Add-SSHSessionCustomProperty {
 function Add-SFTPSessionCustomProperty {
     param (
         [Parameter(Mandatory,ValueFromPipeline)]$Node,
+        [Switch]$UseIPAddress = $true,
         [Switch]$PassThru
     )
     process {
         $Node |
         Add-Member -MemberType ScriptProperty -Name SFTPSession -Force -Value {
-            $SFTPSession = Get-SFTPSession | where Host -eq $This.IPAddress
+            $ComputerName = if ($UseIPAddress) {$This.IPAddress} else {$This.ComputerName}
+            $SFTPSession = Get-SFTPSession | where Host -eq $ComputerName
             if ($SFTPSession -and $SFTPSession.Connected -eq $true) {
                 $SFTPSession
             } else {
-                if ($SFTPSession) { $SFTPSession | Remove-SFTPSession | Out-Null }
-                New-SFTPSession -ComputerName $This.IPAddress -Credential $This.Credential -AcceptKey
+                if ($SFTPSession) { $SFTPSession | Remove-SFTPSession | Out-Null }                
+                New-SFTPSession -ComputerName $ComputerName -Credential $This.Credential -AcceptKey
             }
         } -PassThru:$PassThru 
     }
