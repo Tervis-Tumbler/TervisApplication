@@ -711,5 +711,29 @@
         OracleSMBShareADCredential = 4169
     }
     VMOperatingSystemTemplateName = "OEL-75-Template"
+},
+[PSCustomObject][Ordered]@{
+    Name = "ITToolbox"
+    NodeNameRoot = "ITToolbox"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Large"
+        LocalAdminPasswordStateID = 5376
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "WindowsAdminCenterGateway"
+    NodeNameRoot = "WinAdmin"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Small"
+        LocalAdminPasswordStateID = 5376
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
 }
 
