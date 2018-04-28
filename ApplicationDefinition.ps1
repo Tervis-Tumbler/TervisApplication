@@ -744,5 +744,17 @@
         LocalAdminPasswordStateID = 5388
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "Kubernetes"
+    NodeNameRoot = "Kub"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 2
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 5183
+    }
+    VMOperatingSystemTemplateName = "Arch Linux"
 }
 
