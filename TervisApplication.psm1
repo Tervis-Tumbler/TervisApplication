@@ -178,7 +178,7 @@ function Invoke-ApplicationNodeProvision {
         if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "Arch Linux") {
             $TemplateCredential = Get-PasswordstateCredential -PasswordID 5183
             New-LinuxUser -ComputerName $Node.IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential -Administrator
-            $Node | Add-SSHSessionCustomProperty
+            $Node | Add-SSHSessionCustomProperty -UseIPAddress
             $Node | Set-LinuxTimeZone -Country US -ZoneName East
             $Node | Set-LinuxHostname
             $Node | Add-ApplicationNodeDnsServerResourceRecord
