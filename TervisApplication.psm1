@@ -53,6 +53,7 @@ function Get-TervisApplicationNode {
                 if ($IncludeSFTSession) {
                     $Node | Add-SFTPSessionCustomProperty
                 }
+                
                 if($applicationdefinition.ComputeType -eq "OracleVM"){
                     $Node | 
                     Add-OVMNodeIPAddressProperty -PassThru |
@@ -683,7 +684,7 @@ function Add-SSHSessionCustomProperty {
                 if ($SSHSession) { $SSHSession | Remove-SSHSession | Out-Null }                
                 New-SSHSession -ComputerName $ComputerName -Credential $This.Credential -AcceptKey
             }
-        } -PassThru:$PassThru 
+        } -PassThru:$PassThru
     }
 }
 
