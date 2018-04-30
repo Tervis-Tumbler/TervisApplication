@@ -674,7 +674,10 @@ function Add-SSHSessionCustomProperty {
     process {
         $Node |
         Add-Member -MemberType ScriptProperty -Name SSHSession -Force -Value {
-            $ComputerName = if ($UseIPAddress) {$This.IPAddress} else {$This.ComputerName}
+            $ComputerNamePingable = Test-NetConnection -ComputerName $This.ComputerName |
+            Select-Object -ExpandProperty PingSucceeded
+
+            $ComputerName = if ($UseIPAddress -or -not $ComputerNamePingable) {$This.IPAddress} else {$This.ComputerName}
             $SSHSession = Get-SSHSession -ComputerName $ComputerName
             if ($SSHSession -and $SSHSession.Connected -eq $true) {
                 $SSHSession
