@@ -80,8 +80,13 @@ function Add-NodeIPAddressProperty {
             }
         } else {
             $Node | Add-Member -MemberType ScriptProperty -Force -Name IPAddress -Value {
-                Find-DHCPServerv4LeaseIPAddress -HostName $This.ComputerName -AsString |
-                Select-Object -First 1
+                if ($PSVersionTable.Platform -eq "Unix") {
+                    [system.net.dns]::GetHostAddresses($This.ComputerName) |
+                    Select-Object -ExpandProperty IPAddressToString
+                } else {
+                    Find-DHCPServerv4LeaseIPAddress -HostName $This.ComputerName -AsString |
+                    Select-Object -First 1    
+                }                    
             }
         }
         if ($PassThru) { $Node }
