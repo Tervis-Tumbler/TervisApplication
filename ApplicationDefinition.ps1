@@ -753,7 +753,7 @@
         Name = "Infrastructure"
         NumberOfNodes = 1
         VMSizeName = "Medium"
-        LocalAdminPasswordStateID = 5183
+        LocalAdminPasswordStateID = 5178
     }
     VMOperatingSystemTemplateName = "Arch Linux"
 }
