@@ -679,10 +679,14 @@ function Add-SSHSessionCustomProperty {
     process {
         $Node |
         Add-Member -MemberType ScriptProperty -Name SSHSession -Force -Value {
-            $ComputerNamePingable = Test-NetConnection -ComputerName $This.ComputerName |
-            Select-Object -ExpandProperty PingSucceeded
+            # https://github.com/PowerShell/PowerShell/pull/5328
+            # Commented code below will work and be be cross platform with release of v6.1.0, using old code for now
+            #$ComputerNamePingable = Test-Connection -ComputerName $This.ComputerName |
+            #Select-Object -ExpandProperty PingSucceeded
 
-            $ComputerName = if ($UseIPAddress -or -not $ComputerNamePingable) {$This.IPAddress} else {$This.ComputerName}
+            #$ComputerName = if ($UseIPAddress -or -not $ComputerNamePingable) {$This.IPAddress} else {$This.ComputerName}
+            
+            $ComputerName = if ($UseIPAddress) {$This.IPAddress}
             $SSHSession = Get-SSHSession -ComputerName $ComputerName
             if ($SSHSession -and $SSHSession.Connected -eq $true) {
                 $SSHSession
@@ -690,7 +694,7 @@ function Add-SSHSessionCustomProperty {
                 if ($SSHSession) { $SSHSession | Remove-SSHSession | Out-Null }                
                 New-SSHSession -ComputerName $ComputerName -Credential $This.Credential -AcceptKey
             }
-        } -PassThru:$PassThru
+        }.GetNewClosure() -PassThru:$PassThru
     }
 }
 
