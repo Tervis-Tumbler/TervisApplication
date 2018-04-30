@@ -37,10 +37,9 @@ function Get-TervisApplicationNode {
                 }
             
                 if ($IncludeVM) {
-                    if($applicationdefinition.ComputeType -eq "OracleVM"){
+                    if ($applicationdefinition.ComputeType -eq "OracleVM") {
                         $Node | Add-NodeOracleVMProperty
-                    }
-                    Else{
+                    } else {
                         $Node | Add-Member -MemberType NoteProperty -Name VMSizeName -Value $Environment.VMSizeName
                         $Node | Add-NodeVMProperty
                     }
@@ -53,13 +52,12 @@ function Get-TervisApplicationNode {
                 if ($IncludeSFTSession) {
                     $Node | Add-SFTPSessionCustomProperty
                 }
-                
-                if($applicationdefinition.ComputeType -eq "OracleVM"){
+
+                if ($applicationdefinition.ComputeType -eq "OracleVM") {
                     $Node | 
                     Add-OVMNodeIPAddressProperty -PassThru |
                     Add-NodeCredentialProperty -PassThru
-                }
-                else {
+                } else {
                     $Node | 
                     Add-NodeIPAddressProperty -PassThru |
                     Add-NodeCredentialProperty -PassThru
