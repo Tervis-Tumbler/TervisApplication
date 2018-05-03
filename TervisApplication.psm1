@@ -679,7 +679,7 @@ function Restart-NodePendingRestartForWindowsUpdate {
 function Add-SSHSessionCustomProperty {
     param (
         [Parameter(Mandatory,ValueFromPipeline)]$Node,
-        [Switch]$UseIPAddress = $true,
+        [Switch]$UseIPAddress,
         [Switch]$PassThru
     )
     process {
