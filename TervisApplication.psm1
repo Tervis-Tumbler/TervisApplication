@@ -39,7 +39,8 @@ function Get-TervisApplicationNode {
                 if ($IncludeVM) {
                     if ($applicationdefinition.ComputeType -eq "OracleVM") {
                         $Node | Add-NodeOracleVMProperty
-                    } else {
+                    }
+                    Else{
                         $Node | Add-Member -MemberType NoteProperty -Name VMSizeName -Value $Environment.VMSizeName
                         $Node | Add-NodeVMProperty
                     }
@@ -52,12 +53,12 @@ function Get-TervisApplicationNode {
                 if ($IncludeSFTSession) {
                     $Node | Add-SFTPSessionCustomProperty
                 }
-
                 if ($applicationdefinition.ComputeType -eq "OracleVM") {
                     $Node | 
                     Add-OVMNodeIPAddressProperty -PassThru |
                     Add-NodeCredentialProperty -PassThru
-                } else {
+                }
+                else {
                     $Node | 
                     Add-NodeIPAddressProperty -PassThru |
                     Add-NodeCredentialProperty -PassThru
@@ -84,12 +85,12 @@ function Add-NodeIPAddressProperty {
                     [system.net.dns]::GetHostAddresses($This.ComputerName) |
                     Select-Object -ExpandProperty IPAddressToString
                 } else {
-                    Find-DHCPServerv4LeaseIPAddress -HostName $This.ComputerName -AsString |
-                    Select-Object -First 1    
-                }                    
+                Find-DHCPServerv4LeaseIPAddress -HostName $This.ComputerName -AsString |
+                Select-Object -First 1
             }
         }
-        if ($PassThru) { $Node }
+    }
+    if ($PassThru) { $Node }
     }
 }
 
@@ -186,13 +187,18 @@ function Invoke-ApplicationNodeProvision {
             $Node | Add-SSHSessionCustomProperty -UseIPAddress
             $Node | Set-LinuxTimeZone -Country US -ZoneName East
             $Node | Set-LinuxHostname
+            $Node | Set-LinuxHostsFile
             $Node | Add-ApplicationNodeDnsServerResourceRecord
 
             Install-PacmanTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
         }
-        if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "OEL-75-Template") {
-            $Node | Add-SSHSessionCustomProperty
+        if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "OEL-7-Template") {
+            $TemplateCredential = Get-PasswordstateCredential -PasswordID 5329
+            Set-LinuxAccountPassword -ComputerName $Node.IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential
+            $Node | Add-SSHSessionCustomProperty -UseIPAddress
             $Node | Set-LinuxTimeZone -Country US -ZoneName East
+            $Node | Set-LinuxHostname
+            $Node | Set-LinuxHostsFile
             $Node | Add-ApplicationNodeDnsServerResourceRecord
             Install-YumTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
             $Node | Join-LinuxToADDomain
