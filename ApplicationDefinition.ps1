@@ -700,14 +700,14 @@
     ComputeType = "OracleVM"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
-        NumberOfNodes = 2
+        NumberOfNodes = 1
         VMSizeName = "Medium"
         LocalAdminPasswordStateID = 5361
         OracleUserCredential = 4312
         ApplmgrUserCredential = 4311
         OracleSMBShareADCredential = 4169
     }
-    VMOperatingSystemTemplateName = "OEL-75-Template"
+    VMOperatingSystemTemplateName = "OEL-7-Template"
 },
 [PSCustomObject][Ordered]@{
     Name = "SMTPRelay"
