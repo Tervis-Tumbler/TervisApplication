@@ -692,7 +692,7 @@ function Add-SSHSessionCustomProperty {
 
             #$ComputerName = if ($UseIPAddress -or -not $ComputerNamePingable) {$This.IPAddress} else {$This.ComputerName}
             
-            $ComputerName = if ($UseIPAddress) {$This.IPAddress}
+            $ComputerName = if ($UseIPAddress) {$This.IPAddress} else {$This.Computername}
             $SSHSession = Get-SSHSession -ComputerName $ComputerName
             if ($SSHSession -and $SSHSession.Connected -eq $true) {
                 $SSHSession
