@@ -192,14 +192,14 @@ function Invoke-ApplicationNodeProvision {
 
             Install-PacmanTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
         }
-        if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "OEL-7-Template") {
+        if ($ApplicationDefinition.VMOperatingSystemTemplateName -match "OEL") {
             $TemplateCredential = Get-PasswordstateCredential -PasswordID 5329
             Set-LinuxAccountPassword -ComputerName $Node.IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential
+            $Node | Add-ApplicationNodeDnsServerResourceRecord
             $Node | Add-SSHSessionCustomProperty -UseIPAddress
             $Node | Set-LinuxTimeZone -Country US -ZoneName East
             $Node | Set-LinuxHostname
-            $Node | Set-LinuxHostsFile
-            $Node | Add-ApplicationNodeDnsServerResourceRecord
+#            $Node | Set-LinuxHostsFile
             Install-YumTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
             $Node | Join-LinuxToADDomain
         }
