@@ -197,6 +197,7 @@ function Invoke-ApplicationNodeProvision {
             Set-LinuxAccountPassword -ComputerName $Node.IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential
             $Node | Add-ApplicationNodeDnsServerResourceRecord
             $Node | Add-SSHSessionCustomProperty -UseIPAddress
+            $Node | Add-SFTPSessionCustomProperty -UseIPAddress
             $Node | Set-LinuxTimeZone -Country US -ZoneName East
             $Node | Set-LinuxHostname
 #            $Node | Set-LinuxHostsFile
@@ -707,7 +708,7 @@ function Add-SSHSessionCustomProperty {
 function Add-SFTPSessionCustomProperty {
     param (
         [Parameter(Mandatory,ValueFromPipeline)]$Node,
-        [Switch]$UseIPAddress = $true,
+        [Switch]$UseIPAddress,
         [Switch]$PassThru
     )
     process {
@@ -721,7 +722,7 @@ function Add-SFTPSessionCustomProperty {
                 if ($SFTPSession) { $SFTPSession | Remove-SFTPSession | Out-Null }                
                 New-SFTPSession -ComputerName $ComputerName -Credential $This.Credential -AcceptKey
             }
-        } -PassThru:$PassThru 
+        }.GetNewClosure() -PassThru:$PassThru 
     }
 }
 
@@ -751,4 +752,3 @@ function Add-ApplicationNodeDnsServerResourceRecord {
         Add-DnsServerResourceRecord -ZoneName $ZoneName -ComputerName $DNSServerComputerName -IPv4Address $IPAddress -Name $ComputerName -A
     }
 }
-
