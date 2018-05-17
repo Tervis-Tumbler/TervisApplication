@@ -756,5 +756,17 @@
         LocalAdminPasswordStateID = 5178
     }
     VMOperatingSystemTemplateName = "Arch Linux"
+},
+[PSCustomObject][Ordered]@{
+    Name = "AzureADConnector"
+    NodeNameRoot = "AADConn"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 5414
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
 }
 

@@ -201,6 +201,7 @@ function Invoke-ApplicationNodeProvision {
             $Node | Set-LinuxTimeZone -Country US -ZoneName East
             $Node | Set-LinuxHostname
 #            $Node | Set-LinuxHostsFile
+            Sleep 10
             Install-YumTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
             $Node | Join-LinuxToADDomain
         }
