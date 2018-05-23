@@ -204,6 +204,7 @@ function Invoke-ApplicationNodeProvision {
             Sleep 10
             Install-YumTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
             $Node | Join-LinuxToADDomain
+            $Node | Set-LinuxSSSDConfig
         }
     }
 }
@@ -753,3 +754,5 @@ function Add-ApplicationNodeDnsServerResourceRecord {
         Add-DnsServerResourceRecord -ZoneName $ZoneName -ComputerName $DNSServerComputerName -IPv4Address $IPAddress -Name $ComputerName -A
     }
 }
+
+
