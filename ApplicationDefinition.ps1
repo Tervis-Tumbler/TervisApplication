@@ -768,5 +768,16 @@
         LocalAdminPasswordStateID = 5414
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "Passwordstate"
+    NodeNameRoot = "PWState"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 5425
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
 }
-
