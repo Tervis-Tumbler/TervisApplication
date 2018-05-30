@@ -198,7 +198,7 @@ function Invoke-ApplicationNodeProvision {
             $Node | Add-ApplicationNodeDnsServerResourceRecord
             $Node | Add-SSHSessionCustomProperty -UseIPAddress
             $Node | Add-SFTPSessionCustomProperty -UseIPAddress
-            $Node | Set-LinuxTimeZone -Country US -ZoneName East
+            $Node | Set-LinuxTimeZone -Country US -ZoneName Eastern
             $Node | Set-LinuxHostname
 #            $Node | Set-LinuxHostsFile
             Sleep 10
