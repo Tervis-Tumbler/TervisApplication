@@ -53,6 +53,7 @@ function Get-TervisApplicationNode {
                 if ($IncludeSFTSession) {
                     $Node | Add-SFTPSessionCustomProperty
                 }
+
                 if ($applicationdefinition.ComputeType -eq "OracleVM") {
                     $Node | 
                     Add-OVMNodeIPAddressProperty -PassThru |
@@ -718,10 +719,17 @@ function Add-NodeCredentialProperty {
         [Switch]$PassThru
     )
     process {
-        $Node |
-        Add-Member -MemberType ScriptProperty -Name Credential -Force -Value {
-            Get-PasswordstateCredential -PasswordID $This.LocalAdminPasswordStateID
-        } -PassThru:$PassThru 
+        if ($Node.LocalAdminPasswordStateID) {
+            $Node |
+            Add-Member -MemberType ScriptProperty -Name Credential -Force -Value {
+                Get-PasswordstatePassword -AsCredential -ID $This.LocalAdminPasswordStateID
+            } -PassThru:$PassThru 
+        } else {
+            $Node | New-TervisPasswordStateApplicationPassword -Type LocalAdministrator | Out-Null
+            $Node | Add-Member -MemberType ScriptProperty -Name Credential -Force -Value {
+                $This | Get-TervisPasswordStateApplicationPassword -Type LocalAdministrator -AsCredential
+            } -PassThru:$PassThru 
+        }
     }
 }
 
