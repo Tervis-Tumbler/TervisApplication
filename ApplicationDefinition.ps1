@@ -780,4 +780,15 @@
         LocalAdminPasswordStateID = 5425
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "PowerShellApplicationNode"
+    NodeNameRoot = "PSApp"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Production"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
 }
