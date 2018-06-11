@@ -782,8 +782,8 @@
     VMOperatingSystemTemplateName = "Windows Server 2016"
 },
 [PSCustomObject][Ordered]@{
-    Name = "PowerShellApplicationNode"
-    NodeNameRoot = "PSApp"
+    Name = "UniversalDashboard"
+    NodeNameRoot = "UD"
     ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Production"
