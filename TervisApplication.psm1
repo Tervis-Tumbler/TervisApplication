@@ -53,7 +53,6 @@ function Get-TervisApplicationNode {
                 if ($IncludeSFTSession) {
                     $Node | Add-SFTPSessionCustomProperty
                 }
-
                 if ($applicationdefinition.ComputeType -eq "OracleVM") {
                     $Node | 
                     Add-OVMNodeIPAddressProperty -PassThru |
@@ -148,8 +147,8 @@ function Invoke-ApplicationNodeProvision {
             $Node | Add-IPAddressToWSManTrustedHosts
         
             $IPAddress = $Node.IPAddress
-            $TemplateCredential = Get-PasswordstateCredential -PasswordID 4097
-            $Credential = Get-PasswordstateCredential -PasswordID $Node.LocalAdminPasswordStateID
+            $TemplateCredential = Get-PasswordstatePassword -ID 4097 -AsCredential
+            $Credential = Get-PasswordstatePassword -ID $Node.LocalAdminPasswordStateID -AsCredential
             Set-TervisLocalAdministratorPassword -ComputerName $IPAddress -Credential $TemplateCredential -NewCredential $Credential
             Enable-TervisNetFirewallRuleGroup -Name $Node.ApplicationName -ComputerName $IPAddress -Credential $Credential
             Invoke-TervisRenameComputerOnOrOffDomain -ComputerName $Node.ComputerName -IPAddress $IPAddress -Credential $Credential       
@@ -174,7 +173,7 @@ function Invoke-ApplicationNodeProvision {
             Set-WINRMHTTPInTCPPublicRemoteAddressToLocalSubnet -ComputerName $Node.ComputerName
         }
         if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "CentOS 7") {
-            $TemplateCredential = Get-PasswordstateCredential -PasswordID 3948
+            $TemplateCredential = Get-PasswordstatePassword -ID 3948 -AsCredential
             Set-LinuxAccountPassword -ComputerName $Node.IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential
             $Node | Add-SSHSessionCustomProperty
             Install-YumTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
@@ -183,7 +182,7 @@ function Invoke-ApplicationNodeProvision {
             $Node | Join-LinuxToADDomain
         }
         if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "Arch Linux") {
-            $TemplateCredential = Get-PasswordstateCredential -PasswordID 5183
+            $TemplateCredential = Get-PasswordstatePassword -ID 5183 -AsCredential
             New-LinuxUser -ComputerName $Node.IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential -Administrator
             $Node | Add-SSHSessionCustomProperty -UseIPAddress
             $Node | Set-LinuxTimeZone -Country US -ZoneName East
@@ -194,7 +193,7 @@ function Invoke-ApplicationNodeProvision {
             Install-PacmanTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
         }
         if ($ApplicationDefinition.VMOperatingSystemTemplateName -match "OEL") {
-            $TemplateCredential = Get-PasswordstateCredential -PasswordID 5329
+            $TemplateCredential = Get-PasswordstatePassword -ID 5329 -AsCredential
             Set-LinuxAccountPassword -ComputerName $Node.IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential
             $Node | Add-ApplicationNodeDnsServerResourceRecord
             $Node | Add-SSHSessionCustomProperty -UseIPAddress
@@ -393,7 +392,7 @@ function Invoke-TervisJoinDomain {
         $Credential        
     )
     $ADDomain = Get-ADDomain
-    $DomainJoinCredential = Get-PasswordstateCredential -PasswordID 2643
+    $DomainJoinCredential = Get-PasswordstatePassword -ID 2643 -AsCredential
 
     $CurrentDomainName = Get-DomainNameOnOrOffDomain -ComputerName $ComputerName -IPAddress $IPAddress -Credential $Credential
     if ($CurrentDomainName -ne $ADDomain.DNSRoot) {
@@ -478,7 +477,7 @@ function Invoke-ApplicationNodeVMProvision {
             Out-Null
         }
         $Node | Add-NodeVMProperty -PassThru | Add-NodeIPAddressProperty
-        $VMTemplateCredential = Get-PasswordstateCredential -PasswordID 4097
+        $VMTemplateCredential = Get-PasswordstatePassword -PasswordID 4097 -AsCredential
         Wait-ForNodeRestart -ComputerName $Node.IPAddress -Credential $VMTemplateCredential
     }
 }
