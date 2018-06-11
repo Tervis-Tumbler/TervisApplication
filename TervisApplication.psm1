@@ -148,11 +148,10 @@ function Invoke-ApplicationNodeProvision {
         
             $IPAddress = $Node.IPAddress
             $TemplateCredential = Get-PasswordstatePassword -ID 4097 -AsCredential
-            $Credential = Get-PasswordstatePassword -ID $Node.LocalAdminPasswordStateID -AsCredential
-            Set-TervisLocalAdministratorPassword -ComputerName $IPAddress -Credential $TemplateCredential -NewCredential $Credential
-            Enable-TervisNetFirewallRuleGroup -Name $Node.ApplicationName -ComputerName $IPAddress -Credential $Credential
-            Invoke-TervisRenameComputerOnOrOffDomain -ComputerName $Node.ComputerName -IPAddress $IPAddress -Credential $Credential       
-            Invoke-TervisApplicationNodeJoinDomain -IPAddress $IPAddress -Credential $Credential -Node $Node
+            Set-TervisLocalAdministratorPassword -ComputerName $IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential
+            Enable-TervisNetFirewallRuleGroup -Name $Node.ApplicationName -ComputerName $IPAddress -Credential $Node.Credential
+            Invoke-TervisRenameComputerOnOrOffDomain -ComputerName $Node.ComputerName -IPAddress $IPAddress -Credential $Node.Credential       
+            Invoke-TervisApplicationNodeJoinDomain -IPAddress $IPAddress -Credential $Node.Credential -Node $Node
             Invoke-GPUpdate -Computer $Node.ComputerName -RandomDelayInMinutes 0
             
             $Node | Set-ApplicationNodeTimeZone
