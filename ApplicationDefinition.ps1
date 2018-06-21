@@ -791,4 +791,15 @@
         VMSizeName = "Medium"
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "CertificateAuthority"
+    NodeNameRoot = "CA"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
 }
