@@ -199,9 +199,9 @@ function Invoke-ApplicationNodeProvision {
             $Node | Add-SFTPSessionCustomProperty -UseIPAddress
             $Node | Set-LinuxTimeZone -Country US -ZoneName Eastern
             $Node | Set-LinuxHostname
-#            $Node | Set-LinuxHostsFile
-            Sleep 30
+            sleep 30
             Install-YumTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
+            $Nodes |  Invoke-ProcessOracleODBEETemplateFiles -Overwrite
             $Node | Join-LinuxToADDomain
         }
     }
