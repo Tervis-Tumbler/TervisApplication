@@ -802,4 +802,15 @@
         VMSizeName = "Medium"
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "nChannelSyncManager"
+    NodeNameRoot = "SyncManager"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Delta"
+        NumberOfNodes = 1
+        VMSizeName = "Small"
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
 }
