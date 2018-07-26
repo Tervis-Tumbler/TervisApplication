@@ -805,7 +805,7 @@
 },
 [PSCustomObject][Ordered]@{
     Name = "nChannelSyncManager"
-    NodeNameRoot = "SyncManager"
+    NodeNameRoot = "SyncMgr"
     ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Delta"
