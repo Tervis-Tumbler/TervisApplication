@@ -1,4 +1,8 @@
-﻿$ModulePath = (Get-Module -ListAvailable TervisApplication).ModuleBase
+﻿$ModulePath = if ($PSScriptRoot) {
+    $PSScriptRoot
+} else {
+    (Get-Module -ListAvailable TervisApplication).ModuleBase
+}
 . $ModulePath\ApplicationDefinition.ps1
 
 function Get-TervisApplicationDefinition {
