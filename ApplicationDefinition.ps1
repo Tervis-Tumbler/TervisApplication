@@ -700,7 +700,7 @@
     ComputeType = "OracleVM"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
-        NumberOfNodes = 2
+        NumberOfNodes = 3
         VMSizeName = "Medium"
         LocalAdminPasswordStateID = 5361
         OracleUserCredential = 5412
@@ -811,6 +811,18 @@
         Name = "Delta"
         NumberOfNodes = 1
         VMSizeName = "Small"
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "NestedHyperVCluster"
+    NodeNameRoot = "NHVC1N"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 2
+        VMSizeName = "Small"
+        LocalAdminPasswordStateID = 5537
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
 }
