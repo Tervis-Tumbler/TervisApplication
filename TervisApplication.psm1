@@ -479,8 +479,6 @@ function Invoke-ApplicationNodeVMProvision {
             Out-Null
         }
         $Node | Add-NodeVMProperty -PassThru | Add-NodeIPAddressProperty
-        $VMTemplateCredential = Get-PasswordstatePassword -PasswordID 4097 -AsCredential
-        Wait-ForNodeRestart -ComputerName $Node.IPAddress -Credential $VMTemplateCredential
     }
 }
 
