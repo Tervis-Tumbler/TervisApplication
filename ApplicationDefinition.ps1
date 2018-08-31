@@ -825,4 +825,15 @@
         LocalAdminPasswordStateID = 5537
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "Windows Subsystem for Linux Server"
+    NodeNameRoot = "WSLS"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+    }
+    VMOperatingSystemTemplateName = "Windows Server Datacenter"
 }
