@@ -834,6 +834,7 @@
         Name = "Infrastructure"
         NumberOfNodes = 1
         VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 5178
     }
     VMOperatingSystemTemplateName = "Windows Server Datacenter"
 }
