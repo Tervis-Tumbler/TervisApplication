@@ -147,7 +147,7 @@ function Invoke-ApplicationNodeProvision {
     process {
         $ApplicationDefinition = Get-TervisApplicationDefinition -Name $Node.ApplicationName
 
-        if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "Windows Server 2016") {
+        if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "Windows Server 2016","Windows Server Datacenter") {
             $Node | Add-IPAddressToWSManTrustedHosts
         
             $IPAddress = $Node.IPAddress
