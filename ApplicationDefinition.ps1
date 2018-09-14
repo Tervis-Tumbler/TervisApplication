@@ -836,4 +836,15 @@
         VMSizeName = "Medium"
     }
     VMOperatingSystemTemplateName = "Windows Server Datacenter"
+},
+[PSCustomObject][Ordered]@{
+    Name = "Sylint"
+    NodeNameRoot = "Sylint"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Large"
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
 }
