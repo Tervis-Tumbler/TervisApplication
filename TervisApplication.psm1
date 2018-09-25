@@ -206,7 +206,9 @@ function Invoke-ApplicationNodeProvision {
             #sleep 120
             $Node | Install-PowershellCoreForLinux
             Install-YumTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
-            Install-YumTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession            
+            $Node | Join-LinuxToADDomain
+            $Node | Invoke-LeaveLinuxADDomain
+            $Node | Join-LinuxToADDomain
         }
     }
 }
