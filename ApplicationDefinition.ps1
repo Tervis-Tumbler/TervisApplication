@@ -710,6 +710,21 @@
     VMOperatingSystemTemplateName = "OEL-75-Template"
 },
 [PSCustomObject][Ordered]@{
+    Name = "OracleWeblogic"
+    NodeNameRoot = "Weblogic"
+    ComputeType = "OracleVM"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 5585
+        OracleUserCredential = 5412
+        ApplmgrUserCredential = 5411
+        OracleSMBShareADCredential = 4169
+    }
+    VMOperatingSystemTemplateName = "OEL-75-Template"
+},
+[PSCustomObject][Ordered]@{
     Name = "SMTPRelay"
     NodeNameRoot = "SMTPRelay"
     ComputeType = "Virtual"
@@ -847,4 +862,16 @@
         VMSizeName = "Large"
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "OpenVPNServer"
+    NodeNameRoot = "OpenVPN"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Small"
+        LocalAdminPasswordStateID = 5584
+    }
+    VMOperatingSystemTemplateName = "CentOS 7"
 }
