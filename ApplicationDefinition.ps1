@@ -874,4 +874,15 @@
         LocalAdminPasswordStateID = 5584
     }
     VMOperatingSystemTemplateName = "CentOS 7"
+},
+[PSCustomObject][Ordered]@{
+    Name = "Jetrion"
+    NodeNameRoot = "Jetrion"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
 }
