@@ -874,4 +874,55 @@
         LocalAdminPasswordStateID = 5584
     }
     VMOperatingSystemTemplateName = "CentOS 7"
+},
+[PSCustomObject][Ordered]@{
+    Name = "MFANPS"
+    NodeNameRoot = "MFANPS"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 5605
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2019"
+},
+[PSCustomObject][Ordered]@{
+    Name = "MFANPSRDGateway"
+    NodeNameRoot = "MFANPSRDG"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 5605
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2019"
+},
+[PSCustomObject][Ordered]@{
+    Name = "MFANPSRDBroker"
+    NodeNameRoot = "MFANPSBR"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 5605
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2019"
+},
+[PSCustomObject][Ordered]@{
+    Name = "AzureMFANPS"
+    NodeNameRoot = "AzMFANPS"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 2
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 5609
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2019"
 }
+
+
+
