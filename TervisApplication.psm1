@@ -147,11 +147,16 @@ function Invoke-ApplicationNodeProvision {
     process {
         $ApplicationDefinition = Get-TervisApplicationDefinition -Name $Node.ApplicationName
 
-        if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "Windows Server 2016","Windows Server Datacenter") {
+        if ($ApplicationDefinition.VMOperatingSystemTemplateName -match "Windows Server"){
             $Node | Add-IPAddressToWSManTrustedHosts
         
             $IPAddress = $Node.IPAddress
-            $TemplateCredential = Get-PasswordstatePassword -ID 4097 -AsCredential
+            if ($applicationdefinition.VMOperatingSystemTemplateName -in  "Windows Server 2016","Windows Server Datacenter"){
+                $TemplateCredential = Get-PasswordstatePassword -ID 4097 -AsCredential
+            }
+            if ($applicationdefinition.VMOperatingSystemTemplateName -in  "Windows Server 2019"){
+                $TemplateCredential = Get-PasswordstatePassword -ID 5604 -AsCredential
+            }
             Set-TervisLocalAdministratorPassword -ComputerName $IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential
             Enable-TervisNetFirewallRuleGroup -Name $Node.ApplicationName -ComputerName $IPAddress -Credential $Node.Credential
             Invoke-TervisRenameComputerOnOrOffDomain -ComputerName $Node.ComputerName -IPAddress $IPAddress -Credential $Node.Credential       
