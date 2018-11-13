@@ -876,8 +876,8 @@
     VMOperatingSystemTemplateName = "CentOS 7"
 },
 [PSCustomObject][Ordered]@{
-    Name = "Jetrion"
-    NodeNameRoot = "Jetrion"
+    Name = "InDesign"
+    NodeNameRoot = "InDesign"
     ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
