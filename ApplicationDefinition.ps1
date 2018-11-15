@@ -884,5 +884,5 @@
         NumberOfNodes = 1
         VMSizeName = "Medium"
     }
-    VMOperatingSystemTemplateName = "Windows Server 2016"
+    VMOperatingSystemTemplateName = "Windows Server 2019"
 }
