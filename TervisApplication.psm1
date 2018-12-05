@@ -22,7 +22,8 @@ function Get-TervisApplicationNode {
         [Switch]$IncludeVM,
         [Switch]$IncludeSSHSession,
         [Switch]$IncludeSFTSession,
-        [Switch]$IncludeCredential = $True #The default was to include this in the past, once we have refactored we can remove the = $True
+        [Switch]$IncludeCredential = $True, #The default was to include this in the past, once we have refactored we can remove the = $True
+        [Switch]$IncludeIPAddress = $True #The default was to include this in the past, once we have refactored we can remove the = $True
     )
     $ApplicationDefinitions = Get-TervisApplicationDefinition -Name $ApplicationName
 
@@ -60,17 +61,16 @@ function Get-TervisApplicationNode {
                 }
 
                 if ($IncludeCredential) {
-                    $Node | Add-NodeCredentialProperty -PassThru
+                    $Node | Add-NodeCredentialProperty
                 }
 
-                if ($applicationdefinition.ComputeType -eq "OracleVM") {
-                    $Node | 
-                    Add-OVMNodeIPAddressProperty -PassThru 
-                    
-                } else {
-                    $Node | 
-                    Add-NodeIPAddressProperty -PassThru
+                if ($IncludeIPAddress -and $applicationdefinition.ComputeType -eq "OracleVM") {
+                    $Node | Add-OVMNodeIPAddressProperty
+                } elseif ($IncludeIPAddress) {
+                    $Node | Add-NodeIPAddressProperty
                 }
+
+                $Node
             }
         }
     }
