@@ -21,7 +21,8 @@ function Get-TervisApplicationNode {
         [String[]]$EnvironmentName,
         [Switch]$IncludeVM,
         [Switch]$IncludeSSHSession,
-        [Switch]$IncludeSFTSession
+        [Switch]$IncludeSFTSession,
+        [Switch]$IncludeCredential = $True #The default was to include this in the past, once we have refactored we can remove the = $True
     )
     $ApplicationDefinitions = Get-TervisApplicationDefinition -Name $ApplicationName
 
@@ -57,15 +58,18 @@ function Get-TervisApplicationNode {
                 if ($IncludeSFTSession) {
                     $Node | Add-SFTPSessionCustomProperty
                 }
+
+                if ($IncludeCredential) {
+                    $Node | Add-NodeCredentialProperty -PassThru
+                }
+
                 if ($applicationdefinition.ComputeType -eq "OracleVM") {
                     $Node | 
-                    Add-OVMNodeIPAddressProperty -PassThru |
-                    Add-NodeCredentialProperty -PassThru
-                }
-                else {
+                    Add-OVMNodeIPAddressProperty -PassThru 
+                    
+                } else {
                     $Node | 
-                    Add-NodeIPAddressProperty -PassThru |
-                    Add-NodeCredentialProperty -PassThru
+                    Add-NodeIPAddressProperty -PassThru
                 }
             }
         }
@@ -89,12 +93,12 @@ function Add-NodeIPAddressProperty {
                     [system.net.dns]::GetHostAddresses($This.ComputerName) |
                     Select-Object -ExpandProperty IPAddressToString
                 } else {
-                Find-DHCPServerv4LeaseIPAddress -HostName $This.ComputerName -AsString |
-                Select-Object -First 1
+                    Find-DHCPServerv4LeaseIPAddress -HostName $This.ComputerName -AsString |
+                    Select-Object -First 1
+                }
             }
         }
-    }
-    if ($PassThru) { $Node }
+        if ($PassThru) { $Node }
     }
 }
 
