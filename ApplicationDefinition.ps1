@@ -710,6 +710,21 @@
     VMOperatingSystemTemplateName = "OEL-75-Template"
 },
 [PSCustomObject][Ordered]@{
+    Name = "OracleIAS"
+    NodeNameRoot = "IAS"
+    ComputeType = "OracleVM"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 5361
+        OracleUserCredential = 5412
+        ApplmgrUserCredential = 5411
+        OracleSMBShareADCredential = 4169
+    }
+    VMOperatingSystemTemplateName = "OEL-75-Template"
+},
+[PSCustomObject][Ordered]@{
     Name = "OracleWeblogic"
     NodeNameRoot = "Weblogic"
     ComputeType = "OracleVM"
