@@ -900,4 +900,15 @@
         VMSizeName = "Medium"
     }
     VMOperatingSystemTemplateName = "Windows Server 2019"
+},
+[PSCustomObject][Ordered]@{
+    Name = "Exchange"
+    NodeNameRoot = "exchange"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Large"
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2019"
 }
