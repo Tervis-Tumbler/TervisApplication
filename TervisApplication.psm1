@@ -114,6 +114,40 @@ function Add-NodeVMProperty {
     }
 }
 
+# function Invoke-ApplicationProvisionPowerShellCore {
+#     param (
+#         [Parameter(Mandatory)]$ApplicationName,
+#         $EnvironmentName,
+#         [Switch]$SkipInstallTervisChocolateyPackages
+#     )
+#     Import-WinModule ActiveDirectory,
+#         DhcpServer,
+#         FailoverClusters,
+#         Get-SPN,
+#         hyper-V,
+#         Microsoft.PowerShell.Management,
+#         Microsoft.PowerShell.Utility,
+#         PackageManagement,
+#         PasswordstatePowerShell,
+#         PowerShellGet,
+#         StringPowerShell,
+#         TervisApplication,
+#         TervisCluster,
+#         TervisDHCP,
+#         TervisEnvironment,
+#         TervisMicrosoft.PowerShell.Utility,
+#         TervisPasswordstatePowershell,
+#         TervisPowerShellJobs,
+#         TervisRemoteDesktopManager,
+#         TervisVirtualization,
+#         WebServicesPowerShellProxyBuilder
+
+#         #PSReadline,
+#         #PSScheduledJob,
+#         #PSWorkflow,
+#     Invoke-ApplicationProvision @PSBoundParameters
+# }
+
 function Invoke-ApplicationProvision {
     [CmdletBinding(SupportsShouldProcess)]
     param (
