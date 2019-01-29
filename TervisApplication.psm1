@@ -184,34 +184,36 @@ function Invoke-ApplicationNodeProvision {
 
             Set-WINRMHTTPInTCPPublicRemoteAddressToLocalSubnet -ComputerName $Node.ComputerName
         }
-        if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "CentOS 7") {
-            $TemplateCredential = Get-PasswordstatePassword -ID 3948 -AsCredential
+
+        if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "CentOS 7","Arch Linux","OEL","Debian 9") {
+            
+            $OSToPasswordStatePasswordIDMap = @{
+                "CentOS 7" = 3948
+                "Arch Linux" = 5183
+                "OEL" = 5329
+                "Debian 9" = 5694
+            }
+
+            $TemplateCredential = Get-PasswordstatePassword -ID $OSToPasswordStatePasswordIDMap.$($ApplicationDefinition.VMOperatingSystemTemplateName) -AsCredential
             Set-LinuxAccountPassword -ComputerName $Node.IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential
-            $Node | Add-SSHSessionCustomProperty
-            Install-YumTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
-            $Node | Set-LinuxHostname
+            $Node | Add-SSHSessionCustomProperty -UseIPAddress
+            $Node | Set-LinuxHostname 
             $Node | Add-ApplicationNodeDnsServerResourceRecord
+        }
+
+        if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "CentOS 7") {
+            Install-YumTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
             $Node | Join-LinuxToADDomain
         }
         if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "Arch Linux") {
-            $TemplateCredential = Get-PasswordstatePassword -ID 5183 -AsCredential
             New-LinuxUser -ComputerName $Node.IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential -Administrator
-            $Node | Add-SSHSessionCustomProperty -UseIPAddress
             $Node | Set-LinuxTimeZone -Country US -ZoneName East
-            $Node | Set-LinuxHostname
             $Node | Set-LinuxHostsFile
-            $Node | Add-ApplicationNodeDnsServerResourceRecord
-
             Install-PacmanTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
         }
         if ($ApplicationDefinition.VMOperatingSystemTemplateName -match "OEL") {
-            $TemplateCredential = Get-PasswordstatePassword -ID 5329 -AsCredential
-            Set-LinuxAccountPassword -ComputerName $Node.IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential
-            $Node | Add-ApplicationNodeDnsServerResourceRecord
-            $Node | Add-SSHSessionCustomProperty -UseIPAddress
             $Node | Add-SFTPSessionCustomProperty -UseIPAddress
             $Node | Set-LinuxTimeZone -Country US -ZoneName Eastern
-            $Node | Set-LinuxHostname
             #sleep 120
             $Node | Install-PowershellCoreForLinux
             Install-YumTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
