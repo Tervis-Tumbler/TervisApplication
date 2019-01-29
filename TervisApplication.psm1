@@ -150,15 +150,16 @@ function Invoke-ApplicationNodeProvision {
     )
     process {
         $ApplicationDefinition = Get-TervisApplicationDefinition -Name $Node.ApplicationName
+        $VMOperatingSystemTemplateName = $ApplicationDefinition.VMOperatingSystemTemplateName
 
-        if ($ApplicationDefinition.VMOperatingSystemTemplateName -match "Windows Server"){
+        if ($VMOperatingSystemTemplateName -match "Windows Server"){
             $Node | Add-IPAddressToWSManTrustedHosts
         
             $IPAddress = $Node.IPAddress
-            if ($applicationdefinition.VMOperatingSystemTemplateName -in  "Windows Server 2016","Windows Server Datacenter"){
+            if ($VMOperatingSystemTemplateName -in  "Windows Server 2016","Windows Server Datacenter"){
                 $TemplateCredential = Get-PasswordstatePassword -ID 4097 -AsCredential
             }
-            if ($applicationdefinition.VMOperatingSystemTemplateName -in  "Windows Server 2019"){
+            if ($VMOperatingSystemTemplateName -in  "Windows Server 2019"){
                 $TemplateCredential = Get-PasswordstatePassword -ID 5604 -AsCredential
             }
             Set-TervisLocalAdministratorPassword -ComputerName $IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential
@@ -184,9 +185,11 @@ function Invoke-ApplicationNodeProvision {
 
             Set-WINRMHTTPInTCPPublicRemoteAddressToLocalSubnet -ComputerName $Node.ComputerName
         }
-
-        if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "CentOS 7","Arch Linux","OEL","Debian 9") {
-            
+        
+        if (
+            ($VMOperatingSystemTemplateName -in "CentOS 7","Arch Linux","Debian 9") -or 
+            ($VMOperatingSystemTemplateName -match "OEL")
+        ) {
             $OSToPasswordStatePasswordIDMap = @{
                 "CentOS 7" = 3948
                 "Arch Linux" = 5183
@@ -194,24 +197,32 @@ function Invoke-ApplicationNodeProvision {
                 "Debian 9" = 5694
             }
 
-            $TemplateCredential = Get-PasswordstatePassword -ID $OSToPasswordStatePasswordIDMap.$($ApplicationDefinition.VMOperatingSystemTemplateName) -AsCredential
+            $TemplateCredential = Get-PasswordstatePassword -ID $OSToPasswordStatePasswordIDMap.$VMOperatingSystemTemplateName -AsCredential
+        }
+
+        if ($VMOperatingSystemTemplateName -in "CentOS 7") {
             Set-LinuxAccountPassword -ComputerName $Node.IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential
             $Node | Add-SSHSessionCustomProperty -UseIPAddress
             $Node | Set-LinuxHostname 
             $Node | Add-ApplicationNodeDnsServerResourceRecord
-        }
-
-        if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "CentOS 7") {
             Install-YumTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
             $Node | Join-LinuxToADDomain
         }
-        if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "Arch Linux") {
+        if ($VMOperatingSystemTemplateName -in "Arch Linux") {
+            Set-LinuxAccountPassword -ComputerName $Node.IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential
+            $Node | Add-SSHSessionCustomProperty -UseIPAddress
+            $Node | Set-LinuxHostname 
+            $Node | Add-ApplicationNodeDnsServerResourceRecord
             New-LinuxUser -ComputerName $Node.IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential -Administrator
             $Node | Set-LinuxTimeZone -Country US -ZoneName East
             $Node | Set-LinuxHostsFile
             Install-PacmanTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
         }
-        if ($ApplicationDefinition.VMOperatingSystemTemplateName -match "OEL") {
+        if ($VMOperatingSystemTemplateName -match "OEL") {
+            Set-LinuxAccountPassword -ComputerName $Node.IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential
+            $Node | Add-SSHSessionCustomProperty -UseIPAddress
+            $Node | Set-LinuxHostname 
+            $Node | Add-ApplicationNodeDnsServerResourceRecord
             $Node | Add-SFTPSessionCustomProperty -UseIPAddress
             $Node | Set-LinuxTimeZone -Country US -ZoneName Eastern
             #sleep 120
@@ -220,6 +231,9 @@ function Invoke-ApplicationNodeProvision {
             $Node | Join-LinuxToADDomain
             $Node | Invoke-LeaveLinuxADDomain
             $Node | Join-LinuxToADDomain
+        }
+        if ($VMOperatingSystemTemplateName -eq "Debian 9") {
+            Set-LinuxAccountPassword -ComputerName $Node.IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential -UsePSSession
         }
     }
 }
