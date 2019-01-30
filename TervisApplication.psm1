@@ -114,6 +114,40 @@ function Add-NodeVMProperty {
     }
 }
 
+# function Invoke-ApplicationProvisionPowerShellCore {
+#     param (
+#         [Parameter(Mandatory)]$ApplicationName,
+#         $EnvironmentName,
+#         [Switch]$SkipInstallTervisChocolateyPackages
+#     )
+#     Import-WinModule ActiveDirectory,
+#         DhcpServer,
+#         FailoverClusters,
+#         Get-SPN,
+#         hyper-V,
+#         Microsoft.PowerShell.Management,
+#         Microsoft.PowerShell.Utility,
+#         PackageManagement,
+#         PasswordstatePowerShell,
+#         PowerShellGet,
+#         StringPowerShell,
+#         TervisApplication,
+#         TervisCluster,
+#         TervisDHCP,
+#         TervisEnvironment,
+#         TervisMicrosoft.PowerShell.Utility,
+#         TervisPasswordstatePowershell,
+#         TervisPowerShellJobs,
+#         TervisRemoteDesktopManager,
+#         TervisVirtualization,
+#         WebServicesPowerShellProxyBuilder
+
+#         #PSReadline,
+#         #PSScheduledJob,
+#         #PSWorkflow,
+#     Invoke-ApplicationProvision @PSBoundParameters
+# }
+
 function Invoke-ApplicationProvision {
     [CmdletBinding(SupportsShouldProcess)]
     param (
@@ -150,15 +184,16 @@ function Invoke-ApplicationNodeProvision {
     )
     process {
         $ApplicationDefinition = Get-TervisApplicationDefinition -Name $Node.ApplicationName
+        $VMOperatingSystemTemplateName = $ApplicationDefinition.VMOperatingSystemTemplateName
 
-        if ($ApplicationDefinition.VMOperatingSystemTemplateName -match "Windows Server"){
+        if ($VMOperatingSystemTemplateName -match "Windows Server"){
             $Node | Add-IPAddressToWSManTrustedHosts
         
             $IPAddress = $Node.IPAddress
-            if ($applicationdefinition.VMOperatingSystemTemplateName -in  "Windows Server 2016","Windows Server Datacenter"){
+            if ($VMOperatingSystemTemplateName -in  "Windows Server 2016","Windows Server Datacenter"){
                 $TemplateCredential = Get-PasswordstatePassword -ID 4097 -AsCredential
             }
-            if ($applicationdefinition.VMOperatingSystemTemplateName -in  "Windows Server 2019"){
+            if ($VMOperatingSystemTemplateName -in  "Windows Server 2019"){
                 $TemplateCredential = Get-PasswordstatePassword -ID 5604 -AsCredential
             }
             Set-TervisLocalAdministratorPassword -ComputerName $IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential
@@ -184,40 +219,55 @@ function Invoke-ApplicationNodeProvision {
 
             Set-WINRMHTTPInTCPPublicRemoteAddressToLocalSubnet -ComputerName $Node.ComputerName
         }
-        if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "CentOS 7") {
-            $TemplateCredential = Get-PasswordstatePassword -ID 3948 -AsCredential
+        
+        if (
+            ($VMOperatingSystemTemplateName -in "CentOS 7","Arch Linux","Debian 9") -or 
+            ($VMOperatingSystemTemplateName -match "OEL")
+        ) {
+            $OSToPasswordStatePasswordIDMap = @{
+                "CentOS 7" = 3948
+                "Arch Linux" = 5183
+                "OEL" = 5329
+                "Debian 9" = 5694
+            }
+
+            $TemplateCredential = Get-PasswordstatePassword -ID $OSToPasswordStatePasswordIDMap.$VMOperatingSystemTemplateName -AsCredential
+        }
+
+        if ($VMOperatingSystemTemplateName -in "CentOS 7") {
             Set-LinuxAccountPassword -ComputerName $Node.IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential
-            $Node | Add-SSHSessionCustomProperty
-            Install-YumTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
-            $Node | Set-LinuxHostname
+            $Node | Add-SSHSessionCustomProperty -UseIPAddress
+            $Node | Set-LinuxHostname 
             $Node | Add-ApplicationNodeDnsServerResourceRecord
+            Install-YumTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
             $Node | Join-LinuxToADDomain
         }
-        if ($ApplicationDefinition.VMOperatingSystemTemplateName -in "Arch Linux") {
-            $TemplateCredential = Get-PasswordstatePassword -ID 5183 -AsCredential
-            New-LinuxUser -ComputerName $Node.IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential -Administrator
+        if ($VMOperatingSystemTemplateName -in "Arch Linux") {
+            Set-LinuxAccountPassword -ComputerName $Node.IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential
             $Node | Add-SSHSessionCustomProperty -UseIPAddress
-            $Node | Set-LinuxTimeZone -Country US -ZoneName East
-            $Node | Set-LinuxHostname
-            $Node | Set-LinuxHostsFile
+            $Node | Set-LinuxHostname 
             $Node | Add-ApplicationNodeDnsServerResourceRecord
-
+            New-LinuxUser -ComputerName $Node.IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential -Administrator
+            $Node | Set-LinuxTimeZone -Country US -ZoneName East
+            $Node | Set-LinuxHostsFile
             Install-PacmanTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
         }
-        if ($ApplicationDefinition.VMOperatingSystemTemplateName -match "OEL") {
-            $TemplateCredential = Get-PasswordstatePassword -ID 5329 -AsCredential
+        if ($VMOperatingSystemTemplateName -match "OEL") {
             Set-LinuxAccountPassword -ComputerName $Node.IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential
-            $Node | Add-ApplicationNodeDnsServerResourceRecord
             $Node | Add-SSHSessionCustomProperty -UseIPAddress
+            $Node | Set-LinuxHostname 
+            $Node | Add-ApplicationNodeDnsServerResourceRecord
             $Node | Add-SFTPSessionCustomProperty -UseIPAddress
             $Node | Set-LinuxTimeZone -Country US -ZoneName Eastern
-            $Node | Set-LinuxHostname
             #sleep 120
             $Node | Install-PowershellCoreForLinux
             Install-YumTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
             $Node | Join-LinuxToADDomain
             $Node | Invoke-LeaveLinuxADDomain
             $Node | Join-LinuxToADDomain
+        }
+        if ($VMOperatingSystemTemplateName -eq "Debian 9") {
+            Set-LinuxAccountPassword -ComputerName $Node.IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential -UsePSSession
         }
     }
 }

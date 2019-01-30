@@ -913,6 +913,17 @@
     VMOperatingSystemTemplateName = "Windows Server 2019"
 },
 [PSCustomObject][Ordered]@{
+    Name = "Docker"
+    NodeNameRoot = "Docker"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+    }
+    VMOperatingSystemTemplateName = "Debian 9"
+},
+[PSCustomObject][Ordered]@{
     Name = "ExcelTask"
     NodeNameRoot = "ExcelTask"
     ComputeType = "Virtual"
