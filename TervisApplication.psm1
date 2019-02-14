@@ -807,4 +807,37 @@ function Add-ApplicationNodeDnsServerResourceRecord {
     }
 }
 
-
+function Set-AutoLogonOnNode {
+    param (
+        [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$ComputerName,
+        [Parameter(Mandatory)]$PasswordstateId
+    )
+    process {
+        $AutoLogonCredential = Get-PasswordstatePassword -ID $PasswordstateId -AsCredential
+        Write-Verbose ""
+        Invoke-Command -ComputerName $ComputerName -ArgumentList $AutoLogonCredential -ScriptBlock {
+            param (
+                $Cred
+            )
+            $RegistryPath = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
+            try {
+                New-ItemProperty -Path $RegistryPath -Type String -Name AutoAdminLogon -Value 1 -ErrorAction Stop | Out-Null
+            }
+            catch {
+                Set-ItemProperty -Path $RegistryPath -Type String -Name AutoAdminLogon -Value 1 | Out-Null
+            }
+            try {
+                New-ItemProperty -Path $RegistryPath -Type String -Name DefaultUsername -Value $Cred.Username -ErrorAction Stop | Out-Null
+            }
+            catch {
+                Set-ItemProperty -Path $RegistryPath -Type String -Name DefaultUsername -Value $Cred.Username | Out-Null
+            }
+            try {
+                New-ItemProperty -Path $RegistryPath -Type String -Name DefaultPassword -Value $Cred.GetNetworkCredential().Password -ErrorAction Stop | Out-Null
+            }
+            catch {
+                Set-ItemProperty -Path $RegistryPath -Type String -Name DefaultPassword -Value $Cred.GetNetworkCredential().Password | Out-Null
+            }
+        }
+    }
+}
