@@ -896,7 +896,7 @@
     ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
-        NumberOfNodes = 1
+        NumberOfNodes = 2
         VMSizeName = "Medium"
     }
     VMOperatingSystemTemplateName = "Windows Server 2019"
