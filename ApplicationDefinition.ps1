@@ -382,6 +382,18 @@
     NeedsAccesstoSAN = $true
 },
 [PSCustomObject][Ordered]@{
+    Name = "HyperVCluster5Evergreen"
+    NodeNameRoot = "HyperVC5N"
+    ComputeType = "Physical"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 6
+        LocalAdminPasswordStateID = 4348
+    }
+    VMOperatingSystemTemplateName = "Windows Server Evergreen Physical"
+    NeedsAccesstoSAN = $true
+},
+[PSCustomObject][Ordered]@{
     Name = "HyperVCluster6"
     NodeNameRoot = "HyperVC6N"
     ComputeType = "Physical"
@@ -391,6 +403,18 @@
         LocalAdminPasswordStateID = 4349
     }
     VMOperatingSystemTemplateName = "Windows Server 2016"
+    NeedsAccesstoSAN = $true
+},
+[PSCustomObject][Ordered]@{
+    Name = "HyperVCluster6Evergreen"
+    NodeNameRoot = "HyperVC6N"
+    ComputeType = "Physical"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 2
+        LocalAdminPasswordStateID = 4349
+    }
+    VMOperatingSystemTemplateName = "Windows Server Evergreen Physical"
     NeedsAccesstoSAN = $true
 },
 [PSCustomObject][Ordered]@{
@@ -896,7 +920,7 @@
     ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
-        NumberOfNodes = 2
+        NumberOfNodes = 1
         VMSizeName = "Medium"
     }
     VMOperatingSystemTemplateName = "Windows Server 2019"
