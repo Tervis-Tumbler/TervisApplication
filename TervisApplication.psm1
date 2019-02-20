@@ -196,6 +196,9 @@ function Invoke-ApplicationNodeProvision {
             if ($VMOperatingSystemTemplateName -in  "Windows Server 2019"){
                 $TemplateCredential = Get-PasswordstatePassword -ID 5604 -AsCredential
             }
+            if ($VMOperatingSystemTemplateName -in  "Windows Server Evergreen Physical"){
+                $TemplateCredential = Get-PasswordstatePassword -ID 5709 -AsCredential
+            }
             Set-TervisLocalAdministratorPassword -ComputerName $IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential
             Enable-TervisNetFirewallRuleGroup -Name $Node.ApplicationName -ComputerName $IPAddress -Credential $Node.Credential
             Invoke-TervisRenameComputerOnOrOffDomain -ComputerName $Node.ComputerName -IPAddress $IPAddress -Credential $Node.Credential       
