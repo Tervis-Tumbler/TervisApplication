@@ -724,14 +724,14 @@
     ComputeType = "OracleVM"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
-        NumberOfNodes = 3
+        NumberOfNodes = 1
         VMSizeName = "Medium"
         LocalAdminPasswordStateID = 5361
         OracleUserCredential = 5412
         ApplmgrUserCredential = 5411
         OracleSMBShareADCredential = 4169
     }
-    VMOperatingSystemTemplateName = "OEL-75-Template"
+    VMOperatingSystemTemplateName = "OEL"
 },
 [PSCustomObject][Ordered]@{
     Name = "OracleIAS"
@@ -746,7 +746,7 @@
         ApplmgrUserCredential = 5411
         OracleSMBShareADCredential = 4169
     }
-    VMOperatingSystemTemplateName = "OEL-75-Template"
+    VMOperatingSystemTemplateName = "OEL"
 },
 [PSCustomObject][Ordered]@{
     Name = "OracleWeblogic"
@@ -761,7 +761,7 @@
         ApplmgrUserCredential = 5411
         OracleSMBShareADCredential = 4169
     }
-    VMOperatingSystemTemplateName = "OEL-75-Template"
+    VMOperatingSystemTemplateName = "OEL"
 },
 [PSCustomObject][Ordered]@{
     Name = "SMTPRelay"
