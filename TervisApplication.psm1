@@ -266,8 +266,8 @@ function Invoke-ApplicationNodeProvision {
             $Node | Install-PowershellCoreForLinux
             Install-YumTervisPackageGroup -TervisPackageGroupName $Node.ApplicationName -SSHSession $Node.SSHSession
             $Node | Join-LinuxToADDomain
-            $Node | Invoke-LeaveLinuxADDomain
-            $Node | Join-LinuxToADDomain
+#            $Node | Invoke-LeaveLinuxADDomain
+#            $Node | Join-LinuxToADDomain
         }
         if ($VMOperatingSystemTemplateName -eq "Debian 9") {
             Set-LinuxAccountPassword -ComputerName $Node.IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential -UsePSSession

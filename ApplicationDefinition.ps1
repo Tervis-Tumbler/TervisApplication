@@ -741,7 +741,7 @@
         Name = "Infrastructure"
         NumberOfNodes = 1
         VMSizeName = "Medium"
-        LocalAdminPasswordStateID = 5361
+        LocalAdminPasswordStateID = 5715
         OracleUserCredential = 5412
         ApplmgrUserCredential = 5411
         OracleSMBShareADCredential = 4169
@@ -957,4 +957,15 @@
         VMSizeName = "Small"
     }
     VMOperatingSystemTemplateName = "Windows Server 2019"
+[PSCustomObject][Ordered]@{
+    Name = "LinuxNFSBackupServer"
+    NodeNameRoot = "NFSBackup"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 2
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 5716
+    }
+    VMOperatingSystemTemplateName = "CentOS 7"
 }
