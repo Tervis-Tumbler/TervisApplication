@@ -942,7 +942,7 @@
     ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
-        NumberOfNodes = 2
+        NumberOfNodes = 3
         VMSizeName = "Medium"
     }
     VMOperatingSystemTemplateName = "Debian 9"
