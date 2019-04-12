@@ -270,6 +270,20 @@ function Invoke-ApplicationNodeProvision {
 #            $Node | Join-LinuxToADDomain
         }
         if ($VMOperatingSystemTemplateName -eq "Debian 9") {
+            #Download ssh key file for debian template
+            $TemplateKeyFilePath = "$Home\.ssh\DebianTemplate"
+            Get-PasswordstateDocument -DocumentID 53 -OutFile $TemplateKeyFilePath -DocumentLocation password
+            Get-Content -Path $TemplateKeyFilePath | Out-File -Append -FilePath $Home/.ssh/authorized_keys
+            
+            Invoke-Command -KeyFilePath $TemplateKeyFilePath -ScriptBlock {hostname} -HostName $Node.ComputerName -UserName root
+            $ApplicationSSHPrivateKeyFilePath = "$Home\.ssh\$($Node.ApplicationName)"
+            $ApplicationSSHPublicKeyFilePath = "$ApplicationSSHPrivateKeyFilePath.pub"
+            ssh-keygen -t rsa -b 4096 -f $ApplicationSSHKeyFilePath -N '""'
+            Get-Content -Path $ApplicationSSHPublicKeyFilePath | 
+            ssh "root@$($Node.IPAddress)" 'cat > ~/.ssh/authorized_keys'
+
+            Get-Content -Path $TemplateKeyFilePath | Out-File -Append -FilePath $Home/.ssh/authorized_keys
+
             Set-LinuxAccountPassword -ComputerName $Node.IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential -UsePSSession
         }
     }
