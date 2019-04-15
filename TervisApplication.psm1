@@ -794,8 +794,7 @@ function Add-PSSessionCustomProperty {
     process {
         $Node |
         Add-TervisMember -MemberType ScriptProperty -Name PSSession -Force -CacheValue -Value {
-            $ComputerNamePingable = Test-Connection -ComputerName $This.ComputerName |
-            Select-Object -ExpandProperty PingSucceeded
+            $ComputerNamePingable = Test-Connection -ComputerName $This.ComputerName -Count 1 -ErrorAction SilentlyContinue
 
             $ComputerName = if ($UseIPAddress -or -not $ComputerNamePingable) {$This.IPAddress} else {$This.ComputerName}
 
