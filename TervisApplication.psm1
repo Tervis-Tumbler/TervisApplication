@@ -838,12 +838,12 @@ function Add-NodeCredentialProperty {
     process {
         if ($Node.LocalAdminPasswordStateID) {
             $Node |
-            Add-Member -MemberType ScriptProperty -Name Credential -Force -Value {
+            Add-TervisMember -MemberType ScriptProperty -Name Credential -Force -CacheValue -Value {
                 Get-PasswordstatePassword -AsCredential -ID $This.LocalAdminPasswordStateID
             } -PassThru:$PassThru 
         } else {
             $Node | New-TervisPasswordStateApplicationPassword -Type LocalAdministrator | Out-Null
-            $Node | Add-Member -MemberType ScriptProperty -Name Credential -Force -Value {
+            $Node | Add-TervisMember -MemberType ScriptProperty -Name Credential -Force -CacheValue -Value {
                 $This | Get-TervisPasswordStateApplicationPassword -Type LocalAdministrator -AsCredential
             } -PassThru:$PassThru 
         }
