@@ -21,6 +21,8 @@ function Get-TervisApplicationNode {
         [String[]]$EnvironmentName,
         [Switch]$IncludeVM,
         [Switch]$IncludeSSHSession,
+        [Switch]$IncludePSSession,
+        [Switch]$IncludeSSHKeyFilePath,
         [Switch]$IncludeSFTSession,
         [Switch]$IncludeCredential = $True, #The default was to include this in the past, once we have refactored we can remove the = $True
         [Switch]$IncludeIPAddress = $True #The default was to include this in the past, once we have refactored we can remove the = $True
@@ -38,6 +40,7 @@ function Get-TervisApplicationNode {
                     ComputerName = "$EnvironmentPrefix-$($ApplicationDefinition.NodeNameRoot)$($NodeNumber.tostring("00"))"
                     EnvironmentName = $Environment.Name
                     ApplicationName = $ApplicationDefinition.Name
+                    VMOperatingSystemTemplateName = $ApplicationDefinition.VMOperatingSystemTemplateName
                     NameWithoutPrefix = "$($ApplicationDefinition.NodeNameRoot)$($NodeNumber.tostring("00"))"
                     LocalAdminPasswordStateID = $Environment.LocalAdminPasswordStateID
                 }
@@ -54,6 +57,14 @@ function Get-TervisApplicationNode {
 
                 if ($IncludeSSHSession) {
                     $Node | Add-SSHSessionCustomProperty
+                }
+                
+                if ($IncludePSSession) {
+                    $Node | Add-PSSessionCustomProperty
+                }
+
+                if ($IncludeSSHKeyFilePath) {
+                    $Node | Add-NodeSSHKeyFilePathProperty
                 }
 
                 if ($IncludeSFTSession) {
@@ -83,12 +94,14 @@ function Add-NodeIPAddressProperty {
     )
     process {
         if ($Node.VM) {
-            $Node | Add-Member -MemberType ScriptProperty -Force -Name IPAddress -Value {
+            $Node | 
+            Add-TervisMember -MemberType ScriptProperty -Force -Name IPAddress -CacheValue -Value {
                 $VMNetworkMacAddress = ($This.VM.vmnetworkadapter.MacAddress -replace '..(?!$)', '$&-')
                 Find-DHCPServerv4LeaseIPAddress -MACAddressWithDashes $VMNetworkMacAddress -AsString
             }
         } else {
-            $Node | Add-Member -MemberType ScriptProperty -Force -Name IPAddress -Value {
+            $Node |
+            Add-TervisMember -MemberType ScriptProperty -Force -Name IPAddress -CacheValue -Value {
                 if ($PSVersionTable.Platform -eq "Unix") {
                     [system.net.dns]::GetHostAddresses($This.ComputerName) |
                     Select-Object -ExpandProperty IPAddressToString
@@ -270,7 +283,24 @@ function Invoke-ApplicationNodeProvision {
 #            $Node | Join-LinuxToADDomain
         }
         if ($VMOperatingSystemTemplateName -eq "Debian 9") {
-            Set-LinuxAccountPassword -ComputerName $Node.IPAddress -Credential $TemplateCredential -NewCredential $Node.Credential -UsePSSession
+            #Download ssh key file for debian template
+            $TemplateKeyFilePath = "$Home\.ssh\DebianTemplate"
+            Get-PasswordstateDocument -DocumentID 53 -OutFile $TemplateKeyFilePath -DocumentLocation password
+            Get-Content -Path $TemplateKeyFilePath | Out-File -Append -FilePath $Home/.ssh/authorized_keys
+            
+            Invoke-Command -KeyFilePath $TemplateKeyFilePath -ScriptBlock {hostname} -HostName $Node.ComputerName -UserName root
+            $ApplicationSSHPrivateKeyFilePath = "$Home\.ssh\$($Node.ApplicationName)"
+            $ApplicationSSHPublicKeyFilePath = "$ApplicationSSHPrivateKeyFilePath.pub"
+            ssh-keygen -t rsa -b 4096 -f $ApplicationSSHKeyFilePath -N '""'
+            Get-Content -Path $ApplicationSSHPublicKeyFilePath | 
+            ssh "root@$($Node.IPAddress)" 'cat > ~/.ssh/authorized_keys'
+
+            $Node | Add-PSSessionCustomProperty -UseIPAddress
+            $Node | Set-LinuxHostname 
+            $Session = New-PSSession -HostName inf-docker02 -KeyFilePath $ApplicationSSHPrivateKeyFilePath -UserName root
+            
+            Invoke-Command -Session $Session -ScriptBlock {$(Set-LinuxAccountPasswordCommand -NewCredential $Node.Credential)}
+
         }
     }
 }
@@ -755,6 +785,29 @@ function Add-SSHSessionCustomProperty {
     }
 }
 
+function Add-PSSessionCustomProperty {
+    param (
+        [Parameter(Mandatory,ValueFromPipeline)]$Node,
+        [Switch]$UseIPAddress,
+        [Switch]$PassThru
+    )
+    process {
+        $Node |
+        Add-TervisMember -MemberType ScriptProperty -Name PSSession -Force -CacheValue -Value {
+            $ComputerNamePingable = Test-Connection -ComputerName $This.ComputerName -Count 1 -ErrorAction SilentlyContinue
+
+            $ComputerName = if ($UseIPAddress -or -not $ComputerNamePingable) {$This.IPAddress} else {$This.ComputerName}
+
+            $OperatingSystemIsWindows = $This.VMOperatingSystemTemplateName -match "Windows"
+            if ($OperatingSystemIsWindows) {
+                New-PSSession -ComputerName $ComputerName
+            } elseif (-not $OperatingSystemIsWindows) {
+                New-PSSession -HostName $ComputerName -KeyFilePath $This.SSHKeyFilePath -UserName $This.Credential.UserName
+            }
+        }.GetNewClosure() -PassThru:$PassThru
+    }
+}
+
 function Add-SFTPSessionCustomProperty {
     param (
         [Parameter(Mandatory,ValueFromPipeline)]$Node,
@@ -784,15 +837,30 @@ function Add-NodeCredentialProperty {
     process {
         if ($Node.LocalAdminPasswordStateID) {
             $Node |
-            Add-Member -MemberType ScriptProperty -Name Credential -Force -Value {
+            Add-TervisMember -MemberType ScriptProperty -Name Credential -Force -CacheValue -Value {
                 Get-PasswordstatePassword -AsCredential -ID $This.LocalAdminPasswordStateID
             } -PassThru:$PassThru 
         } else {
             $Node | New-TervisPasswordStateApplicationPassword -Type LocalAdministrator | Out-Null
-            $Node | Add-Member -MemberType ScriptProperty -Name Credential -Force -Value {
+            $Node | Add-TervisMember -MemberType ScriptProperty -Name Credential -Force -CacheValue -Value {
                 $This | Get-TervisPasswordStateApplicationPassword -Type LocalAdministrator -AsCredential
             } -PassThru:$PassThru 
         }
+    }
+}
+
+function Add-NodeSSHKeyFilePathProperty {
+    param (
+        [Parameter(Mandatory,ValueFromPipeline)]$Node,
+        [Switch]$PassThru
+    )
+    process {
+        $KeyFilePath = "$Home\.ssh\$($Node.ApplicationName)"
+        if (-not (Test-Path -Path $KeyFilePath)) {
+
+        }
+
+        $Node | Add-Member -MemberType NoteProperty -Name SSHKeyFilePath -Force -Value $KeyFilePath -PassThru:$PassThru
     }
 }
 
