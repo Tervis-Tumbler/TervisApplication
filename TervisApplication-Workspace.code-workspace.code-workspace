@@ -1,19 +1,19 @@
 {
 	"folders": [
 		{
-			"path": "C:\\Users\\dmohlmaster\\OneDrive - tervis\\Documents\\WindowsPowerShell\\Modules\\TervisApplication"
+			"path": "..\\TervisApplication"
 		},
 		{
-			"path": "C:\\Users\\dmohlmaster\\OneDrive - tervis\\Documents\\WindowsPowerShell\\Modules\\TervisFileserver"
+			"path": "..\\TervisFileserver"
 		},
 		{
-			"path": "C:\\Users\\dmohlmaster\\OneDrive - tervis\\Documents\\WindowsPowerShell\\Modules\\TervisNetSecurity"
+			"path": "..\\TervisNetSecurity"
 		},
 		{
-			"path": "C:\\Users\\dmohlmaster\\OneDrive - tervis\\Documents\\WindowsPowerShell\\Modules\\TervisChocolatey"
+			"path": "..\\TervisChocolatey"
 		},
 		{
-			"path": "C:\\Users\\dmohlmaster\\OneDrive - tervis\\Documents\\WindowsPowerShell\\Modules\\TervisServerManager"
+			"path": "..\\TervisServerManager"
 		}
 	]
 }
