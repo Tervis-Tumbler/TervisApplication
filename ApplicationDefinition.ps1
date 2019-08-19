@@ -937,6 +937,28 @@
     VMOperatingSystemTemplateName = "Windows Server 2019"
 },
 [PSCustomObject][Ordered]@{
+    Name = "VPNTest"
+    NodeNameRoot = "VPNTest"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Large"
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2019"
+},
+[PSCustomObject][Ordered]@{
+    Name = "AlwaysOn"
+    NodeNameRoot = "AlwaysOn"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Large"
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2019"
+},
+[PSCustomObject][Ordered]@{
     Name = "Docker"
     NodeNameRoot = "Docker"
     ComputeType = "Virtual"
