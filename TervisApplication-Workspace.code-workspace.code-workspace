@@ -1,0 +1,19 @@
+{
+	"folders": [
+		{
+			"path": "..\\TervisApplication"
+		},
+		{
+			"path": "..\\TervisFileserver"
+		},
+		{
+			"path": "..\\TervisNetSecurity"
+		},
+		{
+			"path": "..\\TervisChocolatey"
+		},
+		{
+			"path": "..\\TervisServerManager"
+		}
+	]
+}
