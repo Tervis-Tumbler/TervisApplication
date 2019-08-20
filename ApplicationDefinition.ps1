@@ -969,4 +969,16 @@
         LocalAdminPasswordStateID = 5716
     }
     VMOperatingSystemTemplateName = "CentOS 7"
+},
+[PSCustomObject][Ordered]@{
+    Name = "ShopifyInterface"
+    NodeNameRoot = "Shopify"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 5843
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2019"
 }
