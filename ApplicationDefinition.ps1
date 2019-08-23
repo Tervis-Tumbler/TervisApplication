@@ -997,7 +997,7 @@
     NodeNameRoot = "Shopify"
     ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
-        Name = "Infrastructure"
+        Name = "Production"
         NumberOfNodes = 1
         VMSizeName = "Medium"
         LocalAdminPasswordStateID = 5843
