@@ -1001,6 +1001,18 @@
         NumberOfNodes = 1
         VMSizeName = "Medium"
         LocalAdminPasswordStateID = 5843
+    },
+    [PSCustomObject][Ordered]@{
+        Name = "Epsilon"
+        NumberOfNodes = 1
+        VMSizeName = "Small"
+        LocalAdminPasswordStateID = 5869
+    },
+    [PSCustomObject][Ordered]@{
+        Name = "Delta"
+        NumberOfNodes = 1
+        VMSizeName = "Small"
+        LocalAdminPasswordStateID = 5870
     }
     VMOperatingSystemTemplateName = "Windows Server 2019"
 }
