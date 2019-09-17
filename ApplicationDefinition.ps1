@@ -959,6 +959,17 @@
     VMOperatingSystemTemplateName = "Windows Server 2019"
 },
 [PSCustomObject][Ordered]@{
+    Name = "VendorVPN"
+    NodeNameRoot = "VendorVPN"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Large"
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2019"
+},
+[PSCustomObject][Ordered]@{
     Name = "Docker"
     NodeNameRoot = "Docker"
     ComputeType = "Virtual"
