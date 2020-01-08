@@ -459,11 +459,11 @@
     ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
-        NumberOfNodes = 4
+        NumberOfNodes = 2
         VMSizeName = "Large"
         LocalAdminPasswordStateID = 4351
     }
-    VMOperatingSystemTemplateName = "Windows Server 2016"
+    VMOperatingSystemTemplateName = "Windows Server 2019"
 },
 [PSCustomObject][Ordered]@{
     Name = "SFTP"
