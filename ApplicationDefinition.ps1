@@ -294,11 +294,11 @@
     ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
-        NumberOfNodes = 1
+        NumberOfNodes = 2
         VMSizeName = "Large"
         LocalAdminPasswordStateID = 4188
     }
-    VMOperatingSystemTemplateName = "Windows Server 2016"
+    VMOperatingSystemTemplateName = "Windows Server 2019"
 },
 [PSCustomObject][Ordered]@{
     Name = "RemoteDesktopWebAccess"
@@ -306,11 +306,23 @@
     ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
-        NumberOfNodes = 1
+        NumberOfNodes = 2
         VMSizeName = "Large"
         LocalAdminPasswordStateID = 4190
     }
-    VMOperatingSystemTemplateName = "Windows Server 2016"
+    VMOperatingSystemTemplateName = "Windows Server 2019"
+},
+[PSCustomObject][Ordered]@{
+    Name = "RemoteDesktopBroker"
+    NodeNameRoot = "RDBroker"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Large"
+        LocalAdminPasswordStateID = 6326
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2019"
 },
 [PSCustomObject][Ordered]@{
     Name = "SCDPM2016FileServer"
@@ -1024,6 +1036,18 @@
         NumberOfNodes = 1
         VMSizeName = "Small"
         LocalAdminPasswordStateID = 5870
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2019"
+},
+[PSCustomObject][Ordered]@{
+    Name = "RDPJumpBox"
+    NodeNameRoot = "RDPJump"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Large"
+        LocalAdminPasswordStateID = 6327
     }
     VMOperatingSystemTemplateName = "Windows Server 2019"
 }
