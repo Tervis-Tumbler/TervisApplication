@@ -1,4 +1,4 @@
-$ApplicationDefinition = [PSCustomObject][Ordered]@{
+﻿$ApplicationDefinition = [PSCustomObject][Ordered]@{
     Name = "KafkaBroker"
     NodeNameRoot = "Kafka"
     ComputeType = "Virtual"
@@ -1048,6 +1048,91 @@ $ApplicationDefinition = [PSCustomObject][Ordered]@{
         NumberOfNodes = 1
         VMSizeName = "Large"
         LocalAdminPasswordStateID = 6327
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2019"
+},
+[PSCustomObject][Ordered]@{
+    Name = "FedExShipManagerServer"
+    NodeNameRoot = "FedExSMS"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 2
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 5859
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "OELYumRepoServer"
+    NodeNameRoot = "OELRepo"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 2
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 5716
+    }
+    VMOperatingSystemTemplateName = "CentOS 7"
+},
+[PSCustomObject][Ordered]@{
+    Name = "HyperVCluster7"
+    NodeNameRoot = "HyperVC7N"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 6
+        LocalAdminPasswordStateID = 4348
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2019"
+    NeedsAccesstoSAN = $true
+},
+[PSCustomObject][Ordered]@{
+    Name = "RiminiSupport"
+    NodeNameRoot = "RiminiSup"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 5927
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2016"
+},
+[PSCustomObject][Ordered]@{
+    Name = "OracleDR"
+    NodeNameRoot = "OracleDR"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 6360
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2019"
+    NeedsAccesstoSAN = $true
+},
+[PSCustomObject][Ordered]@{
+    Name = "VHDFileServer"
+    NodeNameRoot = "VHDFS"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 6365
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2019"
+},
+[PSCustomObject][Ordered]@{
+    Name = "ParkPlaceMonitor"
+    NodeNameRoot = "PPMonitor"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 6371
     }
     VMOperatingSystemTemplateName = "Windows Server 2019"
 }
