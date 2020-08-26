@@ -1,4 +1,4 @@
-﻿$ApplicationDefinition = [PSCustomObject][Ordered]@{
+$ApplicationDefinition = [PSCustomObject][Ordered]@{
     Name = "KafkaBroker"
     NodeNameRoot = "Kafka"
     ComputeType = "Virtual"
@@ -645,7 +645,7 @@
     VMOperatingSystemTemplateName = "Windows Server 2016"
 },
 [PSCustomObject][Ordered]@{
-    Name = "SCCM2016"
+    Name = "SCCM2019"
     NodeNameRoot = "SCCM"
     ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
@@ -656,7 +656,7 @@
         SQLSAPassword = 5091
         SCCMServiceAccountPassword = 2994
     }
-    VMOperatingSystemTemplateName = "Windows Server 2016"
+    VMOperatingSystemTemplateName = "Windows Server 2019"
 },
 [PSCustomObject][Ordered]@{
     Name = "ZeroTierBridge"
