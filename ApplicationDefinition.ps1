@@ -1165,4 +1165,31 @@
         LocalAdminPasswordStateID = 6374
     }
     VMOperatingSystemTemplateName = "Windows Server 2019"
+},
+[PSCustomObject][Ordered]@{
+    Name = "SCVMM2019"
+    NodeNameRoot = "SCVMM"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Large"
+        LocalAdminPasswordStateID = 6389
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2019"
+},
+[PSCustomObject][Ordered]@{
+    Name = "SCDPM2019"
+    NodeNameRoot = "SCDPM2019"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 6395
+        SQLSAPassword = 4038
+    }
+    DPMServiceAccountPassword = 4037
+    VMOperatingSystemTemplateName = "Windows Server 2019"
+    NeedsAccesstoSAN = $true
 }
