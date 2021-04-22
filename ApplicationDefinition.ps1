@@ -115,7 +115,7 @@
         VMSizeName = "Medium"
         LocalAdminPasswordStateID = 4121
     }
-    VMOperatingSystemTemplateName = "Windows Server 2016"
+    VMOperatingSystemTemplateName = "Windows Server 2019"
 },
 [PSCustomObject][Ordered]@{
     Name = "WCSJavaApplication"
@@ -1184,7 +1184,7 @@
     ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
-        NumberOfNodes = 1
+        NumberOfNodes = 2
         VMSizeName = "Medium"
         LocalAdminPasswordStateID = 6395
         SQLSAPassword = 4038
@@ -1192,4 +1192,16 @@
     DPMServiceAccountPassword = 4037
     VMOperatingSystemTemplateName = "Windows Server 2019"
     NeedsAccesstoSAN = $true
+},
+[PSCustomObject][Ordered]@{
+    Name = "Adaptive"
+    NodeNameRoot = "Adaptive"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Small"
+        LocalAdminPasswordStateID = 6430
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2019"
 }
