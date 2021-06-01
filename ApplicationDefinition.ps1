@@ -1204,4 +1204,14 @@
         LocalAdminPasswordStateID = 6430
     }
     VMOperatingSystemTemplateName = "Windows Server 2019"
-}
+},
+[PSCustomObject][Ordered]@{
+    Name = "NavisionRemoteApp"
+    NodeNameRoot = "NavisionApp"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Production"
+        NumberOfNodes = 1
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 6475
+    }
