@@ -1215,3 +1215,5 @@
         VMSizeName = "Medium"
         LocalAdminPasswordStateID = 6475
     }
+    VMOperatingSystemTemplateName = "Windows Server 2012 R2"
+}
