@@ -1216,4 +1216,17 @@
         LocalAdminPasswordStateID = 6475
     }
     VMOperatingSystemTemplateName = "Windows Server 2012 R2"
+},
+[PSCustomObject]@{
+    Name = "MFTSync"
+    NodeNameRoot = "MFTSync"
+    ComputerType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Small"
+        LocalAdminPasswordStateID = 6482
+    }
+    VMOperatingSystemTemplateName = "Windows Server Core 2019"
+
 }
