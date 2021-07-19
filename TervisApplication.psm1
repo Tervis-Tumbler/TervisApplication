@@ -206,7 +206,7 @@ function Invoke-ApplicationNodeProvision {
             if ($VMOperatingSystemTemplateName -in  "Windows Server 2016","Windows Server Datacenter"){
                 $TemplateCredential = Get-PasswordstatePassword -ID 4097 -AsCredential
             }
-            if ($VMOperatingSystemTemplateName -in  "Windows Server 2019"){
+            if ($VMOperatingSystemTemplateName -in  "Windows Server 2019","Windows Server Core 2019"){
                 $TemplateCredential = Get-PasswordstatePassword -ID 5604 -AsCredential
             }
             if ($VMOperatingSystemTemplateName -in  "Windows Server Evergreen Physical"){

@@ -1218,9 +1218,9 @@
     VMOperatingSystemTemplateName = "Windows Server 2012 R2"
 },
 [PSCustomObject]@{
-    Name = "MFTSync"
-    NodeNameRoot = "MFTSync"
-    ComputerType = "Virtual"
+    Name = "TMFSync"
+    NodeNameRoot = "TMFSync"
+    ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
         NumberOfNodes = 1
