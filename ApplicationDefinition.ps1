@@ -1265,4 +1265,28 @@
         LocalAdminPasswordStateID = 6521
     }
     VMOperatingSystemTemplateName = "CentOS 7"
+},
+[PSCustomObject][Ordered]@{
+    Name = "Packsize"
+    NodeNameRoot = "Packsize"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 2
+        VMSizeName = "small"
+        LocalAdminPasswordStateID = 6535
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2019"
+},
+[PSCustomObject][Ordered]@{
+    Name = "Numina"
+    NodeNameRoot = "Packsize"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 2
+        VMSizeName = "small"
+        LocalAdminPasswordStateID = 6536
+    }
+    VMOperatingSystemTemplateName = "Ubuntu 18.04 - Manual deployment"
 }
