@@ -1229,4 +1229,40 @@
     }
     VMOperatingSystemTemplateName = "Windows Server Core 2019"
 
+},
+[PSCustomObject][Ordered]@{
+    Name = "2019FileServer"
+    NodeNameRoot = "FS2019"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 3
+        VMSizeName = "Medium"
+        LocalAdminPasswordStateID = 6365
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2019"
+},
+[PSCustomObject][Ordered]@{
+    Name = "OpenDNSConnector"
+    NodeNameRoot = "UADConn"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Small"
+        LocalAdminPasswordStateID = 6515
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2019"
+},
+[PSCustomObject][Ordered]@{
+    Name = "EcoStruxureIT"
+    NodeNameRoot = "EcoStrux"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "Small"
+        LocalAdminPasswordStateID = 6521
+    }
+    VMOperatingSystemTemplateName = "CentOS 7"
 }

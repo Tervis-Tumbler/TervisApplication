@@ -203,7 +203,7 @@ function Invoke-ApplicationNodeProvision {
             $Node | Add-IPAddressToWSManTrustedHosts
         
             $IPAddress = $Node.IPAddress
-            if ($VMOperatingSystemTemplateName -in  "Windows Server 2016","Windows Server Datacenter"){
+            if ($VMOperatingSystemTemplateName -in  "Windows Server 2016","Windows Server Datacenter","Windows Server 2012 R2"){
                 $TemplateCredential = Get-PasswordstatePassword -ID 4097 -AsCredential
             }
             if ($VMOperatingSystemTemplateName -in  "Windows Server 2019","Windows Server Core 2019"){
