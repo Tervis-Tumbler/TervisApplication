@@ -225,7 +225,7 @@ function Invoke-ApplicationNodeProvision {
             $Node | New-ApplicationAdministratorPrivilegeADGroup
             $Node | Add-ApplicationAdministratorPrivilegeADGroupToLocalAdministrators
             $Node | Install-ApplicationNodeWindowsFeature
-            $Node | Install-TervisDesiredStateConfiguration
+#            $Node | Install-TervisDesiredStateConfiguration
             
             $Node | Install-TervisChocolatey
 
