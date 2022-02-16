@@ -1289,4 +1289,16 @@
         LocalAdminPasswordStateID = 6536
     }
     VMOperatingSystemTemplateName = "Ubuntu 18.04 - Manual deployment"
+},
+[PSCustomObject][Ordered]@{
+    Name = "Solidworks"
+    NodeNameRoot = "Solidworks"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "small"
+        LocalAdminPasswordStateID = 6547
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2019"
 }
