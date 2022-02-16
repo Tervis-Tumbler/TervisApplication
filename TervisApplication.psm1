@@ -186,7 +186,7 @@ function Invoke-ApplicationProvision {
     }
     
     $Nodes | Invoke-ApplicationNodeProvision -SkipInstallTervisChocolateyPackages:$SkipInstallTervisChocolateyPackages
-    $Nodes | New-TervisApplicationNodeRDMSession
+#    $Nodes | New-TervisApplicationNodeRDMSession
 }
 
 function Invoke-ApplicationNodeProvision {
