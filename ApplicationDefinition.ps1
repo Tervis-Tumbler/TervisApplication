@@ -1301,4 +1301,16 @@
         LocalAdminPasswordStateID = 6547
     }
     VMOperatingSystemTemplateName = "Windows Server 2019"
+},
+[PSCustomObject]@{
+    Name = "ZebraScannerDeploy"
+    NodeNameRoot = "ZebraScan"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 2
+        VMSizeName = "small"
+        LocalAdminPasswordStateID = 6579
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2019"
 }
