@@ -1009,7 +1009,7 @@
     ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
-        NumberOfNodes = 2
+        NumberOfNodes = 1
         VMSizeName = "Medium"
         LocalAdminPasswordStateID = 5716
     }
@@ -1292,7 +1292,7 @@
 },
 [PSCustomObject][Ordered]@{
     Name = "Solidworks"
-    NodeNameRoot = "Solidworks"
+    NodeNameRoot = "Solidwrks"
     ComputeType = "Virtual"
     Environments = [PSCustomObject][Ordered]@{
         Name = "Infrastructure"
@@ -1301,4 +1301,52 @@
         LocalAdminPasswordStateID = 6547
     }
     VMOperatingSystemTemplateName = "Windows Server 2019"
+},
+[PSCustomObject][Ordered]@{
+    Name = "VeeamBackup"
+    NodeNameRoot = "VeeamBK"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "small"
+        LocalAdminPasswordStateID = 6552
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2019"
+},
+[PSCustomObject][Ordered]@{
+    Name = "VeeamProxy"
+    NodeNameRoot = "VeeamPrx"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "small"
+        LocalAdminPasswordStateID = 6552
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2019"
+},
+[PSCustomObject][Ordered]@{
+    Name = "VeeamRepository"
+    NodeNameRoot = "VeeamRep"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "small"
+        LocalAdminPasswordStateID = 6552
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2019"
+},
+[PSCustomObject][Ordered]@{
+    Name = "VeeamLinuxMount"
+    NodeNameRoot = "Veeamlnx"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject][Ordered]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "small"
+        LocalAdminPasswordStateID = 6558
+    }
+    VMOperatingSystemTemplateName = "CentOS 7"
 }
