@@ -1349,4 +1349,28 @@
         LocalAdminPasswordStateID = 6558
     }
     VMOperatingSystemTemplateName = "CentOS 7"
+},
+[PSCustomObject]@{
+    Name = "ZebraScannerDeploy"
+    NodeNameRoot = "ZebraScan"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "small"
+        LocalAdminPasswordStateID = 6579
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2019"
+},
+[PSCustomObject]@{
+    Name = "Microsoft365DataGateway"
+    NodeNameRoot = "DataGW"
+    ComputeType = "Virtual"
+    Environments = [PSCustomObject]@{
+        Name = "Infrastructure"
+        NumberOfNodes = 1
+        VMSizeName = "small"
+        LocalAdminPasswordStateID = 6583
+    }
+    VMOperatingSystemTemplateName = "Windows Server 2019"
 }
